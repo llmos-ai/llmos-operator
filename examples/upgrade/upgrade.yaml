@@ -1,0 +1,13 @@
+apiVersion: management.llmos.ai/v1
+kind: Upgrade
+metadata:
+  name: upgrade-test
+  namespace: llmos-system
+spec:
+  version: v0.1.0-arm64 # The version to upgrade to
+  image: "ghcr.io/llmos-ai/llmos-leap" # The image to use for the upgrade
+  command:
+  - "/usr/sbin/llmos-upgrade"
+  args:
+  - --debug
+  - --force

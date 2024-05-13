@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+# The root directory of the project
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+CONTROLLER_GEN="${CONTROLLER_GEN:-controller-gen}"
+
+out_dir="${ROOT_DIR}/deploy/charts/llmos-crd/templates"
+mkdir -p "${out_dir}"
+
+# Clean up previous CRD manifest YAMLs
+rm -rf "${out_dir}/*.yaml"
+
+echo "Using controller-gen: ${CONTROLLER_GEN}"
+
+# Generate CRD manifest YAMLs
+"${CONTROLLER_GEN}" crd \
+	paths="${ROOT_DIR}/pkg/apis/..." \
+	output:crd:dir="${out_dir}"
+
+# Remove controller-gen version info
+while read -r target_file; do
+	if [[ ! -f ${target_file} ]]; then
+		continue
+	fi
+	if ! sed -i 's/controller-gen\.kubebuilder\.io\/version:.*/{}/g' "${target_file}" >/dev/null 2>&1; then
+		# back off none GNU sed
+		sed -i '' 's/controller-gen\.kubebuilder\.io\/version:.*/{}/g' "${target_file}"
+	fi
+done <<<"$(grep -rl "controller-gen.kubebuilder.io/version:" "${out_dir}")"

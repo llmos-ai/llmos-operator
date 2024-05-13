@@ -1,4 +1,0 @@
-## Append samples of your project ##
-resources:
-- management_v1_upgrade.yaml
-#+kubebuilder:scaffold:manifestskustomizesamples

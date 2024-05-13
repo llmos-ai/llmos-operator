@@ -1,9 +1,0 @@
-apiVersion: management.llmos.ai/v1
-kind: Upgrade
-metadata:
-  labels:
-    app.kubernetes.io/name: llmos-controller
-    app.kubernetes.io/managed-by: kustomize
-  name: upgrade-sample
-spec:
-  # TODO(user): Add fields here

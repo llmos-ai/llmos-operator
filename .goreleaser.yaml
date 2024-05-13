@@ -1,0 +1,91 @@
+version: 1
+
+env:
+  - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ else }}ghcr.io/llmos-ai{{ end }}
+  - BUILDER={{ if index .Env "BUILDER"  }}{{ .Env.BUILDER }}{{ else }}default{{ end }}
+  - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ else }}v0.0.0-dev{{ end }}
+
+snapshot:
+  # https://goreleaser.com/customization/snapshots/
+  name_template: '{{ trimprefix .Summary "v" }}'
+
+checksum:
+  # https://goreleaser.com/customization/checksum/
+  name_template: 'checksums.txt'
+
+builds:
+  - id: "llmos-controller"
+    binary: llmos-controller
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    tags:
+      - netgo
+    ldflags:
+      - -s
+      - -w
+      - -X "github.com/llmos-ai/llmos-controller/version/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos-controller/version/version.Commit={{ .Version }}"
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+dockers:
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    dockerfile: package/Dockerfile
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-amd64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--platform=linux/amd64"
+    extra_files:
+      - package/entrypoint.sh
+
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    dockerfile: package/Dockerfile
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-arm64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--platform=linux/arm64"
+    extra_files:
+      - package/entrypoint.sh
+
+docker_manifests:
+  - use: docker
+    name_template: "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-arm64"
+
+docker_signs:
+  - artifacts: all
+    stdin: "{{ .Env.COSIGN_PASSWORD }}"
+
+dist: dist/cli
