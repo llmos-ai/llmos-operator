@@ -61,8 +61,8 @@ ingress:
 
 resources:
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 200m
+    memory: 250Mi
 
 # Additional volumes on the output Deployment definition.
 volumes: []
@@ -93,3 +93,6 @@ affinity: {}
 
 suc:
   enabled: true
+  image:
+    repository: rancher/system-upgrade-controller:v0.13.4
+    pullPolicy: IfNotPresent
