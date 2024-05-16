@@ -3,6 +3,7 @@ package publicui
 import (
 	"net/http"
 
+	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
 	"github.com/llmos-ai/llmos-controller/pkg/settings"
 	"github.com/llmos-ai/llmos-controller/pkg/utils"
 )
@@ -23,11 +24,11 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, _ *http.Request) {
 
 func getUISource() string {
 	uiSource := settings.UISource.Get()
-	if uiSource == "auto" {
+	if uiSource == ui.SourceAuto {
 		if !settings.IsRelease() {
-			uiSource = "external"
+			uiSource = ui.SourceExternal
 		} else {
-			uiSource = "bundled"
+			uiSource = ui.SourceBundle
 		}
 	}
 	return uiSource

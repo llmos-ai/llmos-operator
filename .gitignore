@@ -29,3 +29,4 @@ bin
 vendor
 tmp
 dist
+.DS_Store

@@ -11,6 +11,7 @@ import (
 
 	"github.com/llmos-ai/llmos-controller/pkg/controller"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
 )
 
 type APIServer struct {
@@ -73,19 +74,19 @@ func NewServer(o Options) (*APIServer, error) {
 		return nil, err
 	}
 
-	// set up a new steve server
+	// register the controller
+	if err = controller.Register(s.ctx, s.mgmt, s.threadiness); err != nil {
+		return nil, err
+	}
+
+	// set up a new api server
 	s.steveServer, err = steve.New(o.Context, restConfig, serverOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = controller.Register(s.ctx, s.mgmt, s.threadiness); err != nil {
-		return nil, err
-	}
-
-	//if err = apischema.Register(opts.Context, s.mgmt, s.steveServer); err != nil {
-	//	return nil, err
-	//}
+	// configure the api ui
+	ui.ConfigureAPIUI(s.steveServer.APIServer)
 
 	return s, nil
 }

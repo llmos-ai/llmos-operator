@@ -16,7 +16,7 @@ var (
 	InjectDefaults string
 	releasePattern = regexp.MustCompile("^v[0-9]")
 
-	APIUIVersion           = NewSetting("api-ui-version", "1.1.10") // Also update the API_UI_VERSION in Dockerfile
+	APIUIVersion           = NewSetting("api-ui-version", "1.1.11") // Also update the API_UI_VERSION in Dockerfile
 	AuthSecretName         = NewSetting("auth-secret-name", "llmos-key-holder")
 	AuthTokenMaxTTLMinutes = NewSetting("auth-token-max-ttl-minutes", "720")
 	FirstLogin             = NewSetting(FirstLoginSettingName, "true")
