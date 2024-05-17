@@ -141,7 +141,7 @@ endif
 
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-controller deploy/charts/llmos-controller --reuse-values --skip-crds
+	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-controller deploy/charts/llmos-controller --reuse-values --skip-crds -f deploy/charts/llmos-controller/values.yaml
 
 .PHONY: uninstall
 uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
@@ -154,7 +154,11 @@ install-crds: manifests ## Install CRDs into the K8s cluster.
 .PHONY: uninstall-crd
 uninstall-crd: ## Uninstall CRDs from the K8s cluster.
 	$(HELM) uninstall -n llmos-system llmos-crd
+
 ##@ Dependencies
+.PHONY: helm-dep
+helm-dep: ## Uninstall CRDs from the K8s cluster.
+	$(HELM) dep update deploy/charts/llmos-controller
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin

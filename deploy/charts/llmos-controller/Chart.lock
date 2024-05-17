@@ -1,0 +1,6 @@
+dependencies:
+- name: ollama
+  repository: file://dependency_charts/ollama
+  version: 0.1.0
+digest: sha256:a98535aba308fd4bb54767ce4ea360c4de6d6569f1c2c2a001c33306abbe8fef
+generated: "2024-05-17T15:40:47.999401+08:00"
