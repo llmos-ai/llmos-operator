@@ -39,9 +39,10 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   httpsPort: 8443
-  profile: 6060
+  httpsNodePort: 30443
+  profilePort: 6060
 
 ingress:
   enabled: false
@@ -94,5 +95,35 @@ affinity: {}
 suc:
   enabled: true
   image:
-    repository: rancher/system-upgrade-controller:v0.13.4
+    repository: "rancher/system-upgrade-controller:v0.13.4"
     pullPolicy: IfNotPresent
+
+ollama:
+  enabled: true
+  fullnameOverride: "llmos-ollama"
+  replicaCount: 1
+
+  image:
+    repository: docker.io/ollama/ollama
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "0.1.38"
+
+  service:
+    type: ClusterIP
+    port: 11434
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  #    nvidia.com/gpu: 1
+  #  limits:
+  #    cpu: 4000m
+  #    memory: 4Gi
+  #    nvidia.com/gpu: 1
+
+  persistent:
+    hostPath: "/var/lib/llmos/ollama"
+    storageSize: "10Gi"
+    storageClassName: "local-path"

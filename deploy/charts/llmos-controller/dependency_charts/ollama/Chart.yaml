@@ -1,6 +1,6 @@
 apiVersion: v2
-name: llmos-controller
-description: A Helm chart for LLMOS Controller
+name: ollama
+description: A Helm chart for Ollma
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -21,10 +21,4 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.1.0"
-
-dependencies:
-  - name: ollama
-    version: 0.1.0
-    repository: "file://dependency_charts/ollama"
-    condition: ollama.enabled
+appVersion: "0.1.38"
