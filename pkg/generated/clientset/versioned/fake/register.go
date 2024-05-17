@@ -18,6 +18,7 @@ limitations under the License.
 package fake
 
 import (
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
 	managementv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,6 +33,7 @@ var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
 	managementv1.AddToScheme,
+	nvidiav1.AddToScheme,
 	upgradev1.AddToScheme,
 }
 

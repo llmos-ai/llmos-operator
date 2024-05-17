@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
+	nvidiav1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/nvidia.com"
 	"github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io"
 )
 
@@ -31,6 +32,7 @@ type Management struct {
 	RbacFactory      *rbacv1.Factory
 	LLMOSMgmtFactory *ctlmgmtv1.Factory
 	UpgradeFactory   *upgrade.Factory
+	NvidiaFactory    *nvidiav1.Factory
 
 	starters []start.Starter
 }
@@ -91,6 +93,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, namespace str
 	}
 	mgmt.UpgradeFactory = upgrade
 	mgmt.starters = append(mgmt.starters, upgrade)
+
+	nvidia, err := nvidiav1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.NvidiaFactory = nvidia
+	mgmt.starters = append(mgmt.starters, nvidia)
 
 	return mgmt, nil
 }

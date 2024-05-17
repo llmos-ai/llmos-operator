@@ -2,5 +2,8 @@ dependencies:
 - name: ollama
   repository: file://dependency_charts/ollama
   version: 0.1.0
-digest: sha256:a98535aba308fd4bb54767ce4ea360c4de6d6569f1c2c2a001c33306abbe8fef
-generated: "2024-05-17T15:40:47.999401+08:00"
+- name: gpu-operator
+  repository: https://helm.ngc.nvidia.com/nvidia
+  version: v24.3.0
+digest: sha256:f649d0e22d2093d4a04e139238fcea2c1b078b50e40eb7cae3b0b8377227e9e9
+generated: "2024-05-17T21:31:10.292851+08:00"

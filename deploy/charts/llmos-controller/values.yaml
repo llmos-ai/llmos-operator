@@ -127,3 +127,8 @@ ollama:
     hostPath: "/var/lib/llmos/ollama"
     storageSize: "10Gi"
     storageClassName: "local-path"
+
+gpu-operator:
+  enable: true
+  toolkit:
+    enabled: false

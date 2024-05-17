@@ -28,3 +28,10 @@ dependencies:
     version: 0.1.0
     repository: "file://dependency_charts/ollama"
     condition: ollama.enabled
+  - name: gpu-operator
+    version: 24.3.0
+    repository: https://helm.ngc.nvidia.com/nvidia
+    condition: gpu-operator.enabled
+    tags:
+      - gpu-operator
+      - nvidia

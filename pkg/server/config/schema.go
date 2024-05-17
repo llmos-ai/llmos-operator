@@ -1,6 +1,7 @@
 package config
 
 import (
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	"github.com/rancher/wrangler/v2/pkg/schemes"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -13,6 +14,7 @@ var (
 	localSchemeBuilder = runtime.SchemeBuilder{
 		mgmtv1.AddToScheme,
 		upgradev1.AddToScheme,
+		nvidiav1.AddToScheme,
 	}
 	AddToScheme = localSchemeBuilder.AddToScheme
 	Scheme      = runtime.NewScheme()
