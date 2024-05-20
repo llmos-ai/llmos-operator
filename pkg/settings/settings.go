@@ -26,12 +26,14 @@ var (
 	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-controller")
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
 	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
+	LocalLLMServerURL      = NewSetting(LocalLLMServerURLSettingName, "http://llmos-ollama.llmos-system:11434")
 )
 
 const (
-	UIPlSettingName       = "ui-pl"
-	UISourceSettingName   = "ui-source"
-	FirstLoginSettingName = "first-login"
+	UIPlSettingName              = "ui-pl"
+	UISourceSettingName          = "ui-source"
+	FirstLoginSettingName        = "first-login"
+	LocalLLMServerURLSettingName = "local-llm-server-url"
 )
 
 func init() {
