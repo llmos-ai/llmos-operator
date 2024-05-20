@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/llmos-ai/llmos-controller/pkg/api/proxy"
 	"github.com/llmos-ai/llmos-controller/pkg/api/publicui"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
 	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
@@ -42,6 +43,9 @@ func (r *Router) Routes() http.Handler {
 		}
 		http.Redirect(rw, req, url, http.StatusFound)
 	})
+
+	localLLMHandler := proxy.NewHandler()
+	m.PathPrefix(proxy.LocalLLMApiPrefix).Handler(localLLMHandler)
 
 	// public handlers
 	publicHandler := publicui.NewPublicHandler()
