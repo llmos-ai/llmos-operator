@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
+	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai"
 	"github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io"
 )
 
@@ -26,11 +27,12 @@ type Management struct {
 	Apply      apply.Apply
 	Scheme     *runtime.Scheme
 
-	CoreFactory      *corev1.Factory
-	AppsFactory      *appsv1.Factory
-	RbacFactory      *rbacv1.Factory
-	LLMOSMgmtFactory *ctlmgmtv1.Factory
-	UpgradeFactory   *upgrade.Factory
+	CoreFactory    *corev1.Factory
+	AppsFactory    *appsv1.Factory
+	RbacFactory    *rbacv1.Factory
+	MgmtFactory    *ctlmgmtv1.Factory
+	UpgradeFactory *upgrade.Factory
+	LLMFactory     *ctlmlv1.Factory
 
 	starters []start.Starter
 }
@@ -82,8 +84,15 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, namespace str
 	if err != nil {
 		return nil, err
 	}
-	mgmt.LLMOSMgmtFactory = llmosMgmt
+	mgmt.MgmtFactory = llmosMgmt
 	mgmt.starters = append(mgmt.starters, llmosMgmt)
+
+	llm, err := ctlmlv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.LLMFactory = llm
+	mgmt.starters = append(mgmt.starters, llm)
 
 	upgrade, err := upgrade.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
 	if err != nil {

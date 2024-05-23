@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/llmos-ai/llmos-controller/pkg/config"
 	"github.com/llmos-ai/llmos-controller/pkg/server"
 )
 
@@ -35,6 +36,12 @@ func run(cmd *cobra.Command, _ []string) error {
 	opts.KubeConfig = viper.GetString("kubeconfig")
 	opts.Namespace = viper.GetString("namespace")
 	opts.Debug = viper.GetBool("debug")
+	opts.Trace = viper.GetBool("trace")
+	opts.LogFormat = viper.GetString("log_format")
+	opts.ProfilerAddress = viper.GetString("profile_address")
+
+	config.InitLogs(opts.CommonOptions)
+	config.InitProfiling(opts.ProfilerAddress)
 
 	server, err := server.NewServer(opts)
 	if err != nil {

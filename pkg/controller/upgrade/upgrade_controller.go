@@ -39,7 +39,7 @@ type handler struct {
 }
 
 func Register(ctx context.Context, mgmt *config.Management) error {
-	upgrades := mgmt.LLMOSMgmtFactory.Management().V1().Upgrade()
+	upgrades := mgmt.MgmtFactory.Management().V1().Upgrade()
 	plans := mgmt.UpgradeFactory.Upgrade().V1().Plan()
 
 	h := &handler{

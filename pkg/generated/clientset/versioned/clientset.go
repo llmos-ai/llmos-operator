@@ -22,6 +22,7 @@ import (
 	"net/http"
 
 	managementv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 	upgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
@@ -31,6 +32,7 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	ManagementV1() managementv1.ManagementV1Interface
+	MlV1() mlv1.MlV1Interface
 	UpgradeV1() upgradev1.UpgradeV1Interface
 }
 
@@ -38,12 +40,18 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	managementV1 *managementv1.ManagementV1Client
+	mlV1         *mlv1.MlV1Client
 	upgradeV1    *upgradev1.UpgradeV1Client
 }
 
 // ManagementV1 retrieves the ManagementV1Client
 func (c *Clientset) ManagementV1() managementv1.ManagementV1Interface {
 	return c.managementV1
+}
+
+// MlV1 retrieves the MlV1Client
+func (c *Clientset) MlV1() mlv1.MlV1Interface {
+	return c.mlV1
 }
 
 // UpgradeV1 retrieves the UpgradeV1Client
@@ -99,6 +107,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.mlV1, err = mlv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.upgradeV1, err = upgradev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -125,6 +137,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.managementV1 = managementv1.New(c)
+	cs.mlV1 = mlv1.New(c)
 	cs.upgradeV1 = upgradev1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)

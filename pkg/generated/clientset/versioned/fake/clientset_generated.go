@@ -21,6 +21,8 @@ import (
 	clientset "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned"
 	managementv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 	fakemanagementv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1/fake"
+	mlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	fakemlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1/fake"
 	upgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	fakeupgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -83,6 +85,11 @@ var (
 // ManagementV1 retrieves the ManagementV1Client
 func (c *Clientset) ManagementV1() managementv1.ManagementV1Interface {
 	return &fakemanagementv1.FakeManagementV1{Fake: &c.Fake}
+}
+
+// MlV1 retrieves the MlV1Client
+func (c *Clientset) MlV1() mlv1.MlV1Interface {
+	return &fakemlv1.FakeMlV1{Fake: &c.Fake}
 }
 
 // UpgradeV1 retrieves the UpgradeV1Client

@@ -9,8 +9,10 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
+	"github.com/llmos-ai/llmos-controller/pkg/config"
 	"github.com/llmos-ai/llmos-controller/pkg/controller"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-controller/pkg/data"
+	sconfig "github.com/llmos-ai/llmos-controller/pkg/server/config"
 	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
 )
 
@@ -21,9 +23,8 @@ type APIServer struct {
 	httpsListenPort int
 	threadiness     int
 	namespace       string
-	name            string
 
-	mgmt        *config.Management
+	mgmt        *sconfig.Management
 	steveServer *steve.Server
 	restConfig  *rest.Config
 }
@@ -31,14 +32,11 @@ type APIServer struct {
 // Options define the api server options
 type Options struct {
 	Context         context.Context
-	KubeConfig      string
 	HTTPListenPort  int
 	HTTPSListenPort int
 	Threadiness     int
-	Namespace       string
-	Name            string
-	Debug           bool
-	ProfileAddress  string
+
+	config.CommonOptions
 }
 
 func NewServer(o Options) (*APIServer, error) {
@@ -49,7 +47,6 @@ func NewServer(o Options) (*APIServer, error) {
 		httpsListenPort: o.HTTPSListenPort,
 		threadiness:     o.Threadiness,
 		namespace:       o.Namespace,
-		name:            o.Name,
 	}
 
 	clientConfig, err := GetConfig(s.kubeconfig)
@@ -71,6 +68,10 @@ func NewServer(o Options) (*APIServer, error) {
 
 	serverOptions, err := s.setDefaults(restConfig)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = data.Init(s.mgmt); err != nil {
 		return nil, err
 	}
 
@@ -96,7 +97,7 @@ func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
 	opts := &steve.Options{}
 
 	// set up the management config
-	s.mgmt, err = config.SetupManagement(s.ctx, cfg, s.namespace)
+	s.mgmt, err = sconfig.SetupManagement(s.ctx, cfg, s.namespace)
 	if err != nil {
 		return nil, err
 	}
