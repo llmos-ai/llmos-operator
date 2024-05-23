@@ -22,8 +22,8 @@ type handler struct {
 
 func Register(_ context.Context, mgmt *config.Management) error {
 	sp := &handler{
-		settings:     mgmt.LLMOSMgmtFactory.Management().V1().Setting(),
-		settingCache: mgmt.LLMOSMgmtFactory.Management().V1().Setting().Cache(),
+		settings:     mgmt.MgmtFactory.Management().V1().Setting(),
+		settingCache: mgmt.MgmtFactory.Management().V1().Setting().Cache(),
 		fallback:     map[string]string{},
 	}
 

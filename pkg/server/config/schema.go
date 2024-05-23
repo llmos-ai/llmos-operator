@@ -7,11 +7,13 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 
 	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
 )
 
 var (
 	localSchemeBuilder = runtime.SchemeBuilder{
 		mgmtv1.AddToScheme,
+		mlv1.AddToScheme,
 		upgradev1.AddToScheme,
 	}
 	AddToScheme = localSchemeBuilder.AddToScheme

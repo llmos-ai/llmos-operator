@@ -19,6 +19,7 @@ package fake
 
 import (
 	managementv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -32,6 +33,7 @@ var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
 	managementv1.AddToScheme,
+	mlv1.AddToScheme,
 	upgradev1.AddToScheme,
 }
 
