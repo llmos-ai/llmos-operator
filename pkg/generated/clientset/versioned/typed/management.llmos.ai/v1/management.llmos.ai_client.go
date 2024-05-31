@@ -29,6 +29,7 @@ type ManagementV1Interface interface {
 	RESTClient() rest.Interface
 	SettingsGetter
 	UpgradesGetter
+	UsersGetter
 }
 
 // ManagementV1Client is used to interact with features provided by the management.llmos.ai group.
@@ -42,6 +43,10 @@ func (c *ManagementV1Client) Settings() SettingInterface {
 
 func (c *ManagementV1Client) Upgrades(namespace string) UpgradeInterface {
 	return newUpgrades(c, namespace)
+}
+
+func (c *ManagementV1Client) Users() UserInterface {
+	return newUsers(c)
 }
 
 // NewForConfig creates a new ManagementV1Client for the given config.

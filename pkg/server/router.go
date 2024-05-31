@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
 	"github.com/llmos-ai/llmos-controller/pkg/api/proxy"
 	"github.com/llmos-ai/llmos-controller/pkg/api/publicui"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
@@ -26,6 +27,10 @@ func NewRouter(mgmt *config.Management) *Router {
 func (r *Router) Routes() http.Handler {
 	m := mux.NewRouter()
 	m.UseEncodedPath()
+
+	// public auth handler
+	authHandler := auth.NewAuthHandler(r.mgmt)
+	m.Path("/v1-public/auth").Handler(authHandler)
 
 	m.Handle("/", http.RedirectHandler("/dashboard/", http.StatusFound))
 

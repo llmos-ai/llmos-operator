@@ -35,6 +35,10 @@ func (c *FakeManagementV1) Upgrades(namespace string) v1.UpgradeInterface {
 	return &FakeUpgrades{c, namespace}
 }
 
+func (c *FakeManagementV1) Users() v1.UserInterface {
+	return &FakeUsers{c}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeManagementV1) RESTClient() rest.Interface {

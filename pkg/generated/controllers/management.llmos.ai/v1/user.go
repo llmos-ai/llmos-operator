@@ -17,8 +17,22 @@ limitations under the License.
 
 package v1
 
-type SettingExpansion interface{}
+import (
+	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	"github.com/rancher/wrangler/v2/pkg/generic"
+)
 
-type UpgradeExpansion interface{}
+// UserController interface for managing User resources.
+type UserController interface {
+	generic.NonNamespacedControllerInterface[*v1.User, *v1.UserList]
+}
 
-type UserExpansion interface{}
+// UserClient interface for managing User resources in Kubernetes.
+type UserClient interface {
+	generic.NonNamespacedClientInterface[*v1.User, *v1.UserList]
+}
+
+// UserCache interface for retrieving User resources in memory.
+type UserCache interface {
+	generic.NonNamespacedCacheInterface[*v1.User]
+}

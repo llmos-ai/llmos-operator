@@ -32,6 +32,7 @@ func init() {
 type Interface interface {
 	Setting() SettingController
 	Upgrade() UpgradeController
+	User() UserController
 }
 
 func New(controllerFactory controller.SharedControllerFactory) Interface {
@@ -50,4 +51,8 @@ func (v *version) Setting() SettingController {
 
 func (v *version) Upgrade() UpgradeController {
 	return generic.NewController[*v1.Upgrade, *v1.UpgradeList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Upgrade"}, "upgrades", true, v.controllerFactory)
+}
+
+func (v *version) User() UserController {
+	return generic.NewNonNamespacedController[*v1.User, *v1.UserList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "User"}, "users", v.controllerFactory)
 }
