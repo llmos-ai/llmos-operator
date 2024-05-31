@@ -29,12 +29,15 @@ require (
 
 require (
 	github.com/ehazlett/simplelog v0.0.0-20200226020431-d374894e92a4
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.6
 	github.com/ollama/ollama v0.1.38
 	github.com/rancher/apiserver v0.0.0-20240417185102-844817b6e863
 	github.com/rancher/dynamiclistener v0.5.0-rc5
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/crypto v0.23.0
+	k8s.io/apiserver v0.29.0
 )
 
 require (
@@ -106,7 +109,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.19.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
@@ -127,7 +129,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.29.0 // indirect
-	k8s.io/apiserver v0.29.0 // indirect
 	k8s.io/code-generator v0.29.0 // indirect
 	k8s.io/component-base v0.29.0 // indirect
 	k8s.io/gengo v0.0.0-20240310015720-9cff6334dab4 // indirect

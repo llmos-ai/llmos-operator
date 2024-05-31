@@ -29,6 +29,7 @@ import (
 var (
 	SettingResourceName = "settings"
 	UpgradeResourceName = "upgrades"
+	UserResourceName    = "users"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -56,6 +57,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&SettingList{},
 		&Upgrade{},
 		&UpgradeList{},
+		&User{},
+		&UserList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

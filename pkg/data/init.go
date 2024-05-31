@@ -10,5 +10,5 @@ func Init(mgmt *config.Management) error {
 		return err
 	}
 
-	return nil
+	return BootstrapDefaultAdmin(mgmt)
 }

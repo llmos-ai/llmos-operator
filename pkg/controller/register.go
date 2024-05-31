@@ -8,15 +8,19 @@ import (
 	"github.com/llmos-ai/llmos-controller/pkg/controller/modelfile"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/setting"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/upgrade"
+	"github.com/llmos-ai/llmos-controller/pkg/controller/user"
+	"github.com/llmos-ai/llmos-controller/pkg/indexeres"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
 )
 
 type registerFunc func(context.Context, *config.Management) error
 
 var registerFuncs = []registerFunc{
+	indexeres.Register,
 	upgrade.Register,
 	setting.Register,
 	modelfile.Register,
+	user.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management) error {

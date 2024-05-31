@@ -9,6 +9,7 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
+	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
 	"github.com/llmos-ai/llmos-controller/pkg/config"
 	"github.com/llmos-ai/llmos-controller/pkg/controller"
 	"github.com/llmos-ai/llmos-controller/pkg/data"
@@ -105,6 +106,10 @@ func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
 	// define the next handler after the mgmt is setup
 	r := NewRouter(s.mgmt)
 	opts.Next = r.Routes()
+
+	// define auth middleware
+	auth := auth.NewMiddleware(s.mgmt)
+	opts.AuthMiddleware = auth.AuthMiddleware
 
 	return opts, nil
 }
