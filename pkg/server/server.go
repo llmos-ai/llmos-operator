@@ -24,6 +24,7 @@ type APIServer struct {
 	httpsListenPort int
 	threadiness     int
 	namespace       string
+	skipAuth        bool
 
 	mgmt        *sconfig.Management
 	steveServer *steve.Server
@@ -36,6 +37,7 @@ type Options struct {
 	HTTPListenPort  int
 	HTTPSListenPort int
 	Threadiness     int
+	SkipAuth        bool
 
 	config.CommonOptions
 }
@@ -48,6 +50,7 @@ func NewServer(o Options) (*APIServer, error) {
 		httpsListenPort: o.HTTPSListenPort,
 		threadiness:     o.Threadiness,
 		namespace:       o.Namespace,
+		skipAuth:        o.SkipAuth,
 	}
 
 	clientConfig, err := GetConfig(s.kubeconfig)
@@ -108,8 +111,10 @@ func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
 	opts.Next = r.Routes()
 
 	// define auth middleware
-	auth := auth.NewMiddleware(s.mgmt)
-	opts.AuthMiddleware = auth.AuthMiddleware
+	if !s.skipAuth {
+		auth := auth.NewMiddleware(s.mgmt)
+		opts.AuthMiddleware = auth.AuthMiddleware
+	}
 
 	return opts, nil
 }

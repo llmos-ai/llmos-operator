@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/rancher/apiserver/pkg/urlbuilder"
 
 	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
 	"github.com/llmos-ai/llmos-controller/pkg/api/proxy"
@@ -27,6 +28,8 @@ func NewRouter(mgmt *config.Management) *Router {
 func (r *Router) Routes() http.Handler {
 	m := mux.NewRouter()
 	m.UseEncodedPath()
+	m.StrictSlash(true)
+	m.Use(urlbuilder.RedirectRewrite)
 
 	// public auth handler
 	authHandler := auth.NewAuthHandler(r.mgmt)

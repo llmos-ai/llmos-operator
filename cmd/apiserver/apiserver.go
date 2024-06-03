@@ -12,6 +12,7 @@ var (
 	httpsPort   int
 	httpPort    int
 	threadiness int
+	skipAuth    bool
 )
 
 func NewAPIServer() *cobra.Command {
@@ -24,6 +25,7 @@ func NewAPIServer() *cobra.Command {
 	cmd.PersistentFlags().IntVar(&httpsPort, "https_port", 8443, "port to listen on for https")
 	cmd.PersistentFlags().IntVar(&httpPort, "http_port", 8080, "port to listen on for http")
 	cmd.PersistentFlags().IntVar(&threadiness, "threadiness", 2, "number of threads to run the controller")
+	cmd.PersistentFlags().BoolVar(&skipAuth, "skip_auth", false, "skip authentication")
 	return cmd
 }
 
@@ -33,6 +35,7 @@ func run(cmd *cobra.Command, _ []string) error {
 	opts.HTTPSListenPort = httpsPort
 	opts.HTTPListenPort = httpPort
 	opts.Threadiness = threadiness
+	opts.SkipAuth = skipAuth
 	opts.KubeConfig = viper.GetString("kubeconfig")
 	opts.Namespace = viper.GetString("namespace")
 	opts.Debug = viper.GetBool("debug")
