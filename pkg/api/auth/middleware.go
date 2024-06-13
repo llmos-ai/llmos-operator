@@ -11,6 +11,7 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/request"
 
 	auth2 "github.com/llmos-ai/llmos-controller/pkg/auth"
+	"github.com/llmos-ai/llmos-controller/pkg/constant"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
 	"github.com/llmos-ai/llmos-controller/pkg/utils"
 )
@@ -91,6 +92,12 @@ func (m *Middleware) getUserInfoFromToken(tokenStr string) (authUser.Info, error
 	if user.Username != "" {
 		userInfo.Name = user.Name
 		userInfo.UID = string(user.UID)
+		userInfo.Groups = []string{
+			"system:authenticated",
+		}
+		if user.IsAdmin {
+			userInfo.Groups = append(userInfo.Groups, constant.AdminRole)
+		}
 	}
 
 	return &userInfo, nil

@@ -9,6 +9,13 @@ issues:
   # restore some of the defaults
   # (fill in the rest as needed)
   exclude-rules:
+    - path: "pkg/generated/*"
+      linters:
+        - errcheck
+        - unused
+        - gosimple
+        - gocyclo
+        - unparam
     - path: "cmd/*"
       linters:
         - lll

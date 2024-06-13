@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	v1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
@@ -14,20 +15,42 @@ import (
 	"github.com/llmos-ai/llmos-controller/pkg/settings"
 )
 
+const settingOnChange = "llmos-setting-on-change"
+
+type syncerFunc func(*mgmtv1.Setting) error
+
+var syncers = map[string]syncerFunc{}
+
 type handler struct {
+	ctx          context.Context
 	settings     ctlmgmtv1.SettingClient
 	settingCache ctlmgmtv1.SettingCache
+	secrets      v1.SecretClient
+	secretCache  v1.SecretCache
+	mgmt         *config.Management
 	fallback     map[string]string
 }
 
-func Register(_ context.Context, mgmt *config.Management) error {
-	sp := &handler{
-		settings:     mgmt.MgmtFactory.Management().V1().Setting(),
-		settingCache: mgmt.MgmtFactory.Management().V1().Setting().Cache(),
+func Register(ctx context.Context, mgmt *config.Management) error {
+	setting := mgmt.MgmtFactory.Management().V1().Setting()
+	secret := mgmt.CoreFactory.Core().V1().Secret()
+	h := &handler{
+		ctx:          ctx,
+		mgmt:         mgmt,
+		settings:     setting,
+		settingCache: setting.Cache(),
+		secrets:      secret,
+		secretCache:  secret.Cache(),
 		fallback:     map[string]string{},
 	}
 
-	return settings.SetProvider(sp)
+	syncers = map[string]syncerFunc{
+		settings.DatabaseUrlSettingName: h.setDBUrl,
+	}
+
+	setting.OnChange(ctx, settingOnChange, h.settingOnChang)
+
+	return settings.SetProvider(h)
 }
 
 func (h *handler) Get(name string) string {
@@ -37,7 +60,7 @@ func (h *handler) Get(name string) string {
 	}
 	obj, err := h.settingCache.Get(name)
 	if err != nil {
-		val, err := h.settings.Get(name, v1.GetOptions{})
+		val, err := h.settings.Get(name, metav1.GetOptions{})
 		if err != nil {
 			return h.fallback[name]
 		}
@@ -54,7 +77,7 @@ func (h *handler) Set(name, value string) error {
 	if envValue != "" {
 		return fmt.Errorf("setting %s can not be set because it is from environment variable", name)
 	}
-	obj, err := h.settings.Get(name, v1.GetOptions{})
+	obj, err := h.settings.Get(name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -65,7 +88,7 @@ func (h *handler) Set(name, value string) error {
 }
 
 func (h *handler) SetIfUnset(name, value string) error {
-	obj, err := h.settings.Get(name, v1.GetOptions{})
+	obj, err := h.settings.Get(name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -86,10 +109,10 @@ func (h *handler) SetAll(settingsMap map[string]settings.Setting) error {
 		key := settings.GetEnvKey(name)
 		value := os.Getenv(key)
 
-		obj, err := h.settings.Get(setting.Name, v1.GetOptions{})
+		obj, err := h.settings.Get(setting.Name, metav1.GetOptions{})
 		if errors.IsNotFound(err) {
 			newSetting := &mgmtv1.Setting{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: setting.Name,
 				},
 				Default: setting.Default,

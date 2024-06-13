@@ -5,6 +5,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+var (
+	SettingConfigured condition.Cond = "configured"
+)
+
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -29,8 +33,6 @@ type Setting struct {
 
 	Status SettingStatus `json:"status,omitempty"`
 }
-
-var SettingChanged condition.Cond = "changed"
 
 type SettingStatus struct {
 	// +optional

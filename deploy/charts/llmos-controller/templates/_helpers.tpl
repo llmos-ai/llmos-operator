@@ -54,9 +54,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "llmos-controller.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "llmos-controller.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.controller.serviceAccount.create }}
+{{- default (include "llmos-controller.fullname" .) .Values.controller.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.controller.serviceAccount.name }}
 {{- end }}
 {{- end }}

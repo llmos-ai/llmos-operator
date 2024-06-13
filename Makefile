@@ -140,11 +140,11 @@ ifndef ignore-not-found
 endif
 
 .PHONY: install
-install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
+install: ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-controller deploy/charts/llmos-controller --reuse-values --skip-crds -f deploy/charts/llmos-controller/values.yaml
 
 .PHONY: uninstall
-uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
+uninstall: ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(HELM) uninstall -n llmos-system llmos-controller
 
 .PHONY: install-crds

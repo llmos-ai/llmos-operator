@@ -9,6 +9,7 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
+	"github.com/llmos-ai/llmos-controller/pkg/api"
 	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
 	"github.com/llmos-ai/llmos-controller/pkg/config"
 	"github.com/llmos-ai/llmos-controller/pkg/controller"
@@ -92,6 +93,11 @@ func NewServer(o Options) (*APIServer, error) {
 
 	// configure the api ui
 	ui.ConfigureAPIUI(s.steveServer.APIServer)
+
+	// register api schemas
+	if err = api.Register(s.ctx, s.mgmt, s.steveServer); err != nil {
+		return nil, err
+	}
 
 	return s, nil
 }

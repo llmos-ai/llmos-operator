@@ -17,15 +17,17 @@ import (
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
 	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai"
 	"github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io"
+	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
 )
 
 type Management struct {
-	ctx        context.Context
+	Ctx        context.Context
 	Namespace  string
 	ClientSet  *kubernetes.Clientset
 	RestConfig *rest.Config
 	Apply      apply.Apply
 	Scheme     *runtime.Scheme
+	EntClient  *ent.Client
 
 	CoreFactory    *corev1.Factory
 	AppsFactory    *appsv1.Factory
@@ -37,9 +39,10 @@ type Management struct {
 	starters []start.Starter
 }
 
-func SetupManagement(ctx context.Context, restConfig *rest.Config, namespace string) (*Management, error) {
+func SetupManagement(ctx context.Context, restConfig *rest.Config,
+	namespace string) (*Management, error) {
 	mgmt := &Management{
-		ctx:       ctx,
+		Ctx:       ctx,
 		Namespace: namespace,
 		Scheme:    Scheme,
 	}
@@ -105,5 +108,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, namespace str
 }
 
 func (m *Management) Start(threadiness int) error {
-	return start.All(m.ctx, threadiness, m.starters...)
+	return start.All(m.Ctx, threadiness, m.starters...)
+}
+
+func (m *Management) SetEntClient(client *ent.Client) {
+	m.EntClient = client
+}
+
+func (m *Management) GetEntClient() *ent.Client {
+	return m.EntClient
 }

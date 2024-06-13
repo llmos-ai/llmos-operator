@@ -2,5 +2,8 @@ dependencies:
 - name: ollama
   repository: file://dependency_charts/ollama
   version: 0.1.0
-digest: sha256:a98535aba308fd4bb54767ce4ea360c4de6d6569f1c2c2a001c33306abbe8fef
-generated: "2024-05-17T15:40:47.999401+08:00"
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 15.5.5
+digest: sha256:d9dae3ff9498c8d9676c5f8a3002ff0d33081018f922c80055030b4d8694431c
+generated: "2024-06-14T17:55:25.945065+08:00"

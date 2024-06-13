@@ -27,6 +27,7 @@ var (
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
 	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
 	LocalLLMServerURL      = NewSetting(LocalLLMServerURLSettingName, "http://llmos-ollama.llmos-system:11434")
+	DatabaseURL            = NewSetting(DatabaseUrlSettingName, "postgresql://llmos-postgresql.llmos-system:5432")
 )
 
 const (
@@ -34,6 +35,7 @@ const (
 	UISourceSettingName          = "ui-source"
 	FirstLoginSettingName        = "first-login"
 	LocalLLMServerURLSettingName = "local-llm-server-url"
+	DatabaseUrlSettingName       = "database-url"
 )
 
 func init() {

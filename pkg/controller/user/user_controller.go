@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-controller/pkg/constant"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-controller/pkg/indexeres"
 
@@ -18,7 +19,6 @@ import (
 
 const (
 	usernameLabelKey     = "management.llmos.ai/username"
-	adminRole            = "cluster-admin"
 	publicInfoViewerRole = "system:public-info-viewer"
 	userControllerName   = "llmos-user-controller"
 )
@@ -50,7 +50,7 @@ func (h *userHandler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, erro
 
 	roleName := publicInfoViewerRole
 	if user.IsAdmin {
-		roleName = adminRole
+		roleName = constant.AdminRole
 	}
 
 	if err := h.ensureClusterBinding(roleName, user); err != nil {
