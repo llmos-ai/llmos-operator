@@ -1,73 +1,132 @@
 # Default values for llmos-controller.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 1
 
-image:
-  repository: ghcr.io/llmos-ai/llmos-controller
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "main"
+## @section Global parameters
+## Please, note that this will override the parameters, including dependencies, configured to use the global value
+global:
+  ## @param global.imageRegistry Global Docker image registry
+  ##
+  imageRegistry: ""
+  ## @param global.imagePullSecrets Global Docker registry secret names as an array
+  ## e.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  imagePullPolicy: IfNotPresent
+  ## @param global.storageClass Global StorageClass for Persistent Volume(s)
+  ##
+  storageClass: ""
 
-imagePullSecrets: []
+  ## @param global.postgresql Global configuration for PostgreSQL
+  postgresql:
+    auth:
+      postgresPassword: ""
+      username: "root"
+      database: "llmos"
+      password: ""
+      replicationPassword: ""
+      existingSecret: "llmos-db-credentials"
+      secretKeys:
+        adminPasswordKey: "pg-admin-password"
+        userPasswordKey: "pg-password"
+        replicationPasswordKey: "pg-replica-password"
+    service:
+      ports:
+        postgresql: "5432"
+
+
 nameOverride: ""
 fullnameOverride: ""
+depNameOverride: &depNameOverride "llmos"
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+controller:
+  replicaCount: 1
 
-podAnnotations: {}
-podLabels: {}
+  image:
+    repository: ghcr.io/llmos-ai/llmos-controller
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "main"
 
-podSecurityContext: {}
-  # fsGroup: 2000
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Automatically mount a ServiceAccount's API credentials?
+    automount: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+  podAnnotations: {}
+  podLabels: {}
 
-service:
-  type: NodePort
-  httpsPort: 8443
-  httpsNodePort: 30443
-  profilePort: 6060
+  podSecurityContext: {}
+    # fsGroup: 2000
 
-resources:
-  requests:
-    cpu: 200m
-    memory: 250Mi
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
 
-# Additional volumes on the output Deployment definition.
-volumes: []
+  service:
+    type: NodePort
+    httpsPort: 8443
+    httpsNodePort: 30443
+    profilePort: 6060
 
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
+  resources:
+    requests:
+      cpu: 200m
+      memory: 250Mi
 
-nodeSelector: {}
+  # Additional volumes on the output Deployment definition.
+  volumes: []
 
-tolerations:
-  - key: CriticalAddonsOnly
-    operator: Exists
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/master
-    operator: Exists
-  - effect: NoSchedule
-    key: node-role.kubernetes.io/control-plane
-    operator: Exists
+  # Additional volumeMounts on the output Deployment definition.
+  volumeMounts: []
 
-affinity: {}
+  nodeSelector: {}
+
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
+
+  affinity: {}
+
+postgresql:
+  enabled: true
+  image:
+    repository: bitnami/postgresql
+    tag: 16.3.0-debian-12-r14
+    pullPolicy: IfNotPresent
+  fullnameOverride: "llmos-postgresql"
+  primary:
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    persistence:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
 
 suc:
   enabled: true
@@ -77,7 +136,7 @@ suc:
 
 ollama:
   enabled: true
-  fullnameOverride: "llmos-ollama"
+  depNameOverride: *depNameOverride
   replicaCount: 1
 
   image:

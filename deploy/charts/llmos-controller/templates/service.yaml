@@ -4,18 +4,19 @@ metadata:
   name: {{ include "llmos-controller.fullname" . }}
   labels:
     {{- include "llmos-controller.labels" . | nindent 4 }}
+    foo: bar
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.controller.service.type }}
   ports:
-    - port: {{ .Values.service.httpsPort }}
+    - port: {{ .Values.controller.service.httpsPort }}
       targetPort: https
       protocol: TCP
       name: https
-{{- if .Values.service.httpsNodePort }}
-      nodePort: {{ .Values.service.httpsNodePort }}
+{{- if .Values.controller.service.httpsNodePort }}
+      nodePort: {{ .Values.controller.service.httpsNodePort }}
 {{- end }}
-{{- if .Values.service.profilePort }}
-    - port: {{ .Values.service.profilePort }}
+{{- if .Values.controller.service.profilePort }}
+    - port: {{ .Values.controller.service.profilePort }}
       targetPort: profile
       protocol: TCP
       name: profile

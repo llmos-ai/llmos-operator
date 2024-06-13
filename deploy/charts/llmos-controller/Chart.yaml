@@ -28,3 +28,7 @@ dependencies:
     version: 0.1.0
     repository: "file://dependency_charts/ollama"
     condition: ollama.enabled
+  - name: postgresql
+    version: 15.5.5
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
