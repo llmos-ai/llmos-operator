@@ -15,10 +15,10 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .displayName
+    - jsonPath: .spec.displayName
       name: Display Name
       type: string
-    - jsonPath: .username
+    - jsonPath: .spec.username
       name: Username
       type: string
     name: v1
@@ -32,12 +32,6 @@ spec:
               may reject unrecognized values.
               More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
-          description:
-            type: string
-          displayName:
-            type: string
-          isAdmin:
-            type: boolean
           kind:
             description: |-
               Kind is a string value representing the REST resource this object represents.
@@ -48,15 +42,70 @@ spec:
             type: string
           metadata:
             type: object
-          password:
-            type: string
-          username:
-            type: string
+          spec:
+            properties:
+              description:
+                type: string
+              displayName:
+                type: string
+              isActive:
+                default: true
+                type: boolean
+              isAdmin:
+                type: boolean
+              password:
+                type: string
+              username:
+                type: string
+            required:
+            - isActive
+            - password
+            - username
+            type: object
+          status:
+            properties:
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another.
+                      type: string
+                    lastUpdateTime:
+                      description: The last time this condition was updated.
+                      type: string
+                    message:
+                      description: Human-readable message indicating details about
+                        last transition
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of the condition.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              isActive:
+                type: boolean
+              isAdmin:
+                type: boolean
+              lastUpdateTime:
+                type: string
+            required:
+            - isActive
+            - isAdmin
+            type: object
         required:
-        - displayName
-        - password
-        - username
+        - spec
         type: object
     served: true
     storage: true
-    subresources: {}
+    subresources:
+      status: {}

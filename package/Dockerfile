@@ -1,4 +1,4 @@
-FROM opensuse/leap:15.6
+FROM registry.opensuse.org/opensuse/leap:15.6
 
 WORKDIR /var/lib/llmos-ai/llmos-controller
 

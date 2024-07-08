@@ -25,7 +25,7 @@ func Register(_ context.Context, mgmt *config.Management) error {
 }
 
 func indexUserByUsername(obj *mgmtv1.User) ([]string, error) {
-	return []string{obj.Username}, nil
+	return []string{obj.Spec.Username}, nil
 }
 
 func indexUserByUID(obj *mgmtv1.User) ([]string, error) {

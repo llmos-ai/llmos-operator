@@ -12,6 +12,7 @@ import (
 
 	"github.com/llmos-ai/llmos-controller/pkg/constant"
 	entv1 "github.com/llmos-ai/llmos-controller/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-controller/pkg/settings"
 	"github.com/llmos-ai/llmos-controller/pkg/utils"
 )
 
@@ -47,6 +48,10 @@ func (s *Store) ByID(apiOp *types.APIRequest, schema *types.APISchema, id string
 }
 
 func (s *Store) List(apiOp *types.APIRequest, schema *types.APISchema) (types.APIObjectList, error) {
+	if !s.HasEntClient() {
+		return types.APIObjectList{}, nil
+	}
+
 	userInfo, ok := apiOp.GetUserInfo()
 	if !ok {
 		return types.APIObjectList{}, fmt.Errorf("failed to get user info")
@@ -169,4 +174,14 @@ func isAdminOrSelf(userInfo user.Info, uid string) bool {
 		return true
 	}
 	return false
+}
+
+func (s *Store) HasEntClient() bool {
+	if settings.DatabaseURL.Get() == "" {
+		return false
+	}
+	if s.handler.mgmt.GetEntClient() == nil {
+		return false
+	}
+	return true
 }

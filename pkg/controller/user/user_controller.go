@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	ctlrbacv1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/rbac/v1"
 	"github.com/sirupsen/logrus"
@@ -49,15 +50,26 @@ func (h *userHandler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, erro
 	}
 
 	roleName := publicInfoViewerRole
-	if user.IsAdmin {
+	toUpdate := user.DeepCopy()
+	if toUpdate.Spec.IsAdmin {
 		roleName = constant.AdminRole
 	}
 
-	if err := h.ensureClusterBinding(roleName, user); err != nil {
+	if err := h.ensureClusterBinding(roleName, toUpdate); err != nil {
 		return user, err
 	}
 
-	return user, nil
+	return h.updateStatus(user, toUpdate)
+}
+
+func (h *userHandler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*mgmtv1.User, error) {
+	toUpdate.Status.IsAdmin = toUpdate.Spec.IsAdmin
+	toUpdate.Status.IsActive = toUpdate.Spec.IsActive
+	if !reflect.DeepEqual(user.Status, toUpdate.Status) {
+		toUpdate.Status.LastUpdateTime = metav1.Now().Format(constant.TimeLayout)
+		return h.users.UpdateStatus(toUpdate)
+	}
+	return nil, nil
 }
 
 func (h *userHandler) ensureClusterBinding(roleName string, user *mgmtv1.User) error {

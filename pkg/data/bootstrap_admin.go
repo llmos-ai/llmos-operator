@@ -47,10 +47,13 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 			GenerateName: "user-",
 			Labels:       defaultAdminLabel,
 		},
-		DisplayName: "Default Admin",
-		Username:    "admin",
-		Password:    hash,
-		IsAdmin:     true,
+		Spec: mgmtv1.UserSpec{
+			DisplayName: "Default Admin",
+			Username:    "admin",
+			Password:    hash,
+			IsAdmin:     true,
+			IsActive:    true,
+		},
 	})
 	if err != nil && !apierrors.IsAlreadyExists(err) {
 		return err

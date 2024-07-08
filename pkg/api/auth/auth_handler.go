@@ -12,7 +12,7 @@ import (
 	"github.com/rancher/apiserver/pkg/apierror"
 	"github.com/rancher/wrangler/v2/pkg/schemas/validation"
 
-	managementv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-controller/pkg/auth"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-controller/pkg/indexeres"
@@ -25,6 +25,8 @@ const (
 	actionQuery      = "action"
 	loginActionName  = "login"
 	logoutActionName = "logout"
+
+	UserNotActiveErrMsg = "user is not active"
 )
 
 type LoginRequest struct {
@@ -117,7 +119,7 @@ func (h *Handler) login(input *LoginRequest) (token string, err error) {
 	return escapedToken, nil
 }
 
-func (h *Handler) userLogin(input *LoginRequest) (*managementv1.User, error) {
+func (h *Handler) userLogin(input *LoginRequest) (*mgmtv1.User, error) {
 	username := input.Username
 	pwd := input.Password
 
@@ -126,14 +128,18 @@ func (h *Handler) userLogin(input *LoginRequest) (*managementv1.User, error) {
 		return nil, apierror.NewAPIError(validation.Unauthorized, err.Error())
 	}
 
-	if !auth.CheckPasswordHash(user.Password, pwd) {
+	if err = checkUserIsActive(user); err != nil {
+		return nil, err
+	}
+
+	if !auth.CheckPasswordHash(user.Spec.Password, pwd) {
 		return nil, apierror.NewAPIError(validation.Unauthorized, "authentication failed")
 	}
 
 	return user, nil
 }
 
-func (h *Handler) getUser(username string) (*managementv1.User, error) {
+func (h *Handler) getUser(username string) (*mgmtv1.User, error) {
 	objs, err := h.userCache.GetByIndex(indexeres.UserNameIndex, username)
 	if err != nil {
 		return nil, err
@@ -147,7 +153,7 @@ func (h *Handler) getUser(username string) (*managementv1.User, error) {
 	return objs[0], nil
 }
 
-func (h *Handler) getUserByUID(uid string) (*managementv1.User, error) {
+func (h *Handler) getUserByUID(uid string) (*mgmtv1.User, error) {
 	objs, err := h.userCache.GetByIndex(indexeres.UserUIDIndex, uid)
 	if err != nil {
 		return nil, err
@@ -159,4 +165,16 @@ func (h *Handler) getUserByUID(uid string) (*managementv1.User, error) {
 		return nil, errors.New("found more than one users with uid " + uid)
 	}
 	return objs[0], nil
+}
+
+func checkUserIsActive(user *mgmtv1.User) error {
+	if user == nil {
+		return apierror.NewAPIError(validation.Unauthorized, "user object is nil")
+	}
+
+	if !user.Status.IsActive {
+		return apierror.NewAPIError(validation.Unauthorized, UserNotActiveErrMsg)
+	}
+
+	return nil
 }
