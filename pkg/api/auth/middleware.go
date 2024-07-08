@@ -89,13 +89,13 @@ func (m *Middleware) getUserInfoFromToken(tokenStr string) (authUser.Info, error
 	}
 
 	var userInfo authUser.DefaultInfo
-	if user.Username != "" {
+	if user.Spec.Username != "" {
 		userInfo.Name = user.Name
 		userInfo.UID = string(user.UID)
 		userInfo.Groups = []string{
 			"system:authenticated",
 		}
-		if user.IsAdmin {
+		if user.Spec.IsAdmin {
 			userInfo.Groups = append(userInfo.Groups, constant.AdminRole)
 		}
 	}

@@ -11,6 +11,7 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	"github.com/llmos-ai/llmos-controller/pkg/settings"
 	"github.com/llmos-ai/llmos-controller/pkg/utils"
 )
 
@@ -48,6 +49,11 @@ func (s *modelSyncer) start() {
 }
 
 func (h *handler) syncLocalModels() error {
+	// skip if local LLM server url is not set
+	if len(settings.LocalLLMServerURL.Get()) == 0 {
+		return nil
+	}
+
 	models, err := h.listModels()
 	if err != nil {
 		return fmt.Errorf("failed to list models, error: %v", err)

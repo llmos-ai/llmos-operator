@@ -25,9 +25,9 @@ var (
 	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/llmos-ui/latest/index.html")
 	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-controller")
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
-	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
-	LocalLLMServerURL      = NewSetting(LocalLLMServerURLSettingName, "http://llmos-ollama.llmos-system:11434")
-	DatabaseURL            = NewSetting(DatabaseUrlSettingName, "postgresql://llmos-postgresql.llmos-system:5432")
+	UISource               = NewSetting(UISourceSettingName, "auto")      // Options are 'auto', 'external' or 'bundled'
+	LocalLLMServerURL      = NewSetting(LocalLLMServerURLSettingName, "") // Local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
+	DatabaseURL            = NewSetting(DatabaseUrlSettingName, "")       // Local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos
 )
 
 const (
