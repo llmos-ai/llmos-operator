@@ -31,6 +31,7 @@ func init() {
 
 type Interface interface {
 	ModelFile() ModelFileController
+	Notebook() NotebookController
 }
 
 func New(controllerFactory controller.SharedControllerFactory) Interface {
@@ -45,4 +46,8 @@ type version struct {
 
 func (v *version) ModelFile() ModelFileController {
 	return generic.NewNonNamespacedController[*v1.ModelFile, *v1.ModelFileList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "ModelFile"}, "modelfiles", v.controllerFactory)
+}
+
+func (v *version) Notebook() NotebookController {
+	return generic.NewController[*v1.Notebook, *v1.NotebookList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "Notebook"}, "notebooks", true, v.controllerFactory)
 }

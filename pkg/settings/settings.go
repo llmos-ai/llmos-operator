@@ -28,14 +28,16 @@ var (
 	UISource               = NewSetting(UISourceSettingName, "auto")      // Options are 'auto', 'external' or 'bundled'
 	LocalLLMServerURL      = NewSetting(LocalLLMServerURLSettingName, "") // Local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
 	DatabaseURL            = NewSetting(DatabaseUrlSettingName, "")       // Local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos
+	NotebookDefaultImages  = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
 )
 
 const (
-	UIPlSettingName              = "ui-pl"
-	UISourceSettingName          = "ui-source"
-	FirstLoginSettingName        = "first-login"
-	LocalLLMServerURLSettingName = "local-llm-server-url"
-	DatabaseUrlSettingName       = "database-url"
+	UIPlSettingName                  = "ui-pl"
+	UISourceSettingName              = "ui-source"
+	FirstLoginSettingName            = "first-login"
+	LocalLLMServerURLSettingName     = "local-llm-server-url"
+	DatabaseUrlSettingName           = "database-url"
+	DefaultNotebookImagesSettingName = "default-notebook-images"
 )
 
 func init() {

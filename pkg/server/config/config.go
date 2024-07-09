@@ -76,6 +76,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config,
 	mgmt.CoreFactory = core
 	mgmt.starters = append(mgmt.starters, core)
 
+	apps, err := appsv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.AppsFactory = apps
+	mgmt.starters = append(mgmt.starters, apps)
+
 	rbac, err := rbacv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
 	if err != nil {
 		return nil, err

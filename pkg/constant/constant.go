@@ -30,4 +30,6 @@ const (
 	TimeLayout           = time.RFC3339
 
 	AdminRole = "cluster-admin"
+
+	AnnotationResourceStopped = LLMOSPrefix + "/resourceStopped"
 )

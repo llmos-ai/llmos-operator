@@ -31,6 +31,10 @@ func (c *FakeMlV1) ModelFiles() v1.ModelFileInterface {
 	return &FakeModelFiles{c}
 }
 
+func (c *FakeMlV1) Notebooks(namespace string) v1.NotebookInterface {
+	return &FakeNotebooks{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeMlV1) RESTClient() rest.Interface {

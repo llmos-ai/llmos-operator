@@ -39,3 +39,20 @@ func NewModelFile(namespace, name string, obj ModelFile) *ModelFile {
 	obj.Namespace = namespace
 	return &obj
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// NotebookList is a list of Notebook resources
+type NotebookList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Notebook `json:"items"`
+}
+
+func NewNotebook(namespace, name string, obj Notebook) *Notebook {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Notebook").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
