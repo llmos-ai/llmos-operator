@@ -28,6 +28,7 @@ import (
 
 var (
 	ModelFileResourceName = "modelfiles"
+	NotebookResourceName  = "notebooks"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -53,6 +54,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ModelFile{},
 		&ModelFileList{},
+		&Notebook{},
+		&NotebookList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
