@@ -5,30 +5,16 @@ go 1.22.0
 toolchain go1.22.3
 
 replace (
+	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
 	k8s.io/api => k8s.io/api v0.29.3
 	k8s.io/apimachinery => k8s.io/apimachinery v0.29.3
 	k8s.io/client-go => k8s.io/client-go v0.29.3
+
 )
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/onsi/ginkgo/v2 v2.14.0
-	github.com/onsi/gomega v1.30.0
-	github.com/rancher/lasso v0.0.0-20240415182150-5993b260dd08
-	github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450
-	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
-	github.com/rancher/wrangler/v2 v2.2.0-rc5
-	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.2
-	k8s.io/api v0.29.3
-	k8s.io/apimachinery v0.29.3
-	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
-	sigs.k8s.io/controller-runtime v0.17.2
-)
-
-require (
+	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/ehazlett/simplelog v0.0.0-20200226020431-d374894e92a4
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.4.0
@@ -36,11 +22,27 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.6
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/ollama/ollama v0.1.38
+	github.com/onsi/ginkgo/v2 v2.14.0
+	github.com/onsi/gomega v1.30.0
 	github.com/rancher/apiserver v0.0.0-20240417185102-844817b6e863
-	github.com/rancher/dynamiclistener v0.5.0-rc5
+	github.com/rancher/dynamiclistener v1.27.5
+	github.com/rancher/lasso v0.0.0-20240415182150-5993b260dd08
+	github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450
+	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
+	github.com/rancher/wrangler/v2 v2.2.0-rc5
+	github.com/ray-project/kuberay/ray-operator v0.0.0-00010101000000-000000000000
+	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/cobra v1.8.0
+	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.23.0
+	k8s.io/api v0.29.3
+	k8s.io/apimachinery v0.29.3
 	k8s.io/apiserver v0.29.0
+	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
+	sigs.k8s.io/controller-runtime v0.17.2
+
 )
 
 require (
@@ -105,7 +107,7 @@ require (
 	github.com/rancher/kubernetes-provider-detector v0.1.5 // indirect
 	github.com/rancher/norman v0.0.0-20240417185323-cf0f9cc85249 // indirect
 	github.com/rancher/remotedialer v0.3.2 // indirect
-	github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 // indirect
+	github.com/rancher/wrangler v1.1.1-0.20230831050635-df1bd5aae9df // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect

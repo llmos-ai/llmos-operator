@@ -41,7 +41,7 @@ func (h *handler) getFormatedDBUrl(setting *mgmtv1.Setting) (string, error) {
 	if secretRefName == "" {
 		secretRefName = constant.DefaultDBSecretName
 	}
-	defaultSecret, err := h.secretCache.Get(constant.LLMOSSystemNamespace, secretRefName)
+	defaultSecret, err := h.secretCache.Get(constant.SystemNamespaceName, secretRefName)
 	if err != nil {
 		return "", err
 	}

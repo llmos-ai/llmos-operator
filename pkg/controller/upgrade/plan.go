@@ -28,7 +28,7 @@ func (h *handler) reconcileUpgradeStatus(_ string, plan *upgradev1.Plan) (*upgra
 		return plan, nil
 	}
 
-	upgrade, err := h.upgradeCache.Get(constant.LLMOSSystemNamespace, plan.Labels[constant.LLMOSUpgradeLabel])
+	upgrade, err := h.upgradeCache.Get(constant.SystemNamespaceName, plan.Labels[constant.LLMOSUpgradeLabel])
 	if err != nil {
 		if errors.IsNotFound(err) {
 			logrus.Errorf("upgrade %s not found", plan.Labels[constant.LLMOSUpgradeLabel])

@@ -1,0 +1,23 @@
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: cluster-head
+  annotations:
+    ml.oneblock.ai/rayClusterEnableGCS: "false" # optional, enabled GCS fault tolerance
+spec:
+  rayVersion: '2.9.3'
+  headGroupSpec:
+    # The `rayStartParams` are used to configure the `ray start` command.
+    # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
+    # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
+    rayStartParams:
+      dashboard-host: '0.0.0.0'
+    template:
+      spec:
+        containers:
+        - name: ray-head
+          image: anyscale/ray:2.9.3
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi

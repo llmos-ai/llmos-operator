@@ -28,7 +28,20 @@ dependencies:
     version: 0.1.0
     repository: "file://dependency_charts/ollama"
     condition: ollama.enabled
-  - name: postgresql
-    version: 15.5.5
+#  - name: postgresql
+#    version: 15.5.5
+#    repository: https://charts.bitnami.com/bitnami
+#    condition: postgresql.enabled
+  - name: kuberay-operator
+    version: "1.1.1"
+    repository: "https://ray-project.github.io/kuberay-helm"
+    condition: kuberay-operator.enabled
+    tags:
+      - ml-framework
+      - ray.io
+  - name: redis
+    version: 19.6.1
     repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled
+    condition: redis.enabled
+    tags:
+      - redis

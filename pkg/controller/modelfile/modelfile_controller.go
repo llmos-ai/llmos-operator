@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	modelFilesOnChange = "llmos-modelfiles-onchange"
-	modelFilesOnDelete = "llmos-modelfiles-ondelete"
+	modelFilesOnChange = "modelFile.onChange"
+	modelFilesOnDelete = "modelFile.onDelete"
 )
 
 type handler struct {
