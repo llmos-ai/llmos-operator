@@ -11,7 +11,7 @@ import (
 func addPublicNamespace(apply apply.Apply) error {
 	// add public namespace for all authenticated users
 	namespace := &v1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{Name: constant.LLMOSPublicNamespace},
+		ObjectMeta: metav1.ObjectMeta{Name: constant.PublicNamespaceName},
 	}
 
 	return apply.

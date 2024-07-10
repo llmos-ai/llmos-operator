@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	upgradeOnChange   = "llmos-upgrade-onchange"
-	upgradeOnDelete   = "llmos-upgrade-delete"
-	upgradeWatchPlans = "llmos-upgrade-watch-plans"
+	upgradeOnChange   = "upgrade.onChange"
+	upgradeOnDelete   = "upgrade.delete"
+	upgradeWatchPlans = "upgrade.watchPlans"
 
 	upgradeServiceAccount   = "system-upgrade"
 	stateUpgrading          = "Upgrading"

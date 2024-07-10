@@ -16,6 +16,8 @@ import (
 
 	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
 	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai"
+	nvidiav1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/nvidia.com"
+	kuberayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io"
 	"github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io"
 	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
 )
@@ -35,6 +37,8 @@ type Management struct {
 	MgmtFactory    *ctlmgmtv1.Factory
 	UpgradeFactory *upgrade.Factory
 	LLMFactory     *ctlmlv1.Factory
+	KubeRayFactory *kuberayv1.Factory
+	NvidiaFactory  *nvidiav1.Factory
 
 	starters []start.Starter
 }
@@ -110,6 +114,20 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config,
 	}
 	mgmt.UpgradeFactory = upgrade
 	mgmt.starters = append(mgmt.starters, upgrade)
+
+	kuberay, err := kuberayv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.KubeRayFactory = kuberay
+	mgmt.starters = append(mgmt.starters, kuberay)
+
+	nvidia, err := nvidiav1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.NvidiaFactory = nvidia
+	mgmt.starters = append(mgmt.starters, nvidia)
 
 	return mgmt, nil
 }

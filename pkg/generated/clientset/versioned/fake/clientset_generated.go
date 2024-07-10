@@ -23,6 +23,10 @@ import (
 	fakemanagementv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1/fake"
 	mlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 	fakemlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1/fake"
+	nvidiav1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/nvidia.com/v1"
+	fakenvidiav1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/nvidia.com/v1/fake"
+	rayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ray.io/v1"
+	fakerayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ray.io/v1/fake"
 	upgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	fakeupgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -90,6 +94,16 @@ func (c *Clientset) ManagementV1() managementv1.ManagementV1Interface {
 // MlV1 retrieves the MlV1Client
 func (c *Clientset) MlV1() mlv1.MlV1Interface {
 	return &fakemlv1.FakeMlV1{Fake: &c.Fake}
+}
+
+// NvidiaV1 retrieves the NvidiaV1Client
+func (c *Clientset) NvidiaV1() nvidiav1.NvidiaV1Interface {
+	return &fakenvidiav1.FakeNvidiaV1{Fake: &c.Fake}
+}
+
+// RayV1 retrieves the RayV1Client
+func (c *Clientset) RayV1() rayv1.RayV1Interface {
+	return &fakerayv1.FakeRayV1{Fake: &c.Fake}
 }
 
 // UpgradeV1 retrieves the UpgradeV1Client

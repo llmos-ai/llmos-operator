@@ -8,9 +8,16 @@ import (
 	"entgo.io/ent/entc/gen"
 	"github.com/sirupsen/logrus"
 
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	controllergen "github.com/rancher/wrangler/v2/pkg/controller-gen"
 	"github.com/rancher/wrangler/v2/pkg/controller-gen/args"
+	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
+)
+
+const (
+	kubeRayGV = "ray.io"
+	nvidiaGV  = "nvidia.com"
 )
 
 func main() {
@@ -62,6 +69,24 @@ func main() {
 				Types: []interface{}{
 					upgradev1.Plan{},
 				},
+				GenerateClients: true,
+			},
+			kubeRayGV: {
+				PackageName: kubeRayGV,
+				Types: []interface{}{
+					rayv1.RayCluster{},
+					rayv1.RayJob{},
+					rayv1.RayService{},
+				},
+				GenerateTypes:   false,
+				GenerateClients: true,
+			},
+			nvidiaGV: {
+				PackageName: nvidiaGV,
+				Types: []interface{}{
+					nvidiav1.ClusterPolicy{},
+				},
+				GenerateTypes:   false,
 				GenerateClients: true,
 			},
 		},

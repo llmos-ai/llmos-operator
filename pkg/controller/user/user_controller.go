@@ -21,7 +21,7 @@ import (
 const (
 	usernameLabelKey     = "management.llmos.ai/username"
 	publicInfoViewerRole = "system:public-info-viewer"
-	userControllerName   = "llmos-user-controller"
+	userControllerName   = "user.onChange"
 )
 
 // userHandler reconcile the user's clusterRole and clusterRoleBinding

@@ -5,7 +5,15 @@ import (
 )
 
 const (
-	LLMOSPrefix       = "llmos.ai"
+	LLMOSPrefix = "llmos.ai"
+	MLPrefix    = "ml.llmos.ai"
+
+	SystemNamespaceName = "llmos-system"
+	PublicNamespaceName = "llmos-public"
+	SUCNamespace        = "system-upgrade"
+	AdminRole           = "cluster-admin"
+	TimeLayout          = time.RFC3339
+
 	LLMOSVersionLabel = LLMOSPrefix + "/version"
 	LLMOSUpgradeLabel = LLMOSPrefix + "/upgrade"
 	LLMOSManagedLabel = LLMOSPrefix + "/managed"
@@ -24,12 +32,14 @@ const (
 	ModelOriginModelAnnotation    = LLMOSPrefix + "/original-model"
 	ModelFileSkipDeleteAnnotation = LLMOSPrefix + "/model-file-skip-delete"
 
-	LLMOSSystemNamespace = "llmos-system"
-	LLMOSPublicNamespace = "llmos-public"
-	SUCNamespace         = "system-upgrade"
-	TimeLayout           = time.RFC3339
+	AnnotationResourceStopped      = LLMOSPrefix + "/resourceStopped"
+	AnnotationVolumeClaimTemplates = LLMOSPrefix + "/volumeClaimTemplates"
 
-	AdminRole = "cluster-admin"
-
-	AnnotationResourceStopped = LLMOSPrefix + "/resourceStopped"
+	// kubeRay related constant
+	LabelRaySchedulerName           = "ray.io/scheduler-name"
+	AnnotationRayClusterInitialized = MLPrefix + "rayClusterInitialized"
+	AnnotationRayFTEnabledKey       = "ray.io/ft-enabled"
+	RayRedisCleanUpFinalizer        = "ray.io/gcs-ft-redis-cleanup-finalizer"
+	RayServiceKind                  = "RayService"
+	RedisSecretKeyName              = "redis-password" // #nosec G101
 )

@@ -2,8 +2,11 @@ dependencies:
 - name: ollama
   repository: file://dependency_charts/ollama
   version: 0.1.0
-- name: postgresql
+- name: kuberay-operator
+  repository: https://ray-project.github.io/kuberay-helm
+  version: 1.1.1
+- name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 15.5.5
-digest: sha256:d9dae3ff9498c8d9676c5f8a3002ff0d33081018f922c80055030b4d8694431c
-generated: "2024-06-14T17:55:25.945065+08:00"
+  version: 19.6.1
+digest: sha256:bf592c64165c8e69036082bf648c5b2e123b623f4eadd96acd6abbe5e4081e13
+generated: "2024-07-09T11:50:26.984607+08:00"

@@ -606,6 +606,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c/go.mod h1:X0CRv0ky0k6m906ixxpzmDRLvX58TFUKS2eePweuyxk=
+github.com/NVIDIA/gpu-operator v1.11.1 h1:MuM3nFga8dcK0krgxarYaSmpGSnFYOl2zBQRBNvHKD0=
+github.com/NVIDIA/gpu-operator v1.11.1/go.mod h1:cKk+zdpWTj5fR7nRri+DzFoW8aG5iD3RkoYOMCMcNEU=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
@@ -978,6 +980,8 @@ github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/ollama/ollama v0.1.38 h1:YaDV+02/X0j7Sn1DaMGAge3PFRt2F+GqfPh6XeD9sC4=
 github.com/ollama/ollama v0.1.38/go.mod h1:7el+Pwxjgm3MUUvmhC4d8SE9l3MrS8NQAywauUdyBDU=
+github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866 h1:MDZyohMr1xNrmBdtWtNI70kcGcQvhOB5C5HbzWo8uvk=
+github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866/go.mod h1:ZqyKKvMP5nKDldQoKmur+Wcx7wVlV9Q98phFqHzr+KY=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.12.1/go.mod h1:zj2OWP4+oCPe1qIXoGWkgMRwljMUYCdkwsT2108oapk=
 github.com/onsi/ginkgo v1.16.4/go.mod h1:dX+/inL/fNMqNlz0e9LfyB9TswhZpCVdJM/Z6Vvnwo0=
@@ -1049,8 +1053,8 @@ github.com/prometheus/procfs v0.12.0 h1:jluTpSng7V9hY0O2R9DzzJHYb2xULk9VTR1V1R/k
 github.com/prometheus/procfs v0.12.0/go.mod h1:pcuDEFsWDnvcgNzo4EEweacyhjeA9Zk3cnaOZAZEfOo=
 github.com/rancher/apiserver v0.0.0-20240417185102-844817b6e863 h1:v0+GDf7vw/4wfWW0Iu/kgCpLhYo93hSS6RgRq0JYxXQ=
 github.com/rancher/apiserver v0.0.0-20240417185102-844817b6e863/go.mod h1:H9ZpHs0pFCQIgnD1wRG0Cpr5NPoE/pSx33RGlLQeiwM=
-github.com/rancher/dynamiclistener v0.5.0-rc5 h1:LHH4uJQsM0FM1XQa36VG1Xk4JImhj2K9JblDDXpRVUI=
-github.com/rancher/dynamiclistener v0.5.0-rc5/go.mod h1:5lLFhfRg+93ph3tuC7lXjbdEf/sfodAhA9h8HNwmxRs=
+github.com/rancher/dynamiclistener v1.27.5 h1:FA/s9vbQzGz1Au3BuFvdbBfBBUmHGXGR3xoliwR4qfY=
+github.com/rancher/dynamiclistener v1.27.5/go.mod h1:VqBaJNi+bZmre0+gi+2Jb6jbn7ovHzRueW+M7QhVKsk=
 github.com/rancher/kubernetes-provider-detector v0.1.5 h1:hWRAsWuJOemzGjz/XrbTlM7QmfO4OedvFE3QwXiH60I=
 github.com/rancher/kubernetes-provider-detector v0.1.5/go.mod h1:ypuJS7kP7rUiAn330xG46mj+Nhvym05GM8NqMVekpH0=
 github.com/rancher/lasso v0.0.0-20240415182150-5993b260dd08 h1:2dQYQSaS5KQf8ihRfAsFqp/7OOQV22y5R0JnEZaXY2c=
@@ -1063,8 +1067,8 @@ github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450 h1:aFLAx4PPi1EQOdaaN
 github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450/go.mod h1:q+Bt/WsIXOCO+60qeQx86ePtzaXA6mtUvKyB+QOVZns=
 github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea h1:yQ/VDLH4tXWcxlK5rHDrm26JdSFaSj/QHu8+9P8VSGE=
 github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea/go.mod h1:04o7UUy7ZFiMDEtHEjO1yS7IkO8TcsgjBl93Fcjq7Gg=
-github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 h1:otb4OjgXH2b8a4C9g76jCDuTF3opjaYffZ55SiVe7KU=
-github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689/go.mod h1:D6Tu6oVX8aGtCHsMCtYaysgVK3ad920MTSeAu7rzb5U=
+github.com/rancher/wrangler v1.1.1-0.20230831050635-df1bd5aae9df h1:WJ+aaUICHPX8HeLmHE9JL/RFHhilMfcJlqmhgpc7gJU=
+github.com/rancher/wrangler v1.1.1-0.20230831050635-df1bd5aae9df/go.mod h1:4T80p+rLh2OLbjCjdExIjRHKNBgK9NUAd7eIU/gRPKk=
 github.com/rancher/wrangler/v2 v2.2.0-rc5 h1:HxqFJyVuLRSAyexEJ3dETa8HPhSJtWO7dhrfheoQBD0=
 github.com/rancher/wrangler/v2 v2.2.0-rc5/go.mod h1:CxFixTM6jrm17WJSQ0CBwc3zHwrbk4GkTYj56P53WuA=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=

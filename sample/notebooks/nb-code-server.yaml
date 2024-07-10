@@ -1,0 +1,37 @@
+apiVersion: ml.llmos.ai/v1
+kind: Notebook
+metadata:
+  name: nb-code-server
+  namespace: default
+  labels:
+    ml.llmos.ai/notebook-type: code-server
+spec:
+  template:
+    spec:
+      containers:
+      - image: oneblockai/codeserver-python:latest
+        name: nb-code-server
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+        volumeMounts:
+        - mountPath: /home/jovyan
+          name: test-vol
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+      - name: test-vol
+        persistentVolumeClaim:
+          claimName: nb-code-server # keep the name to be consistent with the spec.volumes name
+      - emptyDir:
+          medium: Memory
+        name: dshm
+  volumes:
+  - name: nb-code-server
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi

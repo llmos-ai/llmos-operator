@@ -7,6 +7,7 @@ import (
 
 	"github.com/llmos-ai/llmos-controller/pkg/controller/modelfile"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/notebook"
+	"github.com/llmos-ai/llmos-controller/pkg/controller/raycluster"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/setting"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/upgrade"
 	"github.com/llmos-ai/llmos-controller/pkg/controller/user"
@@ -23,6 +24,7 @@ var registerFuncs = []registerFunc{
 	modelfile.Register,
 	user.Register,
 	notebook.Register,
+	raycluster.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management) error {
