@@ -22,7 +22,7 @@ var (
 	FirstLogin             = NewSetting(FirstLoginSettingName, "true")
 	ServerURL              = NewSetting("server-url", "")
 	ServerVersion          = NewSetting("server-version", "dev")
-	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/llmos-ui/latest/index.html")
+	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/dashboard/latest/index.html")
 	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-controller")
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
 	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'

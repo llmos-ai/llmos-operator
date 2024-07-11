@@ -16,20 +16,12 @@ RUN ARCH=$(uname -m); \
     chmod +x dumb-init && \
     mv dumb-init /usr/bin/dumb-init
 
-ENV UI_VERSION latest
-# also update the api-ui-version in pkg/settings/settings.go when updating the version here.
-ENV API_UI_VERSION 1.1.11
-
 RUN mkdir -p /usr/share/llmos-ai/llmos-controller && \
     cd /usr/share/llmos-ai/llmos-controller && \
-    curl -sL https://releases.1block.ai/dashboard/${UI_VERSION}.tar.gz | tar xvzf - --strip-components=2 && \
-    mkdir -p /usr/share/llmos-ai/llmos-controller/api-ui && \
-    cd /usr/share/llmos-ai/llmos-controller/api-ui && \
-    curl -sL https://releases.1block.ai/api-ui/${API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
     cd /var/lib/llmos-ai/llmos-controller
 
-COPY package/entrypoint.sh llmos-controller /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
+COPY package/entrypoint-webhook.sh llmos-controller /usr/bin/
+RUN chmod +x /usr/bin/entrypoint-webhook.sh
 
 VOLUME /var/lib/llmos-ai/llmos-controller
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["entrypoint-webhook.sh"]

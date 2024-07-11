@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "llmos-controller.webhookLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.controller.webhook.replicaCount }}
+  replicas: {{ .Values.webhook.replicaCount }}
   selector:
     matchLabels:
       {{- include "llmos-controller.webhookSelectorLabels" . | nindent 6 }}
@@ -29,37 +29,37 @@ spec:
       securityContext:
         {{- toYaml .Values.controller.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: webhook
           securityContext:
             {{- toYaml .Values.controller.securityContext | nindent 12 }}
-          image: "{{ .Values.controller.webhook.image.repository }}:{{ .Values.controller.webhook.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.controller.webhook.image.pullPolicy }}
+          image: "{{ .Values.webhook.image.repository }}:{{ .Values.webhook.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.webhook.image.pullPolicy }}
           ports:
             - name: webhook
-              containerPort: {{ .Values.controller.service.webhookPort }}
+              containerPort: {{ .Values.webhook.service.webhookPort }}
               protocol: TCP
             - name: profile
-              containerPort: {{ .Values.controller.service.profilePort }}
+              containerPort: {{ .Values.webhook.service.profilePort }}
               protocol: TCP
           resources:
-            {{- toYaml .Values.controller.resources | nindent 12 }}
-          {{- with .Values.controller.volumeMounts }}
+            {{- toYaml .Values.webhook.resources | nindent 12 }}
+          {{- with .Values.webhook.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.controller.volumes }}
+      {{- with .Values.webhook.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.controller.nodeSelector }}
+      {{- with .Values.webhook.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.controller.affinity }}
+      {{- with .Values.webhook.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.controller.tolerations }}
+      {{- with .Values.webhook.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
