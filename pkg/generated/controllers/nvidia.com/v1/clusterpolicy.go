@@ -35,17 +35,17 @@ import (
 
 // ClusterPolicyController interface for managing ClusterPolicy resources.
 type ClusterPolicyController interface {
-	generic.ControllerInterface[*v1.ClusterPolicy, *v1.ClusterPolicyList]
+	generic.NonNamespacedControllerInterface[*v1.ClusterPolicy, *v1.ClusterPolicyList]
 }
 
 // ClusterPolicyClient interface for managing ClusterPolicy resources in Kubernetes.
 type ClusterPolicyClient interface {
-	generic.ClientInterface[*v1.ClusterPolicy, *v1.ClusterPolicyList]
+	generic.NonNamespacedClientInterface[*v1.ClusterPolicy, *v1.ClusterPolicyList]
 }
 
 // ClusterPolicyCache interface for retrieving ClusterPolicy resources in memory.
 type ClusterPolicyCache interface {
-	generic.CacheInterface[*v1.ClusterPolicy]
+	generic.NonNamespacedCacheInterface[*v1.ClusterPolicy]
 }
 
 // ClusterPolicyStatusHandler is executed for every added or modified ClusterPolicy. Should return the new status to be updated

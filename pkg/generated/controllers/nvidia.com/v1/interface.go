@@ -44,5 +44,5 @@ type version struct {
 }
 
 func (v *version) ClusterPolicy() ClusterPolicyController {
-	return generic.NewController[*v1.ClusterPolicy, *v1.ClusterPolicyList](schema.GroupVersionKind{Group: "nvidia.com", Version: "v1", Kind: "ClusterPolicy"}, "clusterpolicies", true, v.controllerFactory)
+	return generic.NewNonNamespacedController[*v1.ClusterPolicy, *v1.ClusterPolicyList](schema.GroupVersionKind{Group: "nvidia.com", Version: "v1", Kind: "ClusterPolicy"}, "clusterpolicies", v.controllerFactory)
 }
