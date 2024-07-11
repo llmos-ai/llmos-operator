@@ -44,7 +44,7 @@ func (h Handler) do(rw http.ResponseWriter, req *http.Request) error {
 	return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("Unsupported method %s", req.Method))
 }
 
-func (h Handler) doPost(action string, rw http.ResponseWriter, req *http.Request) error {
+func (h Handler) doPost(action string, _ http.ResponseWriter, req *http.Request) error {
 	vars := utils.EncodeVars(mux.Vars(req))
 	name := vars["name"]
 	switch action {

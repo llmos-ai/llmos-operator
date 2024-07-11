@@ -11,17 +11,17 @@ import (
 
 	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-controller/pkg/auth"
+	"github.com/llmos-ai/llmos-controller/pkg/constant"
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
 )
 
 const (
-	defaultAdminLabelKey   = "management.llmos.ai/default-admin"
 	defaultAdminLabelValue = "true"
 	defaultAdminPassword   = "password"
 )
 
 var defaultAdminLabel = map[string]string{
-	defaultAdminLabelKey: defaultAdminLabelValue,
+	constant.DefaultAdminLabelKey: defaultAdminLabelValue,
 }
 
 func BootstrapDefaultAdmin(mgmt *config.Management) error {
@@ -64,7 +64,7 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 			ObjectMeta: metav1.ObjectMeta{
 				GenerateName: "default-admin-",
 				Labels: map[string]string{
-					defaultAdminLabelKey: defaultAdminLabelValue,
+					constant.DefaultAdminLabelKey: defaultAdminLabelValue,
 				},
 				OwnerReferences: []metav1.OwnerReference{
 					{

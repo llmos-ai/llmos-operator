@@ -42,4 +42,6 @@ const (
 	RayRedisCleanUpFinalizer        = "ray.io/gcs-ft-redis-cleanup-finalizer"
 	RayServiceKind                  = "RayService"
 	RedisSecretKeyName              = "redis-password" // #nosec G101
+
+	DefaultAdminLabelKey = "management.llmos.ai/default-admin"
 )

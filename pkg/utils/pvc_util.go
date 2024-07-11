@@ -17,7 +17,8 @@ type PVCHandler struct {
 	pvcCache ctlcorev1.PersistentVolumeClaimCache
 }
 
-func NewPVCHandler(pvcs ctlcorev1.PersistentVolumeClaimClient, pvcCache ctlcorev1.PersistentVolumeClaimCache) *PVCHandler {
+func NewPVCHandler(pvcs ctlcorev1.PersistentVolumeClaimClient,
+	pvcCache ctlcorev1.PersistentVolumeClaimCache) *PVCHandler {
 	return &PVCHandler{
 		pvcs:     pvcs,
 		pvcCache: pvcCache,

@@ -23,13 +23,14 @@ import (
 )
 
 type Management struct {
-	Ctx        context.Context
-	Namespace  string
-	ClientSet  *kubernetes.Clientset
-	RestConfig *rest.Config
-	Apply      apply.Apply
-	Scheme     *runtime.Scheme
-	EntClient  *ent.Client
+	Ctx         context.Context
+	Namespace   string
+	ReleaseName string
+	ClientSet   *kubernetes.Clientset
+	RestConfig  *rest.Config
+	Apply       apply.Apply
+	Scheme      *runtime.Scheme
+	EntClient   *ent.Client
 
 	CoreFactory    *corev1.Factory
 	AppsFactory    *appsv1.Factory
@@ -44,11 +45,12 @@ type Management struct {
 }
 
 func SetupManagement(ctx context.Context, restConfig *rest.Config,
-	namespace string) (*Management, error) {
+	namespace, releaseName string) (*Management, error) {
 	mgmt := &Management{
-		Ctx:       ctx,
-		Namespace: namespace,
-		Scheme:    Scheme,
+		Ctx:         ctx,
+		Namespace:   namespace,
+		ReleaseName: releaseName,
+		Scheme:      Scheme,
 	}
 
 	apply, err := apply.NewForConfig(restConfig)

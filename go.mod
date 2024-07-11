@@ -5,11 +5,11 @@ go 1.22.0
 toolchain go1.22.3
 
 replace (
+	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.5.0-rc6
 	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
 	k8s.io/api => k8s.io/api v0.29.3
 	k8s.io/apimachinery => k8s.io/apimachinery v0.29.3
 	k8s.io/client-go => k8s.io/client-go v0.29.3
-
 )
 
 require (
@@ -22,14 +22,15 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.6
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/ollama/ollama v0.1.38
+	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
 	github.com/onsi/ginkgo/v2 v2.14.0
 	github.com/onsi/gomega v1.30.0
 	github.com/rancher/apiserver v0.0.0-20240417185102-844817b6e863
 	github.com/rancher/dynamiclistener v1.27.5
-	github.com/rancher/lasso v0.0.0-20240415182150-5993b260dd08
+	github.com/rancher/lasso v0.0.0-20240424194130-d87ec407d941
 	github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
-	github.com/rancher/wrangler/v2 v2.2.0-rc5
+	github.com/rancher/wrangler/v2 v2.2.0-rc6
 	github.com/ray-project/kuberay/ray-operator v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -38,11 +39,10 @@ require (
 	golang.org/x/crypto v0.23.0
 	k8s.io/api v0.29.3
 	k8s.io/apimachinery v0.29.3
-	k8s.io/apiserver v0.29.0
+	k8s.io/apiserver v0.29.3
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0 // indirect
+	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	sigs.k8s.io/controller-runtime v0.17.2
-
 )
 
 require (
@@ -96,6 +96,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
+	github.com/oneblock-ai/dynamiclistener/v2 v2.0.0-20231114071240-8bd0d400c27d // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -145,12 +146,13 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.29.0 // indirect
-	k8s.io/code-generator v0.29.0 // indirect
-	k8s.io/component-base v0.29.0 // indirect
+	k8s.io/apiextensions-apiserver v0.29.3 // indirect
+	k8s.io/code-generator v0.29.3 // indirect
+	k8s.io/component-base v0.29.3 // indirect
 	k8s.io/gengo v0.0.0-20240310015720-9cff6334dab4 // indirect
+	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
-	k8s.io/kube-aggregator v0.28.6 // indirect
+	k8s.io/kube-aggregator v0.29.3 // indirect
 	k8s.io/kube-openapi v0.0.0-20240411171206-dc4e619f62f3 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.28.0 // indirect
 	sigs.k8s.io/cli-utils v0.35.0 // indirect

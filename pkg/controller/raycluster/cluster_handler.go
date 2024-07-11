@@ -5,10 +5,11 @@ import (
 
 	ctlcorev1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/core/v1"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
-
-	ctlkuberayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io/v1"
+	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	ctlkuberayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io/v1"
+
 	"github.com/llmos-ai/llmos-controller/pkg/server/config"
 )
 
@@ -39,7 +40,7 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 	configmaps := mgmt.CoreFactory.Core().V1().ConfigMap()
 
 	h := &handler{
-		releaseName:  "llmos-controller",
+		releaseName:  mgmt.ReleaseName,
 		rayClusters:  clusters,
 		services:     services,
 		serviceCache: services.Cache(),
@@ -62,9 +63,7 @@ func (h *handler) OnChanged(_ string, cluster *rayv1.RayCluster) (*rayv1.RayClus
 	}
 
 	// sync GCS Redis secret to the cluster namespace
-	h.syncGCSRedisSecretToNamespace(h.releaseName, cluster)
-
-	return nil, nil
+	return nil, h.syncGCSRedisSecretToNamespace(h.releaseName, cluster)
 }
 
 func (h *handler) OnDelete(_ string, cluster *rayv1.RayCluster) (*rayv1.RayCluster, error) {
@@ -72,6 +71,7 @@ func (h *handler) OnDelete(_ string, cluster *rayv1.RayCluster) (*rayv1.RayClust
 		return nil, nil
 	}
 
+	logrus.Debugf("on delete ray cluster: %s/%s", cluster.Name, cluster.Namespace)
 	// wait for the redis clean up job finished first since it will mount all volumes and configmaps to it
 	for _, f := range cluster.Finalizers {
 		if f == constant.RayRedisCleanUpFinalizer {
