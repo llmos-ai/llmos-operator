@@ -43,11 +43,27 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Webhook labels
+*/}}
+{{- define "llmos-controller.webhookLabels" -}}
+{{ include "llmos-controller.labels" . }}
+app.llmos.ai/webhook: "true"
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "llmos-controller.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "llmos-controller.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Webhook selector labels
+*/}}
+{{- define "llmos-controller.webhookSelectorLabels" -}}
+{{ include "llmos-controller.selectorLabels" . }}
+app.llmos.ai/webhook: "true"
 {{- end }}
 
 {{/*

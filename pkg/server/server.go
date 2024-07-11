@@ -25,6 +25,7 @@ type APIServer struct {
 	httpsListenPort int
 	threadiness     int
 	namespace       string
+	releaseName     string
 	skipAuth        bool
 
 	mgmt        *sconfig.Management
@@ -52,6 +53,7 @@ func NewServer(o Options) (*APIServer, error) {
 		threadiness:     o.Threadiness,
 		namespace:       o.Namespace,
 		skipAuth:        o.SkipAuth,
+		releaseName:     o.ReleaseName,
 	}
 
 	clientConfig, err := GetConfig(s.kubeconfig)
@@ -107,12 +109,12 @@ func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
 	opts := &steve.Options{}
 
 	// set up the management config
-	s.mgmt, err = sconfig.SetupManagement(s.ctx, cfg, s.namespace)
+	s.mgmt, err = sconfig.SetupManagement(s.ctx, cfg, s.namespace, s.releaseName)
 	if err != nil {
 		return nil, err
 	}
 
-	// define the next handler after the mgmt is setup
+	// define the next handler after the mgmt is set up
 	r := NewRouter(s.mgmt)
 	opts.Next = r.Routes()
 

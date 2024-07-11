@@ -42,13 +42,21 @@ fullnameOverride: ""
 depNameOverride: &depNameOverride "llmos"
 
 controller:
-  replicaCount: 0
+  replicaCount: 1
 
   image:
     repository: ghcr.io/llmos-ai/llmos-controller
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "main"
+
+  webhook:
+    replicaCount: 1
+    image:
+      repository: ghcr.io/llmos-ai/llmos-controller-webhook
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "main"
 
   serviceAccount:
     # Specifies whether a service account should be created
@@ -79,6 +87,7 @@ controller:
     type: NodePort
     httpsPort: 8443
     httpsNodePort: 30443
+    webhookPort: 8444
     profilePort: 6060
 
   resources:
@@ -105,27 +114,6 @@ controller:
       operator: Exists
 
   affinity: {}
-
-#postgresql:
-#  enabled: true
-#  image:
-#    repository: bitnami/postgresql
-#    tag: 16.3.0-debian-12-r14
-#    pullPolicy: IfNotPresent
-#  fullnameOverride: "llmos-postgresql"
-#  primary:
-#    resources:
-#      limits:
-#        cpu: 2
-#        memory: 4Gi
-#      requests:
-#        cpu: 200m
-#        memory: 256Mi
-#    persistence:
-#      enabled: true
-#      accessModes:
-#        - ReadWriteOnce
-#      size: 5Gi
 
 suc:
   enabled: true

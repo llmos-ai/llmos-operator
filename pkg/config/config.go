@@ -19,6 +19,7 @@ type CommonOptions struct {
 	ProfilerAddress string
 	KubeConfig      string
 	Namespace       string
+	ReleaseName     string
 }
 
 func InitProfiling(profileAddress string) {

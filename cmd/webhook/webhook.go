@@ -5,37 +5,37 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/llmos-ai/llmos-controller/pkg/config"
-	"github.com/llmos-ai/llmos-controller/pkg/server"
+	ws "github.com/llmos-ai/llmos-controller/pkg/webhook/server"
 )
 
 var (
 	httpsPort   int
-	httpPort    int
 	threadiness int
-	skipAuth    bool
+	devMode     bool
+	devURL      string
 )
 
-func NewAPIServer() *cobra.Command {
+func NewWebhookServer() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "apiserver",
-		Short: "Run llmos-controller API server",
+		Use:   "webhook",
+		Short: "Run llmos-controller webhook",
 		RunE:  run,
 	}
 
-	cmd.PersistentFlags().IntVar(&httpsPort, "https_port", 8443, "port to listen on for https")
-	cmd.PersistentFlags().IntVar(&httpPort, "http_port", 8080, "port to listen on for http")
-	cmd.PersistentFlags().IntVar(&threadiness, "threadiness", 5, "number of threads to run the controller")
-	cmd.PersistentFlags().BoolVar(&skipAuth, "skip_auth", false, "skip authentication")
+	cmd.PersistentFlags().IntVar(&httpsPort, "https_port", 8444, "port to listen on for https")
+	cmd.PersistentFlags().IntVar(&threadiness, "threadiness", 2, "number of threads to run the controller")
+	cmd.PersistentFlags().BoolVar(&devMode, "dev_mode", false, "enable local dev mode")
+	cmd.PersistentFlags().StringVar(&devURL, "dev_url", "", "specify the webhook local url, only used when dev_mode is enabled")
 	return cmd
 }
 
 func run(cmd *cobra.Command, _ []string) error {
-	opts := server.Options{}
+	opts := ws.Options{}
 	opts.Context = cmd.Context()
 	opts.HTTPSListenPort = httpsPort
-	opts.HTTPListenPort = httpPort
 	opts.Threadiness = threadiness
-	opts.SkipAuth = skipAuth
+	opts.DevMode = devMode
+	opts.DevURL = devURL
 	opts.KubeConfig = viper.GetString("kubeconfig")
 	opts.Namespace = viper.GetString("namespace")
 	opts.Debug = viper.GetBool("debug")
@@ -47,9 +47,9 @@ func run(cmd *cobra.Command, _ []string) error {
 	config.InitLogs(opts.CommonOptions)
 	config.InitProfiling(opts.ProfilerAddress)
 
-	server, err := server.NewServer(opts)
+	ws, err := ws.NewServer(opts)
 	if err != nil {
 		return err
 	}
-	return server.ListenAndServe(nil)
+	return ws.ListenAndServe()
 }

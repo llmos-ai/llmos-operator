@@ -6,10 +6,10 @@ metadata:
 #    ray.io/scheduler-name: volcano # the gang scheduler name, currently only support volcano
 #    volcano.sh/queue-name: default # the queue name of volcano scheduler
   annotations:
-    llmos.ai/volumeClaimTemplates: '[{"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"name":"raycluster-gpu-head-log"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"1Gi"}}}}]'
-    ml.llmos.ai/rayClusterEnableGCS: "true" # enabled GCS fault tolerance
+    llmos.ai/volumeClaimTemplates: '[{"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"name":"raycluster-gpu-head-log"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"2Gi"}}}}]'
+    "ray.io/ft-enabled": "true"
 spec:
-  rayVersion: '2.9.3' # should match the Ray version in the image of the containers
+  rayVersion: '2.31.0'
   enableInTreeAutoscaling: true # enable in-tree autoscaling
   # Ray head pod template
   headGroupSpec:
@@ -17,9 +17,10 @@ spec:
     # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
     # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
     rayStartParams:
-      dashboard-host: '0.0.0.0'
-      # Setting "num-cpus: 0" to avoid any Ray actors or tasks being scheduled on the Ray head Pod.
+      block: "true"
+      dashboard-host: "0.0.0.0"
       num-cpus: "0"
+      redis-password: "$REDIS_PASSWORD"
     # Pod template
     template:
       spec:
@@ -53,7 +54,7 @@ spec:
   workerGroupSpecs:
   # the Pod replicas in this group typed worker
   - replicas: 1
-    minReplicas: 1
+    minReplicas: 0
     maxReplicas: 5
     groupName: small-group
     rayStartParams: {}
@@ -65,6 +66,10 @@ spec:
           image: anyscale/ray:2.31.0
           resources:
             requests:
+              cpu: "4"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"
+            limits:
               cpu: "4"
               memory: "8Gi"
               nvidia.com/gpu: "1"
