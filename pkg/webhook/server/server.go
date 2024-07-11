@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	wc "github.com/oneblock-ai/webhook/pkg/config"
 	ws "github.com/oneblock-ai/webhook/pkg/server"
@@ -12,10 +13,6 @@ import (
 	"github.com/llmos-ai/llmos-controller/pkg/config"
 	sserver "github.com/llmos-ai/llmos-controller/pkg/server"
 	"github.com/llmos-ai/llmos-controller/pkg/webhook"
-)
-
-const (
-	webhookName = "llmos-webhook"
 )
 
 // WebhookServer defines the webhook webhookServer types
@@ -62,6 +59,7 @@ func NewServer(opts Options) (*WebhookServer, error) {
 	}
 
 	// set up a new webhook webhookServer
+	webhookName := fmt.Sprintf("%s-webhook", opts.ReleaseName)
 	s.webhookServer = ws.NewWebhookServer(opts.Context, restConfig, webhookName, &wc.Options{
 		Namespace:       opts.Namespace,
 		Threadiness:     opts.Threadiness,

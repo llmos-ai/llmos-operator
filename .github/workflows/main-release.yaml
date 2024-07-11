@@ -26,7 +26,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.21
+        go-version: 1.22
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
@@ -57,6 +57,14 @@ jobs:
         done
         docker manifest create ${{ env.REGISTRY }}/llmos-controller:${{ env.VERSION }} ${IMAGES}
         docker manifest push ${{ env.REGISTRY }}/llmos-controller:${{ env.VERSION }}
+    - name: Push Latest(main) Webhook Images
+      run: |
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-controller-webhook:${{ env.VERSION }})
+        for i in ${IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.REGISTRY }}/llmos-controller-webhook:${{ env.VERSION }} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-controller-webhook:${{ env.VERSION }}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure

@@ -77,12 +77,53 @@ dockers:
     extra_files:
       - package/entrypoint.sh
 
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    dockerfile: package/Dockerfile-webhook
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-amd64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--platform=linux/amd64"
+    extra_files:
+      - package/entrypoint-webhook.sh
+
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    dockerfile: package/Dockerfile-webhook
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-arm64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--platform=linux/arm64"
+    extra_files:
+      - package/entrypoint-webhook.sh
+
 docker_manifests:
   - use: docker
     name_template: "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}"
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-arm64"
+  - use: docker
+    name_template: "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-arm64"
 
 docker_signs:
   - artifacts: all
