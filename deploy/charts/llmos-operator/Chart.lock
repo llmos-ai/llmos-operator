@@ -1,4 +1,7 @@
 dependencies:
+- name: gpu-operator
+  repository: https://helm.ngc.nvidia.com/nvidia
+  version: v24.3.0
 - name: ollama
   repository: file://dependency_charts/ollama
   version: 0.1.0
@@ -8,5 +11,5 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 19.6.1
-digest: sha256:bf592c64165c8e69036082bf648c5b2e123b623f4eadd96acd6abbe5e4081e13
-generated: "2024-07-09T11:50:26.984607+08:00"
+digest: sha256:f3426c5bcf3f95c4cd4a5d88c1f0df91b3ae66071c636a9001fc9d3a1e2980a5
+generated: "2024-07-15T12:02:47.174878+08:00"

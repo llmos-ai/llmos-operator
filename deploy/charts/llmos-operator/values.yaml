@@ -205,3 +205,10 @@ redis:
     enabled: true
     sentinel: true
     password: ""
+  volumePermissions:
+    enabled: true
+
+gpu-operator:
+  enable: true
+  driver:
+    enabled: true
