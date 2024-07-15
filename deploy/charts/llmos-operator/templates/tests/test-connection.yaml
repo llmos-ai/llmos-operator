@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "llmos-operator.fullname" . }}-test-connection"
+  labels:
+    {{- include "llmos-operator.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "llmos-operator.fullname" . }}:{{ .Values.operator.apiserver.service.httpsPort }}']
+  restartPolicy: Never

@@ -9,13 +9,13 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
-	"github.com/llmos-ai/llmos-controller/pkg/api"
-	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
-	"github.com/llmos-ai/llmos-controller/pkg/config"
-	"github.com/llmos-ai/llmos-controller/pkg/controller"
-	"github.com/llmos-ai/llmos-controller/pkg/data"
-	sconfig "github.com/llmos-ai/llmos-controller/pkg/server/config"
-	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
+	"github.com/llmos-ai/llmos-operator/pkg/api"
+	"github.com/llmos-ai/llmos-operator/pkg/api/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/config"
+	"github.com/llmos-ai/llmos-operator/pkg/controller"
+	"github.com/llmos-ai/llmos-operator/pkg/data"
+	sconfig "github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server/ui"
 )
 
 type APIServer struct {

@@ -3,12 +3,12 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ .Release.Name }}-cluster-admin
   labels:
-    {{- include "llmos-controller.labels" . | nindent 4 }}
+    {{- include "llmos-operator.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin # grant the llmos-controller with full cluster admin permission
+  name: cluster-admin # grant the llmos-operator with full cluster admin permission
 subjects:
   - kind: ServiceAccount
-    name: {{ include "llmos-controller.serviceAccountName" . }}
+    name: {{ include "llmos-operator.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}

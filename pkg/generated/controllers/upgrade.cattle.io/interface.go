@@ -18,7 +18,7 @@ limitations under the License.
 package upgrade
 
 import (
-	v1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/upgrade.cattle.io/v1"
 	"github.com/rancher/lasso/pkg/controller"
 )
 

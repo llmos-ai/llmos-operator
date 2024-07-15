@@ -26,9 +26,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/predicate"
-	v1 "github.com/llmos-ai/llmos-controller/pkg/types/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/predicate"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/types/v1"
 )
 
 // ChatUpdate is the builder for updating Chat entities.

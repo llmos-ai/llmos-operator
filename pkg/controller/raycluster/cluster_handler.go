@@ -7,10 +7,10 @@ import (
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 	"github.com/sirupsen/logrus"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	ctlkuberayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlkuberayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const (

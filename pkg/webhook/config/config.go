@@ -8,9 +8,9 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/start"
 	"k8s.io/client-go/rest"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
-	rayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
+	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 type Management struct {

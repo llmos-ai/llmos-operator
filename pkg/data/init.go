@@ -1,7 +1,7 @@
 package data
 
 import (
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 // Init adds built-in resources

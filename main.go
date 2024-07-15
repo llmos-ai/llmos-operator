@@ -5,7 +5,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
-	"github.com/llmos-ai/llmos-controller/cmd"
+	"github.com/llmos-ai/llmos-operator/cmd"
 )
 
 func main() {

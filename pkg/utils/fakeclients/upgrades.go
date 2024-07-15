@@ -10,8 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
 
-	llmosv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	ctlllmosv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	llmosv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	ctlllmosv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 )
 
 type UpgradeClient func(string) ctlllmosv1.UpgradeInterface

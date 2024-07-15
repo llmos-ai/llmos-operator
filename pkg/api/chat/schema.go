@@ -6,7 +6,7 @@ import (
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/steve/pkg/server"
 
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const chatTypeName = "chat"

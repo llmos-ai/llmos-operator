@@ -3,8 +3,8 @@ package setting
 import (
 	"github.com/sirupsen/logrus"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 func (h *handler) settingOnChang(_ string, setting *mgmtv1.Setting) (*mgmtv1.Setting, error) {

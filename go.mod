@@ -1,8 +1,6 @@
-module github.com/llmos-ai/llmos-controller
+module github.com/llmos-ai/llmos-operator
 
-go 1.22.0
-
-toolchain go1.22.3
+go 1.22.3
 
 replace (
 	github.com/NVIDIA/gpu-operator => github.com/oneblock-ai/gpu-operator v0.0.0-20240110024524-05d6fccdf6c4

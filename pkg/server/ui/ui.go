@@ -12,7 +12,7 @@ import (
 	responsewriter "github.com/rancher/apiserver/pkg/middleware"
 	"github.com/sirupsen/logrus"
 
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 var (

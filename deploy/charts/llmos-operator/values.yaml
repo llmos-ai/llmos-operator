@@ -1,0 +1,207 @@
+# Default values for llmos-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## @section Global parameters
+## Please, note that this will override the parameters, including dependencies, configured to use the global value
+global:
+  ## @param global.imageRegistry Global Docker image registry
+  ##
+  imageRegistry: ""
+  ## @param global.imagePullSecrets Global Docker registry secret names as an array
+  ## e.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  imagePullPolicy: IfNotPresent
+  ## @param global.storageClass Global StorageClass for Persistent Volume(s)
+  ##
+  storageClass: ""
+
+nameOverride: ""
+fullnameOverride: ""
+depNameOverride: &depNameOverride "llmos"
+
+operator:
+  apiserver:
+    replicaCount: 1
+    image:
+      repository: ghcr.io/llmos-ai/llmos-operator
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "main"
+
+    serviceAccount:
+      # Specifies whether a service account should be created
+      create: true
+      # Automatically mount a ServiceAccount's API credentials?
+      automount: true
+      # Annotations to add to the service account
+      annotations: {}
+      # The name of the service account to use.
+      # If not set and create is true, a name is generated using the fullname template
+      name: &llmosServiceAccountName "llmos-cluster-admin"
+
+    podAnnotations: {}
+    podLabels: {}
+
+    podSecurityContext: {}
+      # fsGroup: 2000
+
+    securityContext: {}
+      # capabilities:
+      #   drop:
+      #   - ALL
+      # readOnlyRootFilesystem: true
+      # runAsNonRoot: true
+      # runAsUser: 1000
+
+    service:
+      type: NodePort
+      httpsPort: 8443
+      httpsNodePort: 30443
+      profilePort: 6060
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 450Mi
+      limits:
+        cpu: 2
+        memory: 4Gi
+
+    # Additional volumes on the output Deployment definition.
+    volumes: []
+
+    # Additional volumeMounts on the output Deployment definition.
+    volumeMounts: []
+
+    nodeSelector: {}
+
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Exists
+
+    affinity: {}
+
+  webhook:
+    replicaCount: 1
+    image:
+      repository: ghcr.io/llmos-ai/llmos-operator-webhook
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "main"
+
+    service:
+      type: ClusterIP
+      webhookPort: 8444
+      profilePort: 6060
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 250Mi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
+    # Additional volumes on the output Deployment definition.
+    volumes: []
+
+    # Additional volumeMounts on the output Deployment definition.
+    volumeMounts: []
+
+    nodeSelector: {}
+
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Exists
+
+    affinity: {}
+
+suc:
+  enabled: true
+  image:
+    repository: "rancher/system-upgrade-controller:v0.13.4"
+    pullPolicy: IfNotPresent
+
+ollama:
+  enabled: true
+  depNameOverride: *depNameOverride
+  replicaCount: 1
+
+  image:
+    repository: docker.io/ollama/ollama
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "0.1.38"
+
+  service:
+    type: ClusterIP
+    port: 11434
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+  #    nvidia.com/gpu: 1
+  #  limits:
+  #    cpu: 4000m
+  #    memory: 4Gi
+  #    nvidia.com/gpu: 1
+
+  persistent:
+    hostPath: "/var/lib/llmos/ollama"
+    storageSize: "10Gi"
+    storageClassName: "local-path"
+
+kuberay-operator:
+  enabled: true
+  image:
+    repository: quay.io/kuberay/operator
+    tag: v1.1.1
+    pullPolicy: IfNotPresent
+  batchScheduler:
+    enabled: false
+  serviceAccount:
+    create: false
+    name: *llmosServiceAccountName
+
+redis:
+  enabled: true
+  image:
+    repository: bitnami/redis
+    tag: 7.2.5-debian-12-r2
+    pullPolicy: IfNotPresent
+  master:
+    persistence:
+      enabled: true
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+  replica:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+  auth:
+    enabled: true
+    sentinel: true
+    password: ""

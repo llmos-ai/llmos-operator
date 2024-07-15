@@ -9,7 +9,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent"
 )
 
 func GetDBClient(url string) (*ent.Client, error) {

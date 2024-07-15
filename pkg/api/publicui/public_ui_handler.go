@@ -3,9 +3,9 @@ package publicui
 import (
 	"net/http"
 
-	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	"github.com/llmos-ai/llmos-operator/pkg/server/ui"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 type Handler struct {

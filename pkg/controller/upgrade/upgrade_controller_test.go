@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	llmosv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/fake"
-	"github.com/llmos-ai/llmos-controller/pkg/utils/fakeclients"
+	llmosv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/fake"
+	"github.com/llmos-ai/llmos-operator/pkg/utils/fakeclients"
 )
 
 var newUpgrade = &llmosv1.Upgrade{
@@ -21,7 +21,7 @@ var newUpgrade = &llmosv1.Upgrade{
 	Spec: llmosv1.UpgradeSpec{
 		Version: "v0.1.0",
 		ContainerSpec: &upgradev1.ContainerSpec{
-			Image: "ghcr.io/llmos-ai/llmos-controller",
+			Image: "ghcr.io/llmos-ai/llmos-operator",
 			Command: []string{
 				"/usr/sbin/llmos-upgrade",
 			},

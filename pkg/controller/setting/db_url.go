@@ -6,9 +6,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	"github.com/llmos-ai/llmos-controller/pkg/database"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/database"
 )
 
 const postgresPrefix = "postgresql://"

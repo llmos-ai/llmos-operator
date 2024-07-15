@@ -18,7 +18,7 @@ limitations under the License.
 package v1
 
 import (
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/rancher/lasso/pkg/controller"
 	"github.com/rancher/wrangler/v2/pkg/generic"
 	"github.com/rancher/wrangler/v2/pkg/schemes"

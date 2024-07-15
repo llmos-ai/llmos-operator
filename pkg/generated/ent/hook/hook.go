@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent"
 )
 
 // The ChatFunc type is an adapter to allow the use of ordinary

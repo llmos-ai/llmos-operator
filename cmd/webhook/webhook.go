@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/llmos-ai/llmos-controller/pkg/config"
-	ws "github.com/llmos-ai/llmos-controller/pkg/webhook/server"
+	"github.com/llmos-ai/llmos-operator/pkg/config"
+	ws "github.com/llmos-ai/llmos-operator/pkg/webhook/server"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 func NewWebhookServer() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "webhook",
-		Short: "Run llmos-controller webhook",
+		Short: "Run llmos-operator webhook",
 		RunE:  run,
 	}
 

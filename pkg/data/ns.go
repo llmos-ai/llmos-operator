@@ -5,7 +5,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 func addPublicNamespace(apply apply.Apply) error {

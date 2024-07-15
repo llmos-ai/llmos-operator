@@ -1,6 +1,6 @@
 # Common settings
 REGISTRY ?= ghcr.io/llmos-ai
-REPO ?= llmos-controller
+REPO ?= llmos-operator
 VERSION ?= main
 IMG ?= ${REGISTRY}/${REPO}:${VERSION}
 
@@ -105,11 +105,11 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 ##@ Build
 .PHONY: build-local
-build-local: ## Build llmos-controller using goreleaser.
+build-local: ## Build llmos-operator using goreleaser.
 	goreleaser release --snapshot --clean
 
 .PHONY: build-release
-build-release: manifests generate fmt vet ## Build llmos-controller using goreleaser.
+build-release: manifests generate fmt vet ## Build llmos-operator using goreleaser.
 	goreleaser release --snapshot --clean
 
 .PHONY: run
@@ -141,11 +141,11 @@ endif
 
 .PHONY: install
 install: ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-controller deploy/charts/llmos-controller --reuse-values --skip-crds -f deploy/charts/llmos-controller/values.yaml
+	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-operator deploy/charts/llmos-operator --reuse-values --skip-crds -f deploy/charts/llmos-operator/values.yaml
 
 .PHONY: uninstall
 uninstall: ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
-	$(HELM) uninstall -n llmos-system llmos-controller
+	$(HELM) uninstall -n llmos-system llmos-operator
 
 .PHONY: install-crds
 install-crds: manifests ## Install CRDs into the K8s cluster.
@@ -158,7 +158,7 @@ uninstall-crd: ## Uninstall CRDs from the K8s cluster.
 ##@ Dependencies
 .PHONY: helm-dep
 helm-dep: ## Uninstall CRDs from the K8s cluster.
-	$(HELM) dep update deploy/charts/llmos-controller
+	$(HELM) dep update deploy/charts/llmos-operator
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin

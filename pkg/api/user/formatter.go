@@ -10,7 +10,7 @@ import (
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/wrangler/v2/pkg/schemas/validation"
 
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 func formatter(request *types.APIRequest, resource *types.RawResource) {

@@ -14,12 +14,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai"
-	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai"
-	nvidiav1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/nvidia.com"
-	kuberayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/controllers/upgrade.cattle.io"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
+	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
+	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai"
+	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/nvidia.com"
+	kuberayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/controllers/upgrade.cattle.io"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent"
 )
 
 type Management struct {

@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
 
-	ctlupgradev1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
+	ctlupgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 )
 
 type PlanClient func(string) ctlupgradev1.PlanInterface

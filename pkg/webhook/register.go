@@ -8,10 +8,10 @@ import (
 	"github.com/oneblock-ai/webhook/pkg/server/admission"
 	"k8s.io/client-go/rest"
 
-	wconfig "github.com/llmos-ai/llmos-controller/pkg/webhook/config"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/resources/notebook"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/resources/raycluster"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/resources/user"
+	wconfig "github.com/llmos-ai/llmos-operator/pkg/webhook/config"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/notebook"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/user"
 )
 
 func register(mgmt *wconfig.Management) (validators []admission.Validator, mutators []admission.Mutator) {

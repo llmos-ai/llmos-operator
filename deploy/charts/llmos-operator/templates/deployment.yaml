@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "llmos-operator.fullname" . }}
+  labels:
+    {{- include "llmos-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.operator.apiserver.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "llmos-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.operator.apiserver.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "llmos-operator.labels" . | nindent 8 }}
+        {{- with .Values.operator.apiserver.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "llmos-operator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.operator.apiserver.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.operator.apiserver.securityContext | nindent 12 }}
+          image: "{{ .Values.operator.apiserver.image.repository }}:{{ .Values.operator.apiserver.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.operator.apiserver.image.pullPolicy }}
+          ports:
+            - name: https
+              containerPort: {{ .Values.operator.apiserver.service.httpsPort }}
+              protocol: TCP
+            - name: profile
+              containerPort: {{ .Values.operator.apiserver.service.profilePort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.operator.apiserver.resources | nindent 12 }}
+          {{- with .Values.operator.apiserver.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.operator.apiserver.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.apiserver.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.apiserver.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.apiserver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

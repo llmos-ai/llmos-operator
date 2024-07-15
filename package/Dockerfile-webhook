@@ -1,13 +1,13 @@
 FROM registry.opensuse.org/opensuse/leap:15.6
 
-WORKDIR /var/lib/llmos-ai/llmos-controller
+WORKDIR /var/lib/llmos-ai/llmos-operator
 
 RUN zypper ar -G https://download.opensuse.org/repositories/utilities/15.6/utilities.repo || true && \
     zypper ref
 
 RUN zypper -n in git unzip tar gzip && \
     zypper -n clean -a && rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
-    mkdir -p /var/lib/llmos-ai/llmos-controller
+    mkdir -p /var/lib/llmos-ai/llmos-operator
 
 # Add dumb-init
 ENV INIT_VERSION 1.2.5
@@ -16,12 +16,12 @@ RUN ARCH=$(uname -m); \
     chmod +x dumb-init && \
     mv dumb-init /usr/bin/dumb-init
 
-RUN mkdir -p /usr/share/llmos-ai/llmos-controller && \
-    cd /usr/share/llmos-ai/llmos-controller && \
-    cd /var/lib/llmos-ai/llmos-controller
+RUN mkdir -p /usr/share/llmos-ai/llmos-operator && \
+    cd /usr/share/llmos-ai/llmos-operator && \
+    cd /var/lib/llmos-ai/llmos-operator
 
-COPY package/entrypoint-webhook.sh llmos-controller /usr/bin/
+COPY package/entrypoint-webhook.sh llmos-operator /usr/bin/
 RUN chmod +x /usr/bin/entrypoint-webhook.sh
 
-VOLUME /var/lib/llmos-ai/llmos-controller
+VOLUME /var/lib/llmos-ai/llmos-operator
 ENTRYPOINT ["entrypoint-webhook.sh"]

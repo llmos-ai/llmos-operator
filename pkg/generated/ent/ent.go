@@ -26,7 +26,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
 )
 
 // ent aliases to avoid import conflicts in user's code.

@@ -27,8 +27,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	v1 "github.com/llmos-ai/llmos-controller/pkg/types/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/types/v1"
 )
 
 // ChatCreate is the builder for creating a Chat entity.

@@ -51,20 +51,20 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push Latest(main) Docker Images
       run: |
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-controller:${{ env.VERSION }})
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator:${{ env.VERSION }})
         for i in ${IMAGES}; do
           docker push $i
         done
-        docker manifest create ${{ env.REGISTRY }}/llmos-controller:${{ env.VERSION }} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-controller:${{ env.VERSION }}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${{ env.VERSION }} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${{ env.VERSION }}
     - name: Push Latest(main) Webhook Images
       run: |
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-controller-webhook:${{ env.VERSION }})
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator-webhook:${{ env.VERSION }})
         for i in ${IMAGES}; do
           docker push $i
         done
-        docker manifest create ${{ env.REGISTRY }}/llmos-controller-webhook:${{ env.VERSION }} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-controller-webhook:${{ env.VERSION }}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${{ env.VERSION }} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${{ env.VERSION }}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure

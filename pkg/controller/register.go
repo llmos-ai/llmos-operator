@@ -5,14 +5,14 @@ import (
 
 	"github.com/rancher/wrangler/v2/pkg/leader"
 
-	"github.com/llmos-ai/llmos-controller/pkg/controller/modelfile"
-	"github.com/llmos-ai/llmos-controller/pkg/controller/notebook"
-	"github.com/llmos-ai/llmos-controller/pkg/controller/raycluster"
-	"github.com/llmos-ai/llmos-controller/pkg/controller/setting"
-	"github.com/llmos-ai/llmos-controller/pkg/controller/upgrade"
-	"github.com/llmos-ai/llmos-controller/pkg/controller/user"
-	"github.com/llmos-ai/llmos-controller/pkg/indexeres"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/upgrade"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/user"
+	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 type registerFunc func(context.Context, *config.Management) error
@@ -37,7 +37,7 @@ func register(ctx context.Context, mgmt *config.Management) error {
 }
 
 func Register(ctx context.Context, mgmt *config.Management, threadiness int) error {
-	go leader.RunOrDie(ctx, "", "llmos-controller-leader", mgmt.ClientSet, func(ctx context.Context) {
+	go leader.RunOrDie(ctx, "", "llmos-operator-leader", mgmt.ClientSet, func(ctx context.Context) {
 		if err := register(ctx, mgmt); err != nil {
 			panic(err)
 		}

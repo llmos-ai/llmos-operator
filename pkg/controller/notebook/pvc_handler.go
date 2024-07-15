@@ -3,7 +3,7 @@ package notebook
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 )
 
 // createNoteBookPVC helps to create PVCs from the resource annotation

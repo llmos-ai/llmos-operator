@@ -4,21 +4,21 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/llmos-ai/llmos-controller/cmd/apiserver"
-	wServer "github.com/llmos-ai/llmos-controller/cmd/webhook"
-	"github.com/llmos-ai/llmos-controller/pkg/config"
+	"github.com/llmos-ai/llmos-operator/cmd/apiserver"
+	wServer "github.com/llmos-ai/llmos-operator/cmd/webhook"
+	"github.com/llmos-ai/llmos-operator/pkg/config"
 )
 
 func New() *cobra.Command {
 	opts := config.CommonOptions{}
 	rootCmd := &cobra.Command{
-		Use:   "llmos-controller",
-		Short: "llmos-controller is a controller for LLMOS",
+		Use:   "llmos-operator",
+		Short: "llmos-operator is a controller for LLMOS",
 	}
 
 	rootCmd.PersistentFlags().StringVar(&opts.KubeConfig, "kubeconfig", "", "kubeconfig file path")
 	rootCmd.PersistentFlags().StringVar(&opts.Namespace, "namespace", "llmos-system", "namespace to deploy llmos managed resources")
-	rootCmd.PersistentFlags().StringVar(&opts.ReleaseName, "release_name", "llmos-controller", "release name during the installation")
+	rootCmd.PersistentFlags().StringVar(&opts.ReleaseName, "release_name", "llmos-operator", "release name during the installation")
 	rootCmd.PersistentFlags().BoolVar(&opts.Debug, "debug", false, "enable debug mode")
 	rootCmd.PersistentFlags().BoolVar(&opts.Trace, "trace", false, "enable trace mode")
 	rootCmd.PersistentFlags().StringVar(&opts.ProfilerAddress, "profile_address", "0.0.0.0:6060", "address to listen on for profiling")

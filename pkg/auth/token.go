@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 type Claims struct {
