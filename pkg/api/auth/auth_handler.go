@@ -12,12 +12,12 @@ import (
 	"github.com/rancher/apiserver/pkg/apierror"
 	"github.com/rancher/wrangler/v2/pkg/schemas/validation"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/auth"
-	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/indexeres"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/auth"
+	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 const (

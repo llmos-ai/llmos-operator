@@ -3,7 +3,7 @@ package v1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/utils/condition"
+	"github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
 type Condition struct {

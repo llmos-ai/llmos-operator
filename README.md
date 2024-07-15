@@ -1,6 +1,6 @@
-# [WIP]LLMOS-Controller
+# LLMOS-Operator
 
-LLMOS-Controller is a Kubernetes controller that helps to manage the lifecycle of [LLMOS](https://github.com/llmos-ai/llmos) and its system components.
+LLMOS-Operator is a Kubernetes controller that helps to manage the lifecycle and system components of the [LLMOS](https://github.com/llmos-ai/llmos).
 
 ## Description
 
@@ -13,25 +13,25 @@ LLMOS-Controller is a Kubernetes controller that helps to manage the lifecycle o
 - Helm v3.0.0+
 
 ### Installation
-To deploy the 1Block.AI on your k8s cluster, you can use the following commands:
+To deploy the `llmos-operator` on your k8s cluster, you can use the following commands:
 
 **Install the CRDs into the cluster:**
 
 ```sh
-$ make install-crd
+$ make install-crds
 ```
 
-**Deploy the llmos-controller to the cluster:**
+**Deploy the llmos-operator to the cluster:**
 
 ```sh
 $ make install
 ```
 
 ### Uninstall
-**Delete the CRDs and llmos-controller from the cluster:**
+**Delete the CRDs and llmos-operator from the cluster:**
 
 ```sh
-$ make uninstall-crd && make uninstall
+$ make uninstall-crds && make uninstall
 ```
 
 ## License

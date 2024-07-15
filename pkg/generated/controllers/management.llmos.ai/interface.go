@@ -18,7 +18,7 @@ limitations under the License.
 package management
 
 import (
-	v1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/rancher/lasso/pkg/controller"
 )
 

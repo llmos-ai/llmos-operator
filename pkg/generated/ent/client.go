@@ -24,12 +24,12 @@ import (
 	"reflect"
 
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/migrate"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
 )
 
 // Client is the client that holds all ent builders.

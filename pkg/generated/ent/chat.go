@@ -25,8 +25,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	v1 "github.com/llmos-ai/llmos-controller/pkg/types/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/types/v1"
 )
 
 // Chat is the model entity for the Chat schema.

@@ -5,9 +5,9 @@ import (
 
 	"github.com/rancher/steve/pkg/server"
 
-	"github.com/llmos-ai/llmos-controller/pkg/api/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/api/user"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/api/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/api/user"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 type registerSchema func(mgmt *config.Management, server *server.Server) error

@@ -11,9 +11,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	clusterctl "github.com/llmos-ai/llmos-controller/pkg/controller/raycluster"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/config"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	clusterctl "github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 )
 
 const (

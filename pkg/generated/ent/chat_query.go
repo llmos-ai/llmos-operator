@@ -25,8 +25,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/predicate"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/predicate"
 )
 
 // ChatQuery is the builder for querying Chat entities.

@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	entv1 "github.com/llmos-ai/llmos-controller/pkg/generated/ent"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	entv1 "github.com/llmos-ai/llmos-operator/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 type Handler struct {

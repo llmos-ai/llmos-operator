@@ -9,8 +9,8 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
 
-	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 )
 
 type NotebookClient func(string) ctlmlv1.NotebookInterface

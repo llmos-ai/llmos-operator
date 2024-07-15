@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/rancher/wrangler/v2/pkg/apply"
 	"github.com/rancher/wrangler/v2/pkg/condition"
 	"github.com/rancher/wrangler/v2/pkg/generic"

@@ -10,9 +10,9 @@ import (
 	"github.com/rancher/wrangler/v2/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
-	"github.com/llmos-ai/llmos-controller/pkg/config"
-	sserver "github.com/llmos-ai/llmos-controller/pkg/server"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook"
+	"github.com/llmos-ai/llmos-operator/pkg/config"
+	sserver "github.com/llmos-ai/llmos-operator/pkg/server"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook"
 )
 
 // WebhookServer defines the webhook webhookServer types

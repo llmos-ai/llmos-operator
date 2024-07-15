@@ -21,7 +21,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/predicate"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

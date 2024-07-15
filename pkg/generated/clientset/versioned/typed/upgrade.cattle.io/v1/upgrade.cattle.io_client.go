@@ -20,7 +20,7 @@ package v1
 import (
 	"net/http"
 
-	"github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/scheme"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	v1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	rest "k8s.io/client-go/rest"
 )

@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 func (h *handler) syncGCSRedisSecretToNamespace(releaseName string, rayCluster *rayv1.RayCluster) error {

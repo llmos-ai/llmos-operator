@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/llmos-ai/llmos-controller/pkg/config"
-	"github.com/llmos-ai/llmos-controller/pkg/server"
+	"github.com/llmos-ai/llmos-operator/pkg/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 func NewAPIServer() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "apiserver",
-		Short: "Run llmos-controller API server",
+		Short: "Run llmos-operator API server",
 		RunE:  run,
 	}
 

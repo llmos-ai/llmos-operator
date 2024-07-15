@@ -5,8 +5,8 @@ import (
 
 	rbacv1 "k8s.io/api/rbac/v1"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const (

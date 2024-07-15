@@ -19,12 +19,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 // Note: this is referred to the kubeflow notebook controller

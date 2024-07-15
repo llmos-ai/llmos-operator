@@ -10,10 +10,10 @@ import (
 	authUser "k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 
-	auth2 "github.com/llmos-ai/llmos-controller/pkg/auth"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	auth2 "github.com/llmos-ai/llmos-operator/pkg/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 func NewMiddleware(mgmt *config.Management) *Middleware {

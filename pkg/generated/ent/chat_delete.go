@@ -22,8 +22,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/predicate"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/predicate"
 )
 
 // ChatDelete is the builder for deleting a Chat entity.

@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 )
 
 // +genclient

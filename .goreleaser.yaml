@@ -14,8 +14,8 @@ checksum:
   name_template: 'checksums.txt'
 
 builds:
-  - id: "llmos-controller"
-    binary: llmos-controller
+  - id: "llmos-operator"
+    binary: llmos-operator
     env:
       - CGO_ENABLED=0
     goos:
@@ -29,8 +29,8 @@ builds:
     ldflags:
       - -s
       - -w
-      - -X "github.com/llmos-ai/llmos-controller/version/version.Version={{ .Env.VERSION }}"
-      - -X "github.com/llmos-ai/llmos-controller/version/version.Commit={{ .Version }}"
+      - -X "github.com/llmos-ai/llmos-operator/version/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos-operator/version/version.Commit={{ .Version }}"
 
 changelog:
   use: github
@@ -46,7 +46,7 @@ dockers:
     goarch: amd64
     dockerfile: package/Dockerfile
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -54,7 +54,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/amd64"
     extra_files:
       - package/entrypoint.sh
@@ -64,7 +64,7 @@ dockers:
     goarch: arm64
     dockerfile: package/Dockerfile
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -72,7 +72,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/arm64"
     extra_files:
       - package/entrypoint.sh
@@ -82,7 +82,7 @@ dockers:
     goarch: amd64
     dockerfile: package/Dockerfile-webhook
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -90,7 +90,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/amd64"
     extra_files:
       - package/entrypoint-webhook.sh
@@ -100,7 +100,7 @@ dockers:
     goarch: arm64
     dockerfile: package/Dockerfile-webhook
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -108,22 +108,22 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-controller"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/arm64"
     extra_files:
       - package/entrypoint-webhook.sh
 
 docker_manifests:
   - use: docker
-    name_template: "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}"
+    name_template: "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}"
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-amd64"
-      - "{{ .Env.REGISTRY }}/llmos-controller:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
   - use: docker
-    name_template: "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}"
+    name_template: "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}"
     image_templates:
-      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-amd64"
-      - "{{ .Env.REGISTRY }}/llmos-controller-webhook:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
 
 docker_signs:
   - artifacts: all

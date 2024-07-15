@@ -1,6 +1,6 @@
 apiVersion: v2
-name: llmos-controller
-description: A Helm chart for LLMOS Controller
+name: llmos-operator
+description: A Helm chart for LLMOS Operator
 
 # A chart can be either an 'application' or a 'library' chart.
 #

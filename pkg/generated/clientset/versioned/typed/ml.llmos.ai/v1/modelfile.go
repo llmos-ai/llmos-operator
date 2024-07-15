@@ -21,8 +21,8 @@ import (
 	"context"
 	"time"
 
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	scheme "github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/scheme"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

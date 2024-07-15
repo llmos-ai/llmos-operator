@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "llmos-operator.fullname" . }}-webhook
+  labels:
+    {{- include "llmos-operator.webhookLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.operator.webhook.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "llmos-operator.webhookSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.operator.apiserver.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "llmos-operator.webhookLabels" . | nindent 8 }}
+        {{- with .Values.operator.apiserver.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "llmos-operator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.operator.apiserver.podSecurityContext | nindent 8 }}
+      containers:
+        - name: webhook
+          securityContext:
+            {{- toYaml .Values.operator.apiserver.securityContext | nindent 12 }}
+          image: "{{ .Values.operator.webhook.image.repository }}:{{ .Values.operator.webhook.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.operator.webhook.image.pullPolicy }}
+          ports:
+            - name: webhook
+              containerPort: {{ .Values.operator.webhook.service.webhookPort }}
+              protocol: TCP
+            - name: profile
+              containerPort: {{ .Values.operator.webhook.service.profilePort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.operator.webhook.resources | nindent 12 }}
+          {{- with .Values.operator.webhook.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.operator.webhook.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.webhook.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.webhook.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.webhook.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

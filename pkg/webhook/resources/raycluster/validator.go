@@ -9,10 +9,10 @@ import (
 	admissionregv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	ctlrayv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/config"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlrayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 )
 
 type validator struct {

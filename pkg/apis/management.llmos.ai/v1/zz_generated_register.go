@@ -20,7 +20,7 @@ limitations under the License.
 package v1
 
 import (
-	management "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai"
+	management "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"

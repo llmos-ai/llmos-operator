@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "llmos-operator.fullname" . }}
+  labels:
+    {{- include "llmos-operator.labels" . | nindent 4 }}
+    foo: bar
+spec:
+  type: {{ .Values.operator.apiserver.service.type }}
+  ports:
+    - port: {{ .Values.operator.apiserver.service.httpsPort }}
+      targetPort: https
+      protocol: TCP
+      name: https
+{{- if .Values.operator.apiserver.service.httpsNodePort }}
+      nodePort: {{ .Values.operator.apiserver.service.httpsNodePort }}
+{{- end }}
+{{- if .Values.operator.apiserver.service.profilePort }}
+    - port: {{ .Values.operator.apiserver.service.profilePort }}
+      targetPort: profile
+      protocol: TCP
+      name: profile
+{{- end }}
+  selector:
+    {{- include "llmos-operator.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "llmos-operator.fullname" . }}-webhook
+  labels:
+    {{- include "llmos-operator.webhookLabels" . | nindent 4 }}
+    foo: bar
+spec:
+  type: {{ .Values.operator.webhook.service.type }}
+  ports:
+    - port: 443
+      targetPort: webhook
+      protocol: TCP
+      name: webhook
+    - port: {{ .Values.operator.apiserver.service.profilePort }}
+      targetPort: profile
+      protocol: TCP
+      name: profile
+  selector:
+    {{- include "llmos-operator.webhookSelectorLabels" . | nindent 4 }}

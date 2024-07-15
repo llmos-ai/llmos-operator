@@ -10,8 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	llmosv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	llmosv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 const (

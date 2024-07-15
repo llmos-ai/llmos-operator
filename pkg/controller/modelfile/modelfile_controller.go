@@ -5,11 +5,11 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	ctlmlv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 
-	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const (

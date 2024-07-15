@@ -26,9 +26,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/chat"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/predicate"
-	v1 "github.com/llmos-ai/llmos-controller/pkg/types/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/predicate"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/types/v1"
 )
 
 const (

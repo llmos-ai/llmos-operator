@@ -9,7 +9,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 // createPVCFromAnnotation helps to create PVCs from the cluster annotation

@@ -3,7 +3,7 @@ package chat
 import (
 	"time"
 
-	typev1 "github.com/llmos-ai/llmos-controller/pkg/types/v1"
+	typev1 "github.com/llmos-ai/llmos-operator/pkg/types/v1"
 )
 
 type Chat struct {

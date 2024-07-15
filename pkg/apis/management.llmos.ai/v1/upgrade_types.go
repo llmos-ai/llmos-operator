@@ -20,7 +20,7 @@ import (
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/llmos-ai/llmos-controller/pkg/utils/condition"
+	"github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
 var (

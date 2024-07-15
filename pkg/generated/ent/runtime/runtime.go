@@ -16,7 +16,7 @@ limitations under the License.
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/llmos-ai/llmos-controller/pkg/generated/ent/runtime.go
+// The schema-stitching logic is generated in github.com/llmos-ai/llmos-operator/pkg/generated/ent/runtime.go
 
 const (
 	Version = "v0.13.1"                                         // Version of ent codegen.

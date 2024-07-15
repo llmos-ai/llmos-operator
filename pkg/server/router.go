@@ -7,11 +7,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rancher/apiserver/pkg/urlbuilder"
 
-	"github.com/llmos-ai/llmos-controller/pkg/api/auth"
-	"github.com/llmos-ai/llmos-controller/pkg/api/proxy"
-	"github.com/llmos-ai/llmos-controller/pkg/api/publicui"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
-	"github.com/llmos-ai/llmos-controller/pkg/server/ui"
+	"github.com/llmos-ai/llmos-operator/pkg/api/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/api/proxy"
+	"github.com/llmos-ai/llmos-operator/pkg/api/publicui"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/server/ui"
 )
 
 type Router struct {

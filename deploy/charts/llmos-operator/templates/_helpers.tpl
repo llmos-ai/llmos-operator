@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "llmos-controller.name" -}}
+{{- define "llmos-operator.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "llmos-controller.fullname" -}}
+{{- define "llmos-operator.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "llmos-controller.chart" -}}
+{{- define "llmos-operator.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "llmos-controller.labels" -}}
-helm.sh/chart: {{ include "llmos-controller.chart" . }}
-{{ include "llmos-controller.selectorLabels" . }}
+{{- define "llmos-operator.labels" -}}
+helm.sh/chart: {{ include "llmos-operator.chart" . }}
+{{ include "llmos-operator.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,34 +45,34 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Webhook labels
 */}}
-{{- define "llmos-controller.webhookLabels" -}}
-{{ include "llmos-controller.labels" . }}
+{{- define "llmos-operator.webhookLabels" -}}
+{{ include "llmos-operator.labels" . }}
 app.llmos.ai/webhook: "true"
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "llmos-controller.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "llmos-controller.name" . }}
+{{- define "llmos-operator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "llmos-operator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Webhook selector labels
 */}}
-{{- define "llmos-controller.webhookSelectorLabels" -}}
-{{ include "llmos-controller.selectorLabels" . }}
+{{- define "llmos-operator.webhookSelectorLabels" -}}
+{{ include "llmos-operator.selectorLabels" . }}
 app.llmos.ai/webhook: "true"
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "llmos-controller.serviceAccountName" -}}
-{{- if .Values.controller.serviceAccount.create }}
-{{- default (include "llmos-controller.fullname" .) .Values.controller.serviceAccount.name }}
+{{- define "llmos-operator.serviceAccountName" -}}
+{{- if .Values.operator.apiserver.serviceAccount.create }}
+{{- default (include "llmos-operator.fullname" .) .Values.operator.apiserver.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.controller.serviceAccount.name }}
+{{- default "default" .Values.operator.apiserver.serviceAccount.name }}
 {{- end }}
 {{- end }}

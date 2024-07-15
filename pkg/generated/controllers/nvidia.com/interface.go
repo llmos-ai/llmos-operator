@@ -18,7 +18,7 @@ limitations under the License.
 package nvidia
 
 import (
-	v1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/nvidia.com/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/nvidia.com/v1"
 	"github.com/rancher/lasso/pkg/controller"
 )
 

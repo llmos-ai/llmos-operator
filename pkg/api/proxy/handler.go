@@ -10,7 +10,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 // Handler proxies requests to the rancher service

@@ -18,7 +18,7 @@ limitations under the License.
 package ray
 
 import (
-	v1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/ray.io/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io/v1"
 	"github.com/rancher/lasso/pkg/controller"
 )
 

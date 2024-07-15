@@ -4,7 +4,7 @@ import (
 	apiserver "github.com/rancher/apiserver/pkg/server"
 	"github.com/rancher/apiserver/pkg/writer"
 
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 func ConfigureAPIUI(server *apiserver.Server) {

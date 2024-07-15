@@ -10,10 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"k8s.io/apiserver/pkg/authentication/user"
 
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	entv1 "github.com/llmos-ai/llmos-controller/pkg/generated/ent"
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	entv1 "github.com/llmos-ai/llmos-operator/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 type Store struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/rancher/steve/pkg/server"
 	"github.com/rancher/wrangler/v2/pkg/schemas"
 
-	ctlmgmtv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/server/config"
+	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const (

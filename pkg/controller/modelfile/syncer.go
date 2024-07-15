@@ -9,10 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	mlv1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
-	"github.com/llmos-ai/llmos-controller/pkg/utils"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 const (

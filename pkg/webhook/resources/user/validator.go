@@ -8,9 +8,9 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	managementv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	ctlmanagementv1 "github.com/llmos-ai/llmos-controller/pkg/generated/controllers/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/webhook/config"
+	managementv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	ctlmanagementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 )
 
 type validator struct {

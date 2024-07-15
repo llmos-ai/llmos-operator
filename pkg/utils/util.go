@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/llmos-ai/llmos-controller/pkg/settings"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 func GetLocalLLMUrl() (*url.URL, error) {

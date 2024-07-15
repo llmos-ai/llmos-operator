@@ -36,7 +36,7 @@ func main() {
 	config := &gen.Config{
 		Header:  string(header),
 		Target:  "./pkg/generated/ent",
-		Package: "github.com/llmos-ai/llmos-controller/pkg/generated/ent",
+		Package: "github.com/llmos-ai/llmos-operator/pkg/generated/ent",
 		Features: []gen.Feature{
 			gen.FeatureUpsert,
 		},
@@ -46,7 +46,7 @@ func main() {
 	}
 
 	controllergen.Run(args.Options{
-		OutputPackage: "github.com/llmos-ai/llmos-controller/pkg/generated",
+		OutputPackage: "github.com/llmos-ai/llmos-operator/pkg/generated",
 		Boilerplate:   "hack/boilerplate.go.txt",
 		Groups: map[string]args.Group{
 			"management.llmos.ai": {

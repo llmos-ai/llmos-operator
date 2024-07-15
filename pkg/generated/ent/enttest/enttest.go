@@ -19,12 +19,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent"
 	// required by schema hooks.
-	_ "github.com/llmos-ai/llmos-controller/pkg/generated/ent/runtime"
+	_ "github.com/llmos-ai/llmos-operator/pkg/generated/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/ent/migrate"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/ent/migrate"
 )
 
 type (

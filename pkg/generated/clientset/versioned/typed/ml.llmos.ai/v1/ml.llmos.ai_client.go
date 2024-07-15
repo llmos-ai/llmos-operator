@@ -20,8 +20,8 @@ package v1
 import (
 	"net/http"
 
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/generated/clientset/versioned/scheme"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

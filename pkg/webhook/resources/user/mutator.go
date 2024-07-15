@@ -6,9 +6,9 @@ import (
 	admissionregv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	mgmtv1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-controller/pkg/auth"
-	"github.com/llmos-ai/llmos-controller/pkg/constant"
+	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
 type mutator struct {
@@ -46,7 +46,7 @@ func patchLabels(labels map[string]string) admission.PatchOp {
 	if labels == nil {
 		labels = map[string]string{}
 	}
-	labels["llmos.ai/creator"] = "llmos-controller"
+	labels["llmos.ai/creator"] = "llmos-operator"
 	return admission.PatchOp{
 		Op:    admission.PatchOpReplace,
 		Path:  "/metadata/labels",

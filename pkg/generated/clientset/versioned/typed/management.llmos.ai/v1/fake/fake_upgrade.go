@@ -20,7 +20,7 @@ package fake
 import (
 	"context"
 
-	v1 "github.com/llmos-ai/llmos-controller/pkg/apis/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	types "k8s.io/apimachinery/pkg/types"

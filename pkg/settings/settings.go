@@ -23,7 +23,7 @@ var (
 	ServerURL              = NewSetting("server-url", "")
 	ServerVersion          = NewSetting("server-version", "dev")
 	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/dashboard/latest/index.html")
-	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-controller")
+	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-operator")
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
 	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
 	// LocalLLMServerURL specify local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
