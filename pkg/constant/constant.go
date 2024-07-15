@@ -32,8 +32,9 @@ const (
 	ModelOriginModelAnnotation    = LLMOSPrefix + "/original-model"
 	ModelFileSkipDeleteAnnotation = LLMOSPrefix + "/model-file-skip-delete"
 
-	AnnotationResourceStopped      = LLMOSPrefix + "/resourceStopped"
-	AnnotationVolumeClaimTemplates = LLMOSPrefix + "/volumeClaimTemplates"
+	AnnotationResourceStopped          = LLMOSPrefix + "/resourceStopped"
+	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volumeClaimTemplates"
+	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8sProvider"
 
 	// kubeRay related constant
 	LabelRaySchedulerName           = "ray.io/scheduler-name"
