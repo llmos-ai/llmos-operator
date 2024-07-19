@@ -189,7 +189,7 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 		}
 	}
 
-	podSpec := &ss.Spec.Template.Spec
+	podSpec := ss.Spec.Template.Spec.DeepCopy()
 	container := &podSpec.Containers[0]
 	container.Name = notebook.Name
 	if container.WorkingDir == "" {

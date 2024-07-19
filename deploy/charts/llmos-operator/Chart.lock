@@ -11,5 +11,8 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 19.6.1
-digest: sha256:f3426c5bcf3f95c4cd4a5d88c1f0df91b3ae66071c636a9001fc9d3a1e2980a5
-generated: "2024-07-15T12:02:47.174878+08:00"
+- name: rook-ceph
+  repository: https://charts.rook.io/release
+  version: v1.14.8
+digest: sha256:9d8b0eb0bbf01060ebad42517f1fe2e115301d1e0388b02e28e2e704529aece8
+generated: "2024-07-19T11:33:53.215048+08:00"

@@ -149,9 +149,9 @@ uninstall: ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. C
 
 .PHONY: install-crds
 install-crds: manifests ## Install CRDs into the K8s cluster.
-	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-crd deploy/charts/llmos-crd --reuse-values
+	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-crd deploy/charts/llmos-crd
 
-.PHONY: uninstall-crd
+.PHONY: uninstall-crds
 uninstall-crd: ## Uninstall CRDs from the K8s cluster.
 	$(HELM) uninstall -n llmos-system llmos-crd
 

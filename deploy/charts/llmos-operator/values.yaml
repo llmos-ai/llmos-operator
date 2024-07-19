@@ -211,4 +211,20 @@ redis:
 gpu-operator:
   enable: true
   driver:
-    enabled: true
+    enabled: false
+
+rook-ceph:
+  enabled: true
+  image:
+    repository: rook/ceph
+    tag: v1.14.8
+    pullPolicy: IfNotPresent
+  crds:
+    enabled: false
+  csi:
+    # -- Enable Ceph CSI RBD driver
+    enableRbdDriver: true
+    # -- Enable Ceph CSI CephFS driver
+    enableCephfsDriver: true
+    # -- Disable the CSI driver.
+    disableCsiDriver: "false"

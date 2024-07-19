@@ -23,6 +23,8 @@ import (
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,10 +36,12 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	cephv1.AddToScheme,
 	managementv1.AddToScheme,
 	mlv1.AddToScheme,
 	nvidiav1.AddToScheme,
 	rayv1.AddToScheme,
+	storagev1.AddToScheme,
 	upgradev1.AddToScheme,
 }
 

@@ -21,10 +21,12 @@ import (
 	"fmt"
 	"net/http"
 
+	cephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/nvidia.com/v1"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1"
+	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1"
 	upgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
@@ -33,21 +35,30 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	CephV1() cephv1.CephV1Interface
 	ManagementV1() managementv1.ManagementV1Interface
 	MlV1() mlv1.MlV1Interface
 	NvidiaV1() nvidiav1.NvidiaV1Interface
 	RayV1() rayv1.RayV1Interface
+	StorageV1() storagev1.StorageV1Interface
 	UpgradeV1() upgradev1.UpgradeV1Interface
 }
 
 // Clientset contains the clients for groups.
 type Clientset struct {
 	*discovery.DiscoveryClient
+	cephV1       *cephv1.CephV1Client
 	managementV1 *managementv1.ManagementV1Client
 	mlV1         *mlv1.MlV1Client
 	nvidiaV1     *nvidiav1.NvidiaV1Client
 	rayV1        *rayv1.RayV1Client
+	storageV1    *storagev1.StorageV1Client
 	upgradeV1    *upgradev1.UpgradeV1Client
+}
+
+// CephV1 retrieves the CephV1Client
+func (c *Clientset) CephV1() cephv1.CephV1Interface {
+	return c.cephV1
 }
 
 // ManagementV1 retrieves the ManagementV1Client
@@ -68,6 +79,11 @@ func (c *Clientset) NvidiaV1() nvidiav1.NvidiaV1Interface {
 // RayV1 retrieves the RayV1Client
 func (c *Clientset) RayV1() rayv1.RayV1Interface {
 	return c.rayV1
+}
+
+// StorageV1 retrieves the StorageV1Client
+func (c *Clientset) StorageV1() storagev1.StorageV1Interface {
+	return c.storageV1
 }
 
 // UpgradeV1 retrieves the UpgradeV1Client
@@ -119,6 +135,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 
 	var cs Clientset
 	var err error
+	cs.cephV1, err = cephv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.managementV1, err = managementv1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -132,6 +152,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 		return nil, err
 	}
 	cs.rayV1, err = rayv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.storageV1, err = storagev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -160,10 +184,12 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.cephV1 = cephv1.New(c)
 	cs.managementV1 = managementv1.New(c)
 	cs.mlV1 = mlv1.New(c)
 	cs.nvidiaV1 = nvidiav1.New(c)
 	cs.rayV1 = rayv1.New(c)
+	cs.storageV1 = storagev1.New(c)
 	cs.upgradeV1 = upgradev1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
