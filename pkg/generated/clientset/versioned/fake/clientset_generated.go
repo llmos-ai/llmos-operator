@@ -19,6 +19,8 @@ package fake
 
 import (
 	clientset "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned"
+	cephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
+	fakecephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1/fake"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 	fakemanagementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1/fake"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
@@ -27,6 +29,8 @@ import (
 	fakenvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/nvidia.com/v1/fake"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1"
 	fakerayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1/fake"
+	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1"
+	fakestoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1/fake"
 	upgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	fakeupgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -86,6 +90,11 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
+// CephV1 retrieves the CephV1Client
+func (c *Clientset) CephV1() cephv1.CephV1Interface {
+	return &fakecephv1.FakeCephV1{Fake: &c.Fake}
+}
+
 // ManagementV1 retrieves the ManagementV1Client
 func (c *Clientset) ManagementV1() managementv1.ManagementV1Interface {
 	return &fakemanagementv1.FakeManagementV1{Fake: &c.Fake}
@@ -104,6 +113,11 @@ func (c *Clientset) NvidiaV1() nvidiav1.NvidiaV1Interface {
 // RayV1 retrieves the RayV1Client
 func (c *Clientset) RayV1() rayv1.RayV1Interface {
 	return &fakerayv1.FakeRayV1{Fake: &c.Fake}
+}
+
+// StorageV1 retrieves the StorageV1Client
+func (c *Clientset) StorageV1() storagev1.StorageV1Interface {
+	return &fakestoragev1.FakeStorageV1{Fake: &c.Fake}
 }
 
 // UpgradeV1 retrieves the UpgradeV1Client

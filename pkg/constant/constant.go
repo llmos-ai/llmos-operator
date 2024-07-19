@@ -7,12 +7,16 @@ import (
 const (
 	LLMOSPrefix = "llmos.ai"
 	MLPrefix    = "ml.llmos.ai"
+	MgmtPrefix  = "management.llmos.ai"
 
-	SystemNamespaceName = "llmos-system"
-	PublicNamespaceName = "llmos-public"
-	SUCNamespace        = "system-upgrade"
-	AdminRole           = "cluster-admin"
-	TimeLayout          = time.RFC3339
+	SystemNamespaceName     = "llmos-system"
+	CephSystemNamespaceName = "ceph-system"
+	PublicNamespaceName     = "llmos-public"
+	SUCNamespace            = "system-upgrade"
+	CephClusterName         = "llmos-ceph"
+	AdminRole               = "cluster-admin"
+
+	TimeLayout = time.RFC3339
 
 	LLMOSVersionLabel = LLMOSPrefix + "/version"
 	LLMOSUpgradeLabel = LLMOSPrefix + "/upgrade"
@@ -32,17 +36,27 @@ const (
 	ModelOriginModelAnnotation    = LLMOSPrefix + "/original-model"
 	ModelFileSkipDeleteAnnotation = LLMOSPrefix + "/model-file-skip-delete"
 
-	AnnotationResourceStopped          = LLMOSPrefix + "/resourceStopped"
-	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volumeClaimTemplates"
-	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8sProvider"
+	AnnotationResourceStopped          = LLMOSPrefix + "/resource-stopped"
+	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volume-claim-templates"
+	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8s-provider"
+
+	AnnotationAddRookCephRbac           = LLMOSPrefix + "/add-ceph-cluster-rbac"
+	AnnotationAddedRookCephRbac         = LLMOSPrefix + "/added-ceph-cluster-rbac"
+	AnnotationAddRookCephBlockStorage   = LLMOSPrefix + "/add-ceph-cluster-block-storage"
+	AnnotationAddedRookCephBlockStorage = LLMOSPrefix + "/added-ceph-cluster-block-storage"
+	AnnotationAddRookCephFilesystem     = LLMOSPrefix + "/add-ceph-cluster-filesystem"
+	AnnotationAddedRookCephFilesystem   = LLMOSPrefix + "/added-ceph-cluster-filesystem"
+	AnnotationAddCephToolbox            = LLMOSPrefix + "/add-ceph-toolbox"
+	AnnotationAddedCephToolbox          = LLMOSPrefix + "/added-ceph-toolbox"
 
 	// kubeRay related constant
 	LabelRaySchedulerName           = "ray.io/scheduler-name"
 	AnnotationRayClusterInitialized = MLPrefix + "rayClusterInitialized"
 	AnnotationRayFTEnabledKey       = "ray.io/ft-enabled"
 	RayRedisCleanUpFinalizer        = "ray.io/gcs-ft-redis-cleanup-finalizer"
-	RayServiceKind                  = "RayService"
-	RedisSecretKeyName              = "redis-password" // #nosec G101
 
-	DefaultAdminLabelKey = "management.llmos.ai/default-admin"
+	RayServiceKind     = "RayService"
+	RedisSecretKeyName = "redis-password" // #nosec G101
+
+	DefaultAdminLabelKey = MgmtPrefix + "/default-admin"
 )

@@ -13,11 +13,14 @@ import (
 	controllergen "github.com/rancher/wrangler/v2/pkg/controller-gen"
 	"github.com/rancher/wrangler/v2/pkg/controller-gen/args"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
+	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	storagev1 "k8s.io/api/storage/v1"
 )
 
 const (
 	kubeRayGV = "ray.io"
 	nvidiaGV  = "nvidia.com"
+	rookGV    = "ceph.rook.io"
 )
 
 func main() {
@@ -85,6 +88,25 @@ func main() {
 				PackageName: nvidiaGV,
 				Types: []interface{}{
 					nvidiav1.ClusterPolicy{},
+				},
+				GenerateTypes:   false,
+				GenerateClients: true,
+			},
+			rookGV: {
+				PackageName: rookGV,
+				Types: []interface{}{
+					rookv1.CephCluster{},
+					rookv1.CephBlockPool{},
+					rookv1.CephFilesystem{},
+					rookv1.CephFilesystemSubVolumeGroup{},
+				},
+				GenerateTypes:   false,
+				GenerateClients: true,
+			},
+			storagev1.SchemeGroupVersion.Group: {
+				PackageName: storagev1.GroupName,
+				Types: []interface{}{
+					storagev1.StorageClass{},
 				},
 				GenerateTypes:   false,
 				GenerateClients: true,

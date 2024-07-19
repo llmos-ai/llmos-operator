@@ -10,6 +10,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/storage"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/user"
 	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
@@ -27,6 +28,7 @@ var registerFuncs = []registerFunc{
 	notebook.Register,
 	raycluster.Register,
 	gpu.Register,
+	storage.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management) error {

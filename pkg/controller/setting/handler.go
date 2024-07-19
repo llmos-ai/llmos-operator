@@ -1,8 +1,6 @@
 package setting
 
 import (
-	"github.com/sirupsen/logrus"
-
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
@@ -11,7 +9,6 @@ func (h *handler) settingOnChang(_ string, setting *mgmtv1.Setting) (*mgmtv1.Set
 	if setting == nil || setting.DeletionTimestamp != nil {
 		return nil, nil
 	}
-	logrus.Debugf("setting on change, %+v", setting)
 
 	toUpdate := setting.DeepCopy()
 	if toUpdate.Annotations == nil {

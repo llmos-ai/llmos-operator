@@ -6,7 +6,7 @@ import (
 
 // Init adds built-in resources
 func Init(mgmt *config.Management) error {
-	if err := addPublicNamespace(mgmt.Apply); err != nil {
+	if err := addDefaultNamespaces(mgmt.Apply); err != nil {
 		return err
 	}
 
