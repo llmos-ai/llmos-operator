@@ -144,35 +144,6 @@ func getDefaultSystemCephCluster() *rookv1.CephCluster {
 						Interval: getTimeDuration(60),
 					},
 				},
-				LivenessProbe: map[rookv1.KeyType]*rookv1.ProbeSpec{
-					rookv1.KeyMgr: {
-						Disabled: false,
-						Probe: &corev1.Probe{
-							InitialDelaySeconds: 60,
-							PeriodSeconds:       60,
-							TimeoutSeconds:      60,
-							FailureThreshold:    5,
-						},
-					},
-					rookv1.KeyMon: {
-						Disabled: false,
-						Probe: &corev1.Probe{
-							InitialDelaySeconds: 60,
-							PeriodSeconds:       60,
-							TimeoutSeconds:      60,
-							FailureThreshold:    5,
-						},
-					},
-					rookv1.KeyOSD: {
-						Disabled: false,
-						Probe: &corev1.Probe{
-							InitialDelaySeconds: 60,
-							PeriodSeconds:       60,
-							TimeoutSeconds:      60,
-							FailureThreshold:    5,
-						},
-					},
-				},
 			},
 		},
 	}
@@ -181,7 +152,7 @@ func getDefaultSystemCephCluster() *rookv1.CephCluster {
 
 func getTimeDuration(seconds int64) *metav1.Duration {
 	return &metav1.Duration{
-		Duration: time.Duration(seconds),
+		Duration: time.Duration(seconds) * time.Second,
 	}
 }
 
@@ -263,9 +234,6 @@ func getClusterResources() rookv1.ResourceSpec {
 			Requests: corev1.ResourceList{
 				corev1.ResourceCPU:    resource.MustParse("500m"),
 				corev1.ResourceMemory: resource.MustParse("50Mi"),
-			},
-			Limits: corev1.ResourceList{
-				corev1.ResourceMemory: resource.MustParse("100Mi"),
 			},
 		},
 	}

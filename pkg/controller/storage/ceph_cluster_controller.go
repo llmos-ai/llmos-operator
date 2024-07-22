@@ -113,7 +113,7 @@ func (h *Handler) OnChanged(_ string, cluster *rookv1.CephCluster) (*rookv1.Ceph
 			clusterCpy.Annotations[constant.AnnotationAddedRookCephBlockStorage] = strTrue
 		}
 
-		if cluster.Annotations[constant.AnnotationAddRookCephBlockStorage] == strTrue &&
+		if cluster.Annotations[constant.AnnotationAddRookCephFilesystem] == strTrue &&
 			cluster.Annotations[constant.AnnotationAddedRookCephFilesystem] != strTrue {
 			if err := h.applyCephFilesystem(cephConfig, ownerRefers); err != nil {
 				return cluster, err
