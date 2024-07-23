@@ -39,11 +39,14 @@ type Handler struct {
 	storageClasses       ctlstoragev1.StorageClassClient
 	deployments          ctlappsv1.DeploymentClient
 	deploymentCache      ctlappsv1.DeploymentCache
+	nodes                ctlcorev1.NodeClient
+	nodeCache            ctlcorev1.NodeCache
 }
 
 const (
-	cephClusterOnChange = "cephCluster.onChange"
-	strTrue             = "true"
+	cephClusterOnChange     = "cephCluster.onChange"
+	cephClusterOnNodeChange = "cephCluster.onNodeChange"
+	strTrue                 = "true"
 
 	cephClusterSATemplate          = "ceph-cluster-sa.yaml"
 	cephClusterCRBTemplate         = "ceph-cluster-crb.yaml"
@@ -65,6 +68,7 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 	rbac := mgmt.RbacFactory.Rbac().V1()
 	storage := mgmt.StorageFactory.Storage().V1().StorageClass()
 	deployments := mgmt.AppsFactory.Apps().V1().Deployment()
+	nodes := mgmt.CoreFactory.Core().V1().Node()
 	h := Handler{
 		clusters:             cephCluster,
 		clusterCache:         cephCluster.Cache(),
@@ -80,9 +84,12 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 		storageClasses:       storage,
 		deployments:          deployments,
 		deploymentCache:      deployments.Cache(),
+		nodes:                nodes,
+		nodeCache:            nodes.Cache(),
 	}
 
 	cephCluster.OnChange(ctx, cephClusterOnChange, h.OnChanged)
+	nodes.OnChange(ctx, cephClusterOnNodeChange, h.onNodeChanged)
 
 	return h.setUpDefaultCephCluster()
 }

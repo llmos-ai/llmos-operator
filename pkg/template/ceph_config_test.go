@@ -38,6 +38,7 @@ func TestNewCephConfig(t *testing.T) {
 	cfg := template.NewCephConfig(cephClusterName, cephNamespace, systemNamespace)
 	for tmp, obj := range cephTemplates {
 		templates, err := template.Render(tmp, cfg)
+		assert.NoError(t, err, "expect no error during template rendering")
 		yamls := bytes.Split(templates.Bytes(), []byte("\n---\n"))
 		for _, yml := range yamls {
 			if len(yml) == 0 {
