@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/rancher/wrangler/v2/pkg/leader"
+	"github.com/rancher/wrangler/v3/pkg/leader"
 
 	"github.com/llmos-ai/llmos-operator/pkg/controller/gpu"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"

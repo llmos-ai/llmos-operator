@@ -21,7 +21,7 @@ var (
 	AuthTokenMaxTTLMinutes = NewSetting("auth-token-max-ttl-minutes", "720")
 	FirstLogin             = NewSetting(FirstLoginSettingName, "true")
 	ServerURL              = NewSetting("server-url", "")
-	ServerVersion          = NewSetting("server-version", "dev")
+	ServerVersion          = NewSetting(ServerVersionName, "dev")
 	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/dashboard/latest/index.html")
 	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-operator")
 	UIPl                   = NewSetting(UIPlSettingName, "llmos")
@@ -30,7 +30,7 @@ var (
 	LocalLLMServerURL = NewSetting(LocalLLMServerURLSettingName, "")
 	// DatabaseURL set local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos
 	DatabaseURL           = NewSetting(DatabaseUrlSettingName, "")
-	NotebookDefaultImages = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
+	DefaultNotebookImages = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
 )
 
 const (
@@ -40,6 +40,7 @@ const (
 	LocalLLMServerURLSettingName     = "local-llm-server-url"
 	DatabaseUrlSettingName           = "database-url"
 	DefaultNotebookImagesSettingName = "default-notebook-images"
+	ServerVersionName                = "server-version"
 )
 
 func init() {

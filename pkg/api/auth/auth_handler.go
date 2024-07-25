@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/rancher/apiserver/pkg/apierror"
-	"github.com/rancher/wrangler/v2/pkg/schemas/validation"
+	"github.com/rancher/wrangler/v3/pkg/schemas/validation"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/auth"

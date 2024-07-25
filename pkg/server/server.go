@@ -5,8 +5,8 @@ import (
 
 	dlserver "github.com/rancher/dynamiclistener/server"
 	steve "github.com/rancher/steve/pkg/server"
-	"github.com/rancher/wrangler/v2/pkg/k8scheck"
-	"github.com/rancher/wrangler/v2/pkg/ratelimit"
+	"github.com/rancher/wrangler/v3/pkg/k8scheck"
+	"github.com/rancher/wrangler/v3/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
 	"github.com/llmos-ai/llmos-operator/pkg/api"

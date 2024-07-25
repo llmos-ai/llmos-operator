@@ -3,7 +3,7 @@ package raycluster
 import (
 	"context"
 
-	ctlcorev1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/core/v1"
+	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 	"github.com/sirupsen/logrus"
 

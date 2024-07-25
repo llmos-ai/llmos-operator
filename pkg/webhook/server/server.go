@@ -6,8 +6,8 @@ import (
 
 	wc "github.com/oneblock-ai/webhook/pkg/config"
 	ws "github.com/oneblock-ai/webhook/pkg/server"
-	"github.com/rancher/wrangler/v2/pkg/k8scheck"
-	"github.com/rancher/wrangler/v2/pkg/ratelimit"
+	"github.com/rancher/wrangler/v3/pkg/k8scheck"
+	"github.com/rancher/wrangler/v3/pkg/ratelimit"
 	"k8s.io/client-go/rest"
 
 	"github.com/llmos-ai/llmos-operator/pkg/config"
