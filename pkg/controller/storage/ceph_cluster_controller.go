@@ -5,9 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	ctlappsv1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/apps/v1"
-	ctlcorev1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/core/v1"
-	ctlrbacv1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/rbac/v1"
+	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
+	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
+	ctlrbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"

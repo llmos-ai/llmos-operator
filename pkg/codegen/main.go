@@ -10,8 +10,8 @@ import (
 
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
-	controllergen "github.com/rancher/wrangler/v2/pkg/controller-gen"
-	"github.com/rancher/wrangler/v2/pkg/controller-gen/args"
+	controllergen "github.com/rancher/wrangler/v3/pkg/controller-gen"
+	"github.com/rancher/wrangler/v3/pkg/controller-gen/args"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	storagev1 "k8s.io/api/storage/v1"
@@ -53,6 +53,7 @@ func main() {
 		Boilerplate:   "hack/boilerplate.go.txt",
 		Groups: map[string]args.Group{
 			"management.llmos.ai": {
+				PackageName: "management.llmos.ai",
 				Types: []interface{}{
 					// All structs with an embedded ObjectMeta field will be picked up
 					"./pkg/apis/management.llmos.ai/v1",
@@ -61,6 +62,7 @@ func main() {
 				GenerateClients: true,
 			},
 			"ml.llmos.ai": {
+				PackageName: "ml.llmos.ai",
 				Types: []interface{}{
 					// All structs with an embedded ObjectMeta field will be picked up
 					"./pkg/apis/ml.llmos.ai/v1",
@@ -69,6 +71,7 @@ func main() {
 				GenerateClients: true,
 			},
 			upgradev1.SchemeGroupVersion.Group: {
+				PackageName: upgradev1.SchemeGroupVersion.Group,
 				Types: []interface{}{
 					upgradev1.Plan{},
 				},
