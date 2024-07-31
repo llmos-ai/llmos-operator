@@ -1,11 +1,10 @@
 # Common settings
 REGISTRY ?= ghcr.io/llmos-ai
-REPO ?= llmos-operator
-VERSION ?= main
-IMG ?= ${REGISTRY}/${REPO}:${VERSION}
+IMG_REPO ?= ${REGISTRY}/llmos-operator
+WEBHOOK_IMG_REPO ?= ${REGISTRY}/llmos-operator-webhook
 
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.29.0
+ENVTEST_K8S_VERSION = 1.30.3
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -104,62 +103,94 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 	$(GOLANGCI_LINT) run --fix
 
 ##@ Build
-.PHONY: build-local
-build-local: ## Build llmos-operator using goreleaser.
-	goreleaser release --snapshot --clean
+.PHONY: build
+build: manifests generate fmt vet build-release package-installer ## Run all llmos-operator builds
 
-.PHONY: build-release
-build-release: manifests generate fmt vet ## Build llmos-operator using goreleaser.
-	goreleaser release --snapshot --clean
+.PHONY: build-operator-release
+build-operator-release: ## Build llmos-operator release using goreleaser.
+	EXPORT_ENV=true source ./scripts/version && \
+	goreleaser release --clean
 
-.PHONY: run
-run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+.PHONY: build-operator
+build-operator: ## Build llmos-operator using goreleaser with local mode.
+	EXPORT_ENV=true source ./scripts/version && \
+	goreleaser release --snapshot --clean $(VERBOSE)
+
+.PHONY: package-installer
+package-installer: ## Build installer image using earthly (multi-arch).
+	@echo Packaging llmos-operator installer image
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly --push --P +package-all-installer
+
+.PHONY: build-installer
+build-installer: ## Build installer assets to dist/charts path (multi-arch).
+	@echo Building llmos-operator installer image
+	earthly --P +build-all-installer
+
+.PHONY: build-installer-local
+build-installer-local: ## Build local llmos-operator to dist/charts(local arch).
+	@echo Building llmos installer image
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly -P +package-installer
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-.PHONY: docker-build
-docker-build: ## Build multi-arch docker image
-	BUILD_VERSION = $(shell cat dist/metadata.json | jq -r .version)
-	IMAGES := $(shell docker images --format "{{.Repository}}:{{.Tag}}" | grep $(BUILD_VERSION))
+.PHONY: docker-manifest
+#docker-manifest: build-local ## Build & push multi-arch docker image
+docker-manifest: ## Build & push multi-arch operator image
+	EXPORT_ENV=true . ./scripts/version
+	IMAGES := $(shell docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator:$(VERSION))
 	for i in $(IMAGES); do \
 		echo $$i; \
 		$(CONTAINER_TOOL) push $$i; \
 	done
-	$(CONTAINER_TOOL) manifest create $(IMG) $(IMAGES)
+	$(CONTAINER_TOOL) manifest create $(IMG_REPO):$(VERSION) $(IMAGES)
+	$(CONTAINER_TOOL) manifest push $(IMG_REPO):$(VERSION)
 
-.PHONY: docker-push
-docker-push: ## Push manifest docker image
-	$(CONTAINER_TOOL) manifest push $(IMG)
+.PHONY: docker-manifest-webhook
+#docker-manifest: build-local ## Build & push multi-arch docker image
+docker-manifest-webhook: ## Build & push multi-arch webhook image
+	EXPORT_ENV=true . ./scripts/version
+	WEBHOOK_IMAGES := $(shell docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator-webhook:$(VERSION))
+	for i in $(WEBHOOK_IMAGES); do \
+		echo $$i; \
+		$(CONTAINER_TOOL) push $$i; \
+	done
+	$(CONTAINER_TOOL) manifest create $(WEBHOOK_IMG_REPO):$(VERSION) $(IMAGES)
+	$(CONTAINER_TOOL) manifest push $(WEBHOOK_IMG_REPO):$(VERSION)
 
-##@ Deployment
+.PHONY: ci
+ci: ## Run ci script
+	bash ./scripts/ci
+
+##@ Chart
+.PHONY: install
+install: ## Install llmos-operator chart into the K8s cluster.
+	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-operator deploy/charts/llmos-operator \
+	--reuse-values -f deploy/charts/llmos-operator/values.yaml
+
+.PHONY: uninstall
+uninstall: ## Uninstall llmos-operator chart from the K8s cluster.
+	$(HELM) uninstall -n llmos-system llmos-operator
+
+.PHONY: install-crds
+install-crds: manifests ## Install CRDs into your k8s cluster.
+	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-crd deploy/charts/llmos-crd
+
+.PHONY: uninstall-crds
+uninstall-crds: ## Uninstall CRDs from your k8s cluster.
+	$(HELM) uninstall -n llmos-system llmos-crd
+
+.PHONY: helm-dep
+helm-dep: ## update chart dependencies.
+	$(HELM) dep update deploy/charts/llmos-operator
 
 ifndef ignore-not-found
   ignore-not-found = false
 endif
 
-.PHONY: install
-install: ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-operator deploy/charts/llmos-operator --reuse-values --skip-crds -f deploy/charts/llmos-operator/values.yaml
-
-.PHONY: uninstall
-uninstall: ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
-	$(HELM) uninstall -n llmos-system llmos-operator
-
-.PHONY: install-crds
-install-crds: manifests ## Install CRDs into the K8s cluster.
-	$(HELM) upgrade --install --create-namespace -n llmos-system llmos-crd deploy/charts/llmos-crd
-
-.PHONY: uninstall-crds
-uninstall-crd: ## Uninstall CRDs from the K8s cluster.
-	$(HELM) uninstall -n llmos-system llmos-crd
-
 ##@ Dependencies
-.PHONY: helm-dep
-helm-dep: ## Uninstall CRDs from the K8s cluster.
-	$(HELM) dep update deploy/charts/llmos-operator
-
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):

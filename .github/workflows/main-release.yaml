@@ -15,7 +15,6 @@ permissions:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
-  VERSION: ${{ github.ref_name }}
 
 jobs:
   main-release:
@@ -41,30 +40,45 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - run: make test && make lint
-    - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v5
+    - name: Install GoReleaser
+      uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
-        args: release --clean --snapshot
+        install-only: true
+    - name: Build GoReleaser
+      run: make build-operator
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup Earthly
+      uses: earthly/actions-setup@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        version: "latest"
+    - name: Build Installer Image
+      run: make package-installer
     - name: Push Latest(main) Docker Images
       run: |
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator:${{ env.VERSION }})
+        . ./scripts/version
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator:${VERSION})
         for i in ${IMAGES}; do
           docker push $i
         done
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${{ env.VERSION }} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${{ env.VERSION }}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${TAG} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${TAG}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${VERSION} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${VERSION}
     - name: Push Latest(main) Webhook Images
       run: |
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator-webhook:${{ env.VERSION }})
-        for i in ${IMAGES}; do
+        . ./scripts/version
+        WEBHOOK_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator-webhook:${VERSION})
+        for i in ${WEBHOOK_IMAGES}; do
           docker push $i
         done
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${{ env.VERSION }} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${{ env.VERSION }}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${TAG} ${WEBHOOK_IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${TAG}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION} ${WEBHOOK_IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure

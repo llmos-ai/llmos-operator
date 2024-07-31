@@ -1,10 +1,4 @@
 dependencies:
-- name: gpu-operator
-  repository: https://helm.ngc.nvidia.com/nvidia
-  version: v24.3.0
-- name: ollama
-  repository: file://dependency_charts/ollama
-  version: 0.1.0
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm
   version: 1.1.1
@@ -14,5 +8,5 @@ dependencies:
 - name: rook-ceph
   repository: https://charts.rook.io/release
   version: v1.14.8
-digest: sha256:9d8b0eb0bbf01060ebad42517f1fe2e115301d1e0388b02e28e2e704529aece8
-generated: "2024-07-19T11:33:53.215048+08:00"
+digest: sha256:947c1066d3372946011707cd34274df9d70be21cdd085f582c5201d43d263812
+generated: "2024-07-31T17:41:33.01966+08:00"

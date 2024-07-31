@@ -30,7 +30,7 @@ operator:
       repository: ghcr.io/llmos-ai/llmos-operator
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: "main"
+      tag: "main-head"
 
     serviceAccount:
       # Specifies whether a service account should be created
@@ -97,7 +97,7 @@ operator:
       repository: ghcr.io/llmos-ai/llmos-operator-webhook
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: "main"
+      tag: "main-head"
 
     service:
       type: ClusterIP
@@ -138,36 +138,6 @@ suc:
     repository: "rancher/system-upgrade-controller:v0.13.4"
     pullPolicy: IfNotPresent
 
-ollama:
-  enabled: true
-  depNameOverride: *depNameOverride
-  replicaCount: 1
-
-  image:
-    repository: docker.io/ollama/ollama
-    pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: "0.1.38"
-
-  service:
-    type: ClusterIP
-    port: 11434
-
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1024Mi
-  #    nvidia.com/gpu: 1
-  #  limits:
-  #    cpu: 4000m
-  #    memory: 4Gi
-  #    nvidia.com/gpu: 1
-
-  persistent:
-    hostPath: "/var/lib/llmos/ollama"
-    storageSize: "10Gi"
-    storageClassName: "local-path"
-
 kuberay-operator:
   enabled: true
   image:
@@ -180,6 +150,7 @@ kuberay-operator:
     create: false
     name: *llmosServiceAccountName
 
+
 redis:
   enabled: true
   image:
@@ -187,6 +158,8 @@ redis:
     tag: 7.2.5-debian-12-r2
     pullPolicy: IfNotPresent
   master:
+    # default to 1, will auto-scale up to 1 by the operator when storage is ready
+    count: 1
     persistence:
       enabled: true
       storageClass: ""
@@ -194,7 +167,7 @@ redis:
         - ReadWriteOnce
       size: 5Gi
   replica:
-    replicaCount: 3
+    replicaCount: 0 # default to 0, will auto-scale up to 3 by the operator when storage is ready
     persistence:
       enabled: true
       storageClass: ""
@@ -207,11 +180,6 @@ redis:
     password: ""
   volumePermissions:
     enabled: true
-
-gpu-operator:
-  enable: true
-  driver:
-    enabled: false
 
 rook-ceph:
   enabled: true

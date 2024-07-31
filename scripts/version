@@ -1,0 +1,86 @@
+#!/bin/bash
+shopt -s extglob
+
+if [ -z "$ARCH" ]; then
+    ARCH=amd64
+fi
+
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+    DIRTY="-dirty"
+fi
+
+# commit & tag common
+COMMIT=$(git rev-parse --short HEAD)
+COMMIT_DATE=$(git --no-pager log -1 --format='%ct')
+COMMIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -E 's/[^a-zA-Z0-9]+/-/g')
+GIT_TAG=${GIT_TAG:-$(git tag -l --contains HEAD | head -n 1)}
+LAST_TAG=${GIT_TAG:-'v0.0.0'}
+
+if [[ -n "$VERSION" ]]; then
+    echo "Use existing env version: $VERSION"
+elif [[ -z "$DIRTY" && -n "$GIT_TAG" ]]; then
+    VERSION=$GIT_TAG
+else
+    VERSION="v${COMMIT}${DIRTY}"
+fi
+
+# image registry repo & tag
+TAG=${TAG:-${VERSION}}
+REGISTRY=${REGISTRY:-ghcr.io/llmos-ai}
+REPO=llmos-operator
+
+if echo "$TAG" | grep -q dirty || [[ -z $GIT_TAG ]];  then
+    TAG=${COMMIT_BRANCH/release-/v}-head
+fi
+
+# chart version & appVersion
+if [ -n "$GIT_TAG" ]; then
+    APP_VERSION=$GIT_TAG
+else
+    APP_VERSION=$TAG
+fi
+
+if [[ -z "${DIRTY}" && -n "${GIT_TAG}" ]]; then
+    CHART_VERSION="${GIT_TAG}"
+elif [[ "$DIRTY" ]]; then
+    CHART_VERSION="${LAST_TAG}${DIRTY}.${COMMIT}"
+else
+    CHART_VERSION="${LAST_TAG}-${COMMIT_BRANCH}.${COMMIT}"
+fi
+
+# Drop the v prefix for Chart version(Required a SemVer 2 version)
+CHART_VERSION="$(echo ${CHART_VERSION} | sed -E 's/^v//' | sed -e 's/^\(.\{55\}\).*/\1/')"
+
+# Chart Repo - Target Repo for releases.
+case $CHART_VERSION in
+    *-rc*) # All rc tags
+        CHART_REPO="latest" ;;
+    +([0-9]).+([0-9]).+([0-9])) # All release tags
+        CHART_REPO="latest" ;;
+    *) # Anything else - Future use
+        CHART_REPO="dev" ;;
+esac
+
+# export envs when needed
+if [ "$EXPORT_ENV" = true ]; then
+    export VERSION=$VERSION
+    export COMMIT=$COMMIT
+    export TAG=$TAG
+
+    # export earthly args
+    export EARTHLY_BUILD_ARGS="REGISTRY=${REGISTRY},TAG=${TAG},VERSION=${VERSION},COMMIT=${COMMIT}"
+fi
+
+echo "-----------------------------:"
+echo "ARCH: $ARCH"
+echo "VERSION: $VERSION"
+echo "TAG: $TAG"
+echo "LAST_TAG: $LAST_TAG"
+echo "GIT_TAG: $GIT_TAG"
+echo "CHART_REPO: $CHART_REPO"
+echo "CHART_VERSION: $CHART_VERSION"
+echo "APP_VERSION: $APP_VERSION"
+echo "DIRNAME: $(dirname $0)"
+echo "REPO: $REGISTRY/$REPO"
+echo "COMMIT: $COMMIT"
+echo "BRANCH: $COMMIT_BRANCH"
