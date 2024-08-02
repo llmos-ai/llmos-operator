@@ -5,8 +5,8 @@ go 1.22.3
 replace (
 	github.com/NVIDIA/gpu-operator => github.com/oneblock-ai/gpu-operator v0.0.0-20240110024524-05d6fccdf6c4
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
-	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240725053224-0cf9c4507e4d
-	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0-rc2
+	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240803041200-575c833ffb1d
+	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0
 	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240725064501-d320c59befdd
 	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
 
@@ -59,7 +59,7 @@ require (
 	github.com/rancher/dynamiclistener v1.27.5
 	github.com/rancher/kubernetes-provider-detector v0.1.5
 	github.com/rancher/lasso v0.0.0-20240705194423-b2a060d103c1
-	github.com/rancher/steve v0.0.0-20240508210815-7a9a1c07c450
+	github.com/rancher/steve v0.0.0-20240731082423-435e220795a3
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
 	github.com/rancher/wrangler/v3 v3.0.0
 	github.com/ray-project/kuberay/ray-operator v0.0.0-00010101000000-000000000000
@@ -86,8 +86,8 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/bytedance/sonic v1.11.9 // indirect
-	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/bytedance/sonic v1.12.0 // indirect
+	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -169,7 +169,7 @@ require (
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9 // indirect
 	github.com/rancher/remotedialer v0.3.2 // indirect
 	github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 // indirect
-	github.com/rancher/wrangler/v2 v2.1.2 // indirect
+	github.com/rancher/wrangler/v2 v2.2.0-rc5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect

@@ -124,14 +124,14 @@ package-installer: ## Build installer image using earthly (multi-arch).
 
 .PHONY: build-installer
 build-installer: ## Build installer assets to dist/charts path (multi-arch).
-	@echo Building llmos-operator installer image
+	@echo Building llmos system-installer assets
 	earthly --P +build-all-installer
 
-.PHONY: build-installer-local
-build-installer-local: ## Build local llmos-operator to dist/charts(local arch).
-	@echo Building llmos installer image
+.PHONY: package-installer-local
+package-installer-local: ## Build local llmos-operator to dist/charts(local arch).
+	@echo Packaging llmos system-installer image
 	EXPORT_ENV=true source ./scripts/version && \
-	earthly -P +package-installer
+	earthly -i -P +package-installer
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
@@ -139,26 +139,12 @@ build-installer-local: ## Build local llmos-operator to dist/charts(local arch).
 .PHONY: docker-manifest
 #docker-manifest: build-local ## Build & push multi-arch docker image
 docker-manifest: ## Build & push multi-arch operator image
-	EXPORT_ENV=true . ./scripts/version
-	IMAGES := $(shell docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator:$(VERSION))
-	for i in $(IMAGES); do \
-		echo $$i; \
-		$(CONTAINER_TOOL) push $$i; \
-	done
-	$(CONTAINER_TOOL) manifest create $(IMG_REPO):$(VERSION) $(IMAGES)
-	$(CONTAINER_TOOL) manifest push $(IMG_REPO):$(VERSION)
+	./scripts/manifest-images llmos-operator
 
 .PHONY: docker-manifest-webhook
 #docker-manifest: build-local ## Build & push multi-arch docker image
 docker-manifest-webhook: ## Build & push multi-arch webhook image
-	EXPORT_ENV=true . ./scripts/version
-	WEBHOOK_IMAGES := $(shell docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-operator-webhook:$(VERSION))
-	for i in $(WEBHOOK_IMAGES); do \
-		echo $$i; \
-		$(CONTAINER_TOOL) push $$i; \
-	done
-	$(CONTAINER_TOOL) manifest create $(WEBHOOK_IMG_REPO):$(VERSION) $(IMAGES)
-	$(CONTAINER_TOOL) manifest push $(WEBHOOK_IMG_REPO):$(VERSION)
+	./scripts/manifest-images llmos-operator-webhook
 
 .PHONY: ci
 ci: ## Run ci script

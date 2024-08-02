@@ -27,11 +27,19 @@ function updateImageConfig() {
     yq eval -o=json values.yaml > values.json
 
     # Step 2: Use jq to update image config
-    jq --arg tag "$TAG" '
-      walk(
+    jq --arg tag "$TAG" \
+      --arg  registry "$REGISTRY" \
+      'walk(
         if type == "object" then
           if has("pullPolicy") and .pullPolicy == "Always" then
             .pullPolicy = "IfNotPresent"
+          else
+            .
+          end |
+          if has("repository") and .repository == "ghcr.io/llmos-ai/llmos-operator"  then
+            .repository = $registry + "/llmos-operator"
+          elif has("repository") and .repository == "ghcr.io/llmos-ai/llmos-operator-webhook"  then
+            .repository = $registry + "/llmos-operator-webhook"
           else
             .
           end |
@@ -43,8 +51,7 @@ function updateImageConfig() {
         else
           .
         end
-      )
-    ' values.json > values-updated.json
+      )' values.json > values-updated.json
 
     # Step 3: Convert JSON back to YAML
     yq eval -P values-updated.json -o yaml > values.yaml
