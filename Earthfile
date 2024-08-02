@@ -7,6 +7,7 @@ FROM golang:${go_version}-${distro}
 ARG --global ALPINE=3.19
 ARG --global ALPINE_DIND=earthly/dind:alpine-3.19
 ARG --global REGISTRY=
+ARG --global DOCKER_REGISTRY=
 ARG --global TAG=
 ARG --global VERSION=
 ARG --global HELM_VERSION=v3.15.3
@@ -44,5 +45,5 @@ package-installer:
     COPY +build-installer/dist/helm /
     COPY +build-installer/dist/charts/*.tgz /
     COPY package/installer-run.sh /run.sh
-    SAVE IMAGE --cache-from ${REGISTRY}/system-installer-llmos-operator:${TAG} --push ${REGISTRY}/system-installer-llmos-operator:${TAG}
-    SAVE IMAGE --cache-from ${REGISTRY}/system-installer-llmos-operator:${VERSION} --push ${REGISTRY}/system-installer-llmos-operator:${VERSION}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION}

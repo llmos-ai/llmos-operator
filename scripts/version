@@ -27,6 +27,7 @@ fi
 # image registry repo & tag
 TAG=${TAG:-${VERSION}}
 REGISTRY=${REGISTRY:-ghcr.io/llmos-ai}
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmosai}
 REPO=llmos-operator
 
 if echo "$TAG" | grep -q dirty || [[ -z $GIT_TAG ]];  then
@@ -68,7 +69,7 @@ if [ "$EXPORT_ENV" = true ]; then
     export TAG=$TAG
 
     # export earthly args
-    export EARTHLY_BUILD_ARGS="REGISTRY=${REGISTRY},TAG=${TAG},VERSION=${VERSION},COMMIT=${COMMIT}"
+    export EARTHLY_BUILD_ARGS="REGISTRY=${REGISTRY},DOCKER_REGISTRY=${DOCKER_REGISTRY},TAG=${TAG},VERSION=${VERSION},COMMIT=${COMMIT}"
 fi
 
 echo "-----------------------------:"

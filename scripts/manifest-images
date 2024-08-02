@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e -x
+
+echo "--- manifest/images ---"
+# Get the top directory
+TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd )"
+
+# Check if the IMAGE_REPO argument is provided
+IMAGE_REPO=${1}
+if [[ -z $IMAGE_REPO ]]; then
+    echo "Error: image repository is not provided"
+    exit 1
+fi
+
+# Load the version information
+cd "${TOP_DIR}"
+if [ -f ./scripts/version ]; then
+    . ./scripts/version
+else
+    echo "Error: version file not found"
+    exit 1
+fi
+
+# Get the list of images to push
+PUSH_IMAGES=$( docker images --format "{{.Repository}}:{{.Tag}}" | grep "${IMAGE_REPO}:${VERSION}" )
+
+# Check if any images matched
+if [[ -z "$PUSH_IMAGES" ]]; then
+    echo "Error: no images found for repository ${IMAGE_REPO} with version ${VERSION}"
+    exit 1
+fi
+
+for i in ${PUSH_IMAGES}; do
+    echo "$i";
+    docker push "$i"
+done
+
+# Create and push the manifest image
+MANIFEST_IMAGE="${REGISTRY}/${IMAGE_REPO}:${VERSION}"
+echo "Creating manifest image ${MANIFEST_IMAGE}"
+
+# Create the manifest
+docker manifest create --amend "${MANIFEST_IMAGE}" ${PUSH_IMAGES}
+docker manifest push "${MANIFEST_IMAGE}"
+
+echo "Pushed manifest image ${MANIFEST_IMAGE}"

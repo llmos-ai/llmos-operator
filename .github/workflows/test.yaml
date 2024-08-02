@@ -7,6 +7,7 @@ on:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
+  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY || 'docker.io/llmosai' }}
 
 jobs:
   validate:
