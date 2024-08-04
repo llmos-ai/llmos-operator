@@ -22,6 +22,7 @@ import (
 	"net/http"
 
 	cephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
+	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/helm.cattle.io/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/nvidia.com/v1"
@@ -36,6 +37,7 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	CephV1() cephv1.CephV1Interface
+	HelmV1() helmv1.HelmV1Interface
 	ManagementV1() managementv1.ManagementV1Interface
 	MlV1() mlv1.MlV1Interface
 	NvidiaV1() nvidiav1.NvidiaV1Interface
@@ -48,6 +50,7 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	cephV1       *cephv1.CephV1Client
+	helmV1       *helmv1.HelmV1Client
 	managementV1 *managementv1.ManagementV1Client
 	mlV1         *mlv1.MlV1Client
 	nvidiaV1     *nvidiav1.NvidiaV1Client
@@ -59,6 +62,11 @@ type Clientset struct {
 // CephV1 retrieves the CephV1Client
 func (c *Clientset) CephV1() cephv1.CephV1Interface {
 	return c.cephV1
+}
+
+// HelmV1 retrieves the HelmV1Client
+func (c *Clientset) HelmV1() helmv1.HelmV1Interface {
+	return c.helmV1
 }
 
 // ManagementV1 retrieves the ManagementV1Client
@@ -139,6 +147,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.helmV1, err = helmv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.managementV1, err = managementv1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -185,6 +197,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.cephV1 = cephv1.New(c)
+	cs.helmV1 = helmv1.New(c)
 	cs.managementV1 = managementv1.New(c)
 	cs.mlV1 = mlv1.New(c)
 	cs.nvidiaV1 = nvidiav1.New(c)

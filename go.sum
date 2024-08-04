@@ -1347,6 +1347,8 @@ github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7V
 github.com/julienschmidt/httprouter v1.3.0/go.mod h1:JR6WtHb+2LUe8TCKY3cZOxFyyO8IZAc4RVcycCCAKdM=
 github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
 github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+github.com/k3s-io/helm-controller v0.16.3 h1:zjC0PsQF2Pf/LM1Cbfz/2dV6ee6XtCAWyG1PO96m7ow=
+github.com/k3s-io/helm-controller v0.16.3/go.mod h1:AcSxEhOIUgeVvBTnJOAwcezBZXtYew/RhKwO5xp3RlM=
 github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.6.0 h1:BT3ghAY0q7lWib9rz+tVXDFkm27dJV6SLCn7TunZwo4=
 github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.6.0/go.mod h1:wxt2YWRVItDtaQmVSmaN5ubE2L1c9CiNoHQwSJnM8Ko=
 github.com/karrick/godirwalk v1.17.0/go.mod h1:j4mkqPuvaLI8mp1DroR3P6ad7cyYd4c1qeJ3RV7ULlk=
@@ -1658,8 +1660,8 @@ github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a64
 github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea/go.mod h1:04o7UUy7ZFiMDEtHEjO1yS7IkO8TcsgjBl93Fcjq7Gg=
 github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 h1:otb4OjgXH2b8a4C9g76jCDuTF3opjaYffZ55SiVe7KU=
 github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689/go.mod h1:D6Tu6oVX8aGtCHsMCtYaysgVK3ad920MTSeAu7rzb5U=
-github.com/rancher/wrangler/v2 v2.2.0-rc5 h1:HxqFJyVuLRSAyexEJ3dETa8HPhSJtWO7dhrfheoQBD0=
-github.com/rancher/wrangler/v2 v2.2.0-rc5/go.mod h1:CxFixTM6jrm17WJSQ0CBwc3zHwrbk4GkTYj56P53WuA=
+github.com/rancher/wrangler/v2 v2.1.2 h1:XAiReB3caOAepsTHs12AwKVv4vBJkjLosZPXbbj/85E=
+github.com/rancher/wrangler/v2 v2.1.2/go.mod h1:LgpEqT2ATL0MevUsL5rohrAEU419MIPeswsMNHw35d4=
 github.com/rancher/wrangler/v3 v3.0.0 h1:IHHCA+vrghJDPxjtLk4fmeSCFhNe9fFzLFj3m2B0YpA=
 github.com/rancher/wrangler/v3 v3.0.0/go.mod h1:Dfckuuq7MJk2JWVBDywRlZXMxEyPxHy4XqGrPEzu5Eg=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=

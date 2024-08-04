@@ -18,34 +18,26 @@ limitations under the License.
 package fake
 
 import (
-	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	v1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/helm.cattle.io/v1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeManagementV1 struct {
+type FakeHelmV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeManagementV1) ManagedAddons(namespace string) v1.ManagedAddonInterface {
-	return &FakeManagedAddons{c, namespace}
+func (c *FakeHelmV1) HelmCharts(namespace string) v1.HelmChartInterface {
+	return &FakeHelmCharts{c, namespace}
 }
 
-func (c *FakeManagementV1) Settings() v1.SettingInterface {
-	return &FakeSettings{c}
-}
-
-func (c *FakeManagementV1) Upgrades(namespace string) v1.UpgradeInterface {
-	return &FakeUpgrades{c, namespace}
-}
-
-func (c *FakeManagementV1) Users() v1.UserInterface {
-	return &FakeUsers{c}
+func (c *FakeHelmV1) HelmChartConfigs(namespace string) v1.HelmChartConfigInterface {
+	return &FakeHelmChartConfigs{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeManagementV1) RESTClient() rest.Interface {
+func (c *FakeHelmV1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

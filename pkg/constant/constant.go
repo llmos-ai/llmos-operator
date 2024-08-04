@@ -21,6 +21,7 @@ const (
 	LLMOSVersionLabel = LLMOSPrefix + "/version"
 	LLMOSUpgradeLabel = LLMOSPrefix + "/upgrade"
 	LLMOSManagedLabel = LLMOSPrefix + "/managed"
+	ManagedAddonLabel = LLMOSPrefix + "/managed-addon"
 
 	SettingPreConfiguredValueAnno = LLMOSPrefix + "/previous-configured-value"
 	SecretNameRefAnno             = LLMOSPrefix + "/secret-name"

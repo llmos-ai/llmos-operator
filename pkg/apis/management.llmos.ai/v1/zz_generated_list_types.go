@@ -25,6 +25,23 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// ManagedAddonList is a list of ManagedAddon resources
+type ManagedAddonList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []ManagedAddon `json:"items"`
+}
+
+func NewManagedAddon(namespace, name string, obj ManagedAddon) *ManagedAddon {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ManagedAddon").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // SettingList is a list of Setting resources
 type SettingList struct {
 	metav1.TypeMeta `json:",inline"`

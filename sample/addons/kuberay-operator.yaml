@@ -1,0 +1,22 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: kuberay-operator
+  namespace: llmos-system
+spec:
+  repo: https://ray-project.github.io/kuberay-helm
+#  repo: llmos-system/llmos-repo
+  chart: kuberay-operator
+  version: 1.1.1
+  enabled: true
+  valuesContent: |-
+    enabled: true
+    image:
+      repository: quay.io/kuberay/operator
+      tag: v1.1.1
+      pullPolicy: IfNotPresent
+    batchScheduler:
+      enabled: false
+    serviceAccount:
+      create: false
+      name: llmos-cluster-admin

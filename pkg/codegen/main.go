@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
+	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	controllergen "github.com/rancher/wrangler/v3/pkg/controller-gen"
 	"github.com/rancher/wrangler/v3/pkg/controller-gen/args"
@@ -110,6 +111,14 @@ func main() {
 				PackageName: storagev1.GroupName,
 				Types: []interface{}{
 					storagev1.StorageClass{},
+				},
+				GenerateTypes:   false,
+				GenerateClients: true,
+			},
+			helmv1.SchemeGroupVersion.Group: {
+				PackageName: helmv1.SchemeGroupVersion.Group,
+				Types: []interface{}{
+					helmv1.HelmChart{},
 				},
 				GenerateTypes:   false,
 				GenerateClients: true,
