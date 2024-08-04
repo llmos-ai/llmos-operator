@@ -20,44 +20,34 @@ package v1
 import (
 	"net/http"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	v1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
-type ManagementV1Interface interface {
+type HelmV1Interface interface {
 	RESTClient() rest.Interface
-	ManagedAddonsGetter
-	SettingsGetter
-	UpgradesGetter
-	UsersGetter
+	HelmChartsGetter
+	HelmChartConfigsGetter
 }
 
-// ManagementV1Client is used to interact with features provided by the management.llmos.ai group.
-type ManagementV1Client struct {
+// HelmV1Client is used to interact with features provided by the helm.cattle.io group.
+type HelmV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ManagementV1Client) ManagedAddons(namespace string) ManagedAddonInterface {
-	return newManagedAddons(c, namespace)
+func (c *HelmV1Client) HelmCharts(namespace string) HelmChartInterface {
+	return newHelmCharts(c, namespace)
 }
 
-func (c *ManagementV1Client) Settings() SettingInterface {
-	return newSettings(c)
+func (c *HelmV1Client) HelmChartConfigs(namespace string) HelmChartConfigInterface {
+	return newHelmChartConfigs(c, namespace)
 }
 
-func (c *ManagementV1Client) Upgrades(namespace string) UpgradeInterface {
-	return newUpgrades(c, namespace)
-}
-
-func (c *ManagementV1Client) Users() UserInterface {
-	return newUsers(c)
-}
-
-// NewForConfig creates a new ManagementV1Client for the given config.
+// NewForConfig creates a new HelmV1Client for the given config.
 // NewForConfig is equivalent to NewForConfigAndClient(c, httpClient),
 // where httpClient was generated with rest.HTTPClientFor(c).
-func NewForConfig(c *rest.Config) (*ManagementV1Client, error) {
+func NewForConfig(c *rest.Config) (*HelmV1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -69,9 +59,9 @@ func NewForConfig(c *rest.Config) (*ManagementV1Client, error) {
 	return NewForConfigAndClient(&config, httpClient)
 }
 
-// NewForConfigAndClient creates a new ManagementV1Client for the given config and http client.
+// NewForConfigAndClient creates a new HelmV1Client for the given config and http client.
 // Note the http client provided takes precedence over the configured transport values.
-func NewForConfigAndClient(c *rest.Config, h *http.Client) (*ManagementV1Client, error) {
+func NewForConfigAndClient(c *rest.Config, h *http.Client) (*HelmV1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -80,12 +70,12 @@ func NewForConfigAndClient(c *rest.Config, h *http.Client) (*ManagementV1Client,
 	if err != nil {
 		return nil, err
 	}
-	return &ManagementV1Client{client}, nil
+	return &HelmV1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new ManagementV1Client for the given config and
+// NewForConfigOrDie creates a new HelmV1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *ManagementV1Client {
+func NewForConfigOrDie(c *rest.Config) *HelmV1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -93,9 +83,9 @@ func NewForConfigOrDie(c *rest.Config) *ManagementV1Client {
 	return client
 }
 
-// New creates a new ManagementV1Client for the given RESTClient.
-func New(c rest.Interface) *ManagementV1Client {
-	return &ManagementV1Client{c}
+// New creates a new HelmV1Client for the given RESTClient.
+func New(c rest.Interface) *HelmV1Client {
+	return &HelmV1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -113,7 +103,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *ManagementV1Client) RESTClient() rest.Interface {
+func (c *HelmV1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

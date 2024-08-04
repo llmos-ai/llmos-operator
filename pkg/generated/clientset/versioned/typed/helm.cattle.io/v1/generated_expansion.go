@@ -17,10 +17,6 @@ limitations under the License.
 
 package v1
 
-type ManagedAddonExpansion interface{}
+type HelmChartExpansion interface{}
 
-type SettingExpansion interface{}
-
-type UpgradeExpansion interface{}
-
-type UserExpansion interface{}
+type HelmChartConfigExpansion interface{}

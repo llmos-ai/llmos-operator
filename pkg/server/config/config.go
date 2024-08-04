@@ -6,6 +6,7 @@ import (
 	"github.com/rancher/lasso/pkg/controller"
 	"github.com/rancher/wrangler/v3/pkg/apply"
 	appsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps"
+	batchv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/batch"
 	corev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core"
 	rbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac"
 	"github.com/rancher/wrangler/v3/pkg/generic"
@@ -15,6 +16,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	rookv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ceph.rook.io"
+	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai"
 	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/nvidia.com"
@@ -37,6 +39,7 @@ type Management struct {
 	CoreFactory    *corev1.Factory
 	AppsFactory    *appsv1.Factory
 	RbacFactory    *rbacv1.Factory
+	BatchFactory   *batchv1.Factory
 	StorageFactory *storagev1.Factory
 	MgmtFactory    *ctlmgmtv1.Factory
 	UpgradeFactory *upgrade.Factory
@@ -44,6 +47,7 @@ type Management struct {
 	KubeRayFactory *kuberayv1.Factory
 	NvidiaFactory  *nvidiav1.Factory
 	RookFactory    *rookv1.Factory
+	HelmFactory    *helmv1.Factory
 
 	starters []start.Starter
 }
@@ -100,6 +104,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config,
 	mgmt.RbacFactory = rbac
 	mgmt.starters = append(mgmt.starters, rbac)
 
+	batch, err := batchv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.BatchFactory = batch
+	mgmt.starters = append(mgmt.starters, batch)
+
 	storage, err := storagev1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
 	if err != nil {
 		return nil, err
@@ -148,6 +159,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config,
 	}
 	mgmt.RookFactory = rook
 	mgmt.starters = append(mgmt.starters, rook)
+
+	helm, err := helmv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.HelmFactory = helm
+	mgmt.starters = append(mgmt.starters, helm)
 
 	return mgmt, nil
 }

@@ -30,6 +30,7 @@ func init() {
 }
 
 type Interface interface {
+	ManagedAddon() ManagedAddonController
 	Setting() SettingController
 	Upgrade() UpgradeController
 	User() UserController
@@ -43,6 +44,10 @@ func New(controllerFactory controller.SharedControllerFactory) Interface {
 
 type version struct {
 	controllerFactory controller.SharedControllerFactory
+}
+
+func (v *version) ManagedAddon() ManagedAddonController {
+	return generic.NewController[*v1.ManagedAddon, *v1.ManagedAddonList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "ManagedAddon"}, "managedaddons", true, v.controllerFactory)
 }
 
 func (v *version) Setting() SettingController {

@@ -19,6 +19,7 @@ package scheme
 
 import (
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
+	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
@@ -37,6 +38,7 @@ var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
 	cephv1.AddToScheme,
+	helmv1.AddToScheme,
 	managementv1.AddToScheme,
 	mlv1.AddToScheme,
 	nvidiav1.AddToScheme,

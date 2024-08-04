@@ -21,6 +21,8 @@ import (
 	clientset "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned"
 	cephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
 	fakecephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1/fake"
+	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/helm.cattle.io/v1"
+	fakehelmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/helm.cattle.io/v1/fake"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
 	fakemanagementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1/fake"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
@@ -93,6 +95,11 @@ var (
 // CephV1 retrieves the CephV1Client
 func (c *Clientset) CephV1() cephv1.CephV1Interface {
 	return &fakecephv1.FakeCephV1{Fake: &c.Fake}
+}
+
+// HelmV1 retrieves the HelmV1Client
+func (c *Clientset) HelmV1() helmv1.HelmV1Interface {
+	return &fakehelmv1.FakeHelmV1{Fake: &c.Fake}
 }
 
 // ManagementV1 retrieves the ManagementV1Client

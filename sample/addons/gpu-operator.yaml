@@ -1,0 +1,24 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: gpu-operator
+  namespace: llmos-system
+spec:
+  repo: https://helm.ngc.nvidia.com/nvidia
+#  repo: llmos-system/llmos-repo
+  chart: gpu-operator
+  version: v24.6.0
+  enabled: true
+  valuesContent: |-
+    driver:
+      enabled: false
+    toolkit:
+      env:
+      - name: CONTAINERD_CONFIG
+        value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+      - name: CONTAINERD_SOCKET
+        value: /run/k3s/containerd/containerd.sock
+      - name: CONTAINERD_RUNTIME_CLASS
+        value: nvidia
+      - name: CONTAINERD_SET_AS_DEFAULT
+        value: "true"

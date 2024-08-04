@@ -9,4 +9,4 @@ dependencies:
   repository: https://charts.rook.io/release
   version: v1.14.8
 digest: sha256:947c1066d3372946011707cd34274df9d70be21cdd085f582c5201d43d263812
-generated: "2024-07-31T17:41:33.01966+08:00"
+generated: "2024-08-05T12:59:12.483058+08:00"

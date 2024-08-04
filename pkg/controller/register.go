@@ -5,6 +5,7 @@ import (
 
 	"github.com/rancher/wrangler/v3/pkg/leader"
 
+	"github.com/llmos-ai/llmos-operator/pkg/controller/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
@@ -25,7 +26,7 @@ var registerFuncs = []registerFunc{
 	user.Register,
 	notebook.Register,
 	raycluster.Register,
-	//gpu.Register,
+	managedaddon.Register,
 	//storage.Register,
 }
 

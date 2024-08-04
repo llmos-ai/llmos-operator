@@ -51,6 +51,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/jackc/pgx/v5 v5.6.0
+	github.com/k3s-io/helm-controller v0.16.3
 	github.com/ollama/ollama v0.1.38
 	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
 	github.com/onsi/ginkgo/v2 v2.17.1
@@ -169,7 +170,7 @@ require (
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9 // indirect
 	github.com/rancher/remotedialer v0.3.2 // indirect
 	github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 // indirect
-	github.com/rancher/wrangler/v2 v2.2.0-rc5 // indirect
+	github.com/rancher/wrangler/v2 v2.1.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
