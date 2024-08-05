@@ -18,10 +18,11 @@ const (
 
 	TimeLayout = time.RFC3339
 
-	LLMOSVersionLabel = LLMOSPrefix + "/version"
-	LLMOSUpgradeLabel = LLMOSPrefix + "/upgrade"
-	LLMOSManagedLabel = LLMOSPrefix + "/managed"
-	ManagedAddonLabel = LLMOSPrefix + "/managed-addon"
+	LLMOSVersionLabel       = LLMOSPrefix + "/version"
+	LLMOSUpgradeLabel       = LLMOSPrefix + "/upgrade"
+	LLMOSManagedLabel       = LLMOSPrefix + "/managed"
+	ManagedAddonLabel       = LLMOSPrefix + "/managed-addon"
+	ManagedSystemAddonLabel = LLMOSPrefix + "/managed-system-addon"
 
 	SettingPreConfiguredValueAnno = LLMOSPrefix + "/previous-configured-value"
 	SecretNameRefAnno             = LLMOSPrefix + "/secret-name"

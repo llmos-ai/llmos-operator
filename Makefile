@@ -104,7 +104,7 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 ##@ Build
 .PHONY: build
-build: manifests generate fmt vet build-release package-installer ## Run all llmos-operator builds
+build: manifests generate fmt vet build-operator package-system-charts-repo package-installer ## Run all llmos-operator builds
 
 .PHONY: build-operator-release
 build-operator-release: ## Build llmos-operator release using goreleaser.
@@ -116,22 +116,34 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	EXPORT_ENV=true source ./scripts/version && \
 	goreleaser release --snapshot --clean $(VERBOSE)
 
+.PHONY: build-installer
+build-installer: ## Build installer assets to dist/charts path (multi-arch).
+	@echo Building llmos system-installer assets
+	earthly +build-all-installer
+
 .PHONY: package-installer
 package-installer: ## Build installer image using earthly (multi-arch).
 	@echo Packaging llmos-operator installer image
 	EXPORT_ENV=true source ./scripts/version && \
-	earthly --push --P +package-all-installer
-
-.PHONY: build-installer
-build-installer: ## Build installer assets to dist/charts path (multi-arch).
-	@echo Building llmos system-installer assets
-	earthly --P +build-all-installer
+	earthly --push +package-all-installer
 
 .PHONY: package-installer-local
 package-installer-local: ## Build local llmos-operator to dist/charts(local arch).
 	@echo Packaging llmos system-installer image
 	EXPORT_ENV=true source ./scripts/version && \
-	earthly -i -P +package-installer
+	earthly -i +package-installer
+
+.PHONY: build-system-charts
+build-system-charts: ## build LLMOS system-charts-repo image
+	@echo Packaging llmos system-charts repo
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly +build-system-charts
+
+.PHONY: package-system-charts-repo
+package-system-charts-repo: ## Package LLMOS system-charts-repo image
+	@echo Packaging llmos system-charts repo
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly --push +package-system-charts-repo
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
@@ -169,8 +181,12 @@ uninstall-crds: ## Uninstall CRDs from your k8s cluster.
 	$(HELM) uninstall -n llmos-system llmos-crd
 
 .PHONY: helm-dep
-helm-dep: ## update chart dependencies.
+helm-dep: ## update operator dependency charts.
 	$(HELM) dep update deploy/charts/llmos-operator
+
+.PHONY: helm-system-dep
+helm-system-dep: ## update system-charts dependencies.
+	$(HELM) dep update deploy/charts/system-charts
 
 ifndef ignore-not-found
   ignore-not-found = false

@@ -30,7 +30,6 @@ metadata:
   name: {{ include "llmos-operator.fullname" . }}-webhook
   labels:
     {{- include "llmos-operator.webhookLabels" . | nindent 4 }}
-    foo: bar
 spec:
   type: {{ .Values.operator.webhook.service.type }}
   ports:

@@ -67,7 +67,7 @@ func (h *handler) setAddonCondStatus(addon *mgmtv1.ManagedAddon, state mgmtv1.Ad
 	}
 
 	if !reflect.DeepEqual(addon.Status, addonCpy.Status) {
-		return h.managedAddon.UpdateStatus(addonCpy)
+		return h.managedAddons.UpdateStatus(addonCpy)
 	}
 
 	return addonCpy, nil

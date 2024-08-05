@@ -3,8 +3,9 @@ kind: ManagedAddon
 metadata:
   name: gpu-operator
   namespace: llmos-system
+  labels:
+    llmos.ai/system-addon: "true"
 spec:
-#  repo: https://helm.ngc.nvidia.com/nvidia
   repo: http://system-charts-repo.llmos-system.svc
   chart: gpu-operator
   version: v24.6.0

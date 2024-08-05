@@ -250,7 +250,7 @@ func (h *Handler) applyCephClusterCustomTemplate(cfg *template.CephConfig,
 		return fmt.Errorf("owner reference is empty")
 	}
 
-	templates, err := template.Render(fileName, cfg)
+	templates, err := template.Render(template.CephClusterTemplate, fileName, cfg)
 	if err != nil {
 		return fmt.Errorf("failed to render template: %w", err)
 	}

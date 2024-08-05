@@ -138,61 +138,16 @@ suc:
     repository: "rancher/system-upgrade-controller:v0.13.4"
     pullPolicy: IfNotPresent
 
-kuberay-operator:
+systemChartsRepo:
   enabled: true
   image:
-    repository: quay.io/kuberay/operator
-    tag: v1.1.1
-    pullPolicy: IfNotPresent
-  batchScheduler:
-    enabled: false
-  serviceAccount:
-    create: false
-    name: *llmosServiceAccountName
-
-
-redis:
-  enabled: true
-  image:
-    repository: bitnami/redis
-    tag: 7.2.5-debian-12-r2
-    pullPolicy: IfNotPresent
-  master:
-    # default to 1, will auto-scale up to 1 by the operator when storage is ready
-    count: 1
-    persistence:
-      enabled: true
-      storageClass: ""
-      accessModes:
-        - ReadWriteOnce
-      size: 5Gi
-  replica:
-    replicaCount: 0 # default to 0, will auto-scale up to 3 by the operator when storage is ready
-    persistence:
-      enabled: true
-      storageClass: ""
-      accessModes:
-        - ReadWriteOnce
-      size: 5Gi
-  auth:
-    enabled: true
-    sentinel: true
-    password: ""
-  volumePermissions:
-    enabled: true
-
-rook-ceph:
-  enabled: true
-  image:
-    repository: rook/ceph
-    tag: v1.14.8
-    pullPolicy: IfNotPresent
-  crds:
-    enabled: false
-  csi:
-    # -- Enable Ceph CSI RBD driver
-    enableRbdDriver: true
-    # -- Enable Ceph CSI CephFS driver
-    enableCephfsDriver: true
-    # -- Disable the CSI driver.
-    disableCsiDriver: "false"
+    repository: ghcr.io/llmos-ai/system-charts-repo
+    tag: "main-head"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: 20m
+      memory: 50Mi
+    limits:
+      cpu: 200m
+      memory: 250Mi

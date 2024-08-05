@@ -3,7 +3,7 @@ on:
   pull_request:
     branches:
     - main
-    - v*
+    - release-*
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
@@ -40,5 +40,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         version: "latest"
-    - name: Run Installer image test
+    - name: Run build system-charts repo image test
+      run: make build-system-charts
+    - name: Run build installer image test
       run: make build-installer

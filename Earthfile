@@ -47,3 +47,23 @@ package-installer:
     COPY package/installer-run.sh /run.sh
     SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG}
     SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION}
+
+build-system-charts:
+    FROM nginx:alpine$ALPINE
+    WORKDIR llmos-repo
+    RUN apk update && apk add --no-cache git helm yq jq bash
+    COPY . .
+    RUN ./scripts/chart/system-charts
+    RUN ls -la dist/system-charts
+    RUN [ -e "dist/system-charts/index.yaml" ] && echo "found index.yaml" || exit 1
+    SAVE ARTIFACT dist/system-charts AS LOCAL dist/system-charts
+
+package-system-charts-repo:
+    FROM nginx:alpine$ALPINE
+    WORKDIR /usr/share/nginx/html
+    COPY +build-system-charts/system-charts .
+    RUN [ -e "/usr/share/nginx/html/index.yaml" ] && echo "found index.yaml" || exit 1
+    EXPOSE 80
+    CMD ["nginx", "-g", "daemon off;"]
+    SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${TAG} --push ${REGISTRY}/system-charts-repo:${TAG}
+    SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${VERSION} --push ${REGISTRY}/system-charts-repo:${VERSION}
