@@ -50,6 +50,11 @@ Webhook labels
 app.llmos.ai/webhook: "true"
 {{- end }}
 
+{{- define "llmos-operator.systemChartsLabels" -}}
+{{ include "llmos-operator.labels" . }}
+app.llmos.ai/system-charts-repo: "true"
+{{- end }}
+
 {{/*
 Selector labels
 */}}

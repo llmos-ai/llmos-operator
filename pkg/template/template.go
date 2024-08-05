@@ -8,16 +8,21 @@ import (
 )
 
 const (
-	templateFolder = "templates"
+	templateFolder      = "templates"
+	CephClusterTemplate = templateFolder + "/ceph-cluster"
+	AddonTemplate       = templateFolder + "/addons"
 )
 
-//go:embed all:templates
+//go:embed all:templates/*
 var templates embed.FS
 
 // Render renders a templates in the package `templates` folder. The templates
 // files are embedded in build-time.
-func Render(template string, context interface{}) (*bytes.Buffer, error) {
-	tplBytes, err := templates.ReadFile(filepath.Join(templateFolder, template))
+func Render(folder, template string, context interface{}) (*bytes.Buffer, error) {
+	if folder == "" {
+		folder = templateFolder
+	}
+	tplBytes, err := templates.ReadFile(filepath.Join(folder, template))
 	if err != nil {
 		return nil, err
 	}

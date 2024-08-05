@@ -34,10 +34,10 @@ const (
 	systemNamespace = "llmos-system"
 )
 
-func TestNewCephConfig(t *testing.T) {
+func Test_NewCephConfig(t *testing.T) {
 	cfg := template.NewCephConfig(cephClusterName, cephNamespace, systemNamespace)
 	for tmp, obj := range cephTemplates {
-		templates, err := template.Render(tmp, cfg)
+		templates, err := template.Render(template.CephClusterTemplate, tmp, cfg)
 		assert.NoError(t, err, "expect no error during template rendering")
 		yamls := bytes.Split(templates.Bytes(), []byte("\n---\n"))
 		for _, yml := range yamls {

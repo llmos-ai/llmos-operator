@@ -1,4 +1,6 @@
-dist
-bin
+dist/
+bin/
+tmp/
+.tmp-earthly-out/
 main
 llmos-operator

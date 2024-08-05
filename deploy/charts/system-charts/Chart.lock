@@ -1,0 +1,18 @@
+dependencies:
+- name: kuberay-operator
+  repository: https://ray-project.github.io/kuberay-helm
+  version: 1.1.1
+- name: gpu-operator
+  repository: https://helm.ngc.nvidia.com/nvidia
+  version: v24.6.0
+- name: rook-ceph
+  repository: https://charts.rook.io/release
+  version: v1.14.9
+- name: rook-ceph-cluster
+  repository: https://charts.rook.io/release
+  version: v1.14.9
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 19.6.4
+digest: sha256:a5aee06bdecbaf221dd49aa462442e74eb807da91447954e5db0a438ba64159e
+generated: "2024-08-06T09:52:30.486777+08:00"

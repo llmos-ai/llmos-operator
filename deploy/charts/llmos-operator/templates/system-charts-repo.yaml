@@ -1,0 +1,53 @@
+{{- if .Values.suc.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # system-charts repo name is hardcoded
+  name: system-charts-repo
+  labels:
+    {{- include "llmos-operator.systemChartsLabels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "llmos-operator.systemChartsLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "llmos-operator.systemChartsLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: nginx
+          image: "{{ .Values.systemChartsRepo.image.repository }}:{{ .Values.systemChartsRepo.image.tag }}"
+          imagePullPolicy: {{ .Values.systemChartsRepo.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.systemChartsRepo.resources | nindent 12 }}
+      {{- with .Values.operator.apiserver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: system-charts-repo
+  labels:
+    {{- include "llmos-operator.systemChartsLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.operator.webhook.service.type }}
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "llmos-operator.systemChartsLabels" . | nindent 4 }}
+{{- end }}

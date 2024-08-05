@@ -41,8 +41,8 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 	helm := mgmt.HelmFactory.Helm().V1().HelmChart()
 	job := mgmt.BatchFactory.Batch().V1().Job()
 	h := &handler{
-		managedAddons:     addon,
 		managedAddon:      addon,
+		managedAddons:     addon,
 		managedAddonCache: addon.Cache(),
 		helmCharts:        helm,
 		helmChartCache:    helm.Cache(),
@@ -54,7 +54,7 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 	job.OnChange(ctx, addonJobOnChange, h.OnAddonJobChange)
 	helm.OnRemove(ctx, addonHelmChartOnDelete, h.addonHelmChartOnDelete)
 
-	return nil
+	return h.registerSystemAddons(ctx)
 }
 
 func (h *handler) OnChange(_ string, addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {

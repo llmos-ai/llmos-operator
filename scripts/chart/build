@@ -40,6 +40,8 @@ function updateImageConfig() {
             .repository = $registry + "/llmos-operator"
           elif has("repository") and .repository == "ghcr.io/llmos-ai/llmos-operator-webhook"  then
             .repository = $registry + "/llmos-operator-webhook"
+          elif has("repository") and .repository == "ghcr.io/llmos-ai/system-charts-repo"  then
+            .repository = $registry + "/system-charts-repo"
           else
             .
           end |
