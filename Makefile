@@ -117,9 +117,10 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	goreleaser release --snapshot --clean $(VERBOSE)
 
 .PHONY: build-installer
-build-installer: ## Build installer assets to dist/charts path (multi-arch).
+build-installer: ## Build installer artifacts (i.e., operator charts & index.yaml)
 	@echo Building llmos system-installer assets
-	earthly +build-all-installer
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly +build-installer
 
 .PHONY: package-installer
 package-installer: ## Build installer image using earthly (multi-arch).
@@ -143,7 +144,7 @@ build-system-charts: ## build LLMOS system-charts-repo image
 package-system-charts-repo: ## Package LLMOS system-charts-repo image
 	@echo Packaging llmos system-charts repo
 	EXPORT_ENV=true source ./scripts/version && \
-	earthly --push +package-system-charts-repo
+	earthly --push +package-all-system-charts-repo
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.

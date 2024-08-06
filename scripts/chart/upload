@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e
+
+echo "--- Uploading operator charts to S3 ---"
+
+UPLOAD_CHARTS=${UPLOAD_CHARTS:-}
+
+if [ "$UPLOAD_CHARTS" = "false" ]; then
+	echo "skipping upload charts to the remote charts repo"
+	exit 0
+fi
+
+TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
+
+cd "${TOP_DIR}"
+. ./scripts/version
+
+CHART_DIST_DIR=${CHART_DIST_DIR:-dist/charts}
+AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+S3_BUCKET_NAME=${S3_BUCKET_NAME:-releases.1block.ai/charts}
+
+echo "Check aws cli exist"
+if [ -z "$(type -p aws)" ]; then
+  echo "aws cli not found, aws is required to upload files."
+  exit 1
+else
+  aws --version
+fi
+
+if [[ ! -e "$CHART_DIST_DIR" ]]; then
+  echo "charts dist dir ${CHART_DIST_DIR} does not exist"
+  exit 1
+fi
+
+if [[ -z "$CHART_REPO" ]]; then
+  echo "chart repo is empty"
+  exit 1
+fi
+
+echo "Uploading charts and index.yaml in ${CHART_DIST_DIR} to ${S3_BUCKET_NAME}/${CHART_REPO}"
+aws s3 cp "$CHART_DIST_DIR" s3://"${S3_BUCKET_NAME}"/"${CHART_REPO}" --recursive
+
+echo "Uploading llmos-operator charts completed successfully."

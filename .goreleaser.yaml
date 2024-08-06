@@ -136,8 +136,4 @@ docker_manifests:
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
 
-docker_signs:
-  - artifacts: all
-    stdin: "{{ .Env.COSIGN_PASSWORD }}"
-
 dist: dist/cli

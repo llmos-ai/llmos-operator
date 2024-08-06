@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 set -e -x
 
-echo "--- chart/build ---"
+echo "--- Starting the build process for llmos-operator charts ---"
 
 TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
+CHART_REPO=${CHART_REPO:-dev}
 
 cd "${TOP_DIR}"
 . ./scripts/version
 
-charts_dir=dist/charts
+CHART_DIST_DIR=dist/charts
 ## create dist dir if not exist
-if [ ! -d "${charts_dir}" ]; then
+if [ ! -d "${CHART_DIST_DIR}" ]; then
   mkdir -p "dist"
 else
-  rm -rf "${charts_dir}"
+  rm -rf "${CHART_DIST_DIR}"
 fi
 
 
-cp -rf "${1}" "${charts_dir}"
+cp -rf "${1}" "${CHART_DIST_DIR}"
 
 function updateImageConfig() {
     # Update pullPolicy to IfNotPresent
@@ -71,15 +72,15 @@ function patchChartVersion() {
 }
 
 # package llmos-operator chart
-llmos_crd_chart_path=${charts_dir}/llmos-crd
-llmos_operator_chart_path=${charts_dir}/llmos-operator
+llmos_crd_chart_path=${CHART_DIST_DIR}/llmos-crd
+llmos_operator_chart_path=${CHART_DIST_DIR}/llmos-operator
 
 
 patchChartVersion
 updateImageConfig "${llmos_operator_chart_path}"
 cd "${TOP_DIR}"
 
-echo "check helm exist"
+echo "Check helm exist"
 # Check for helm
 if [ -z "$(type -p helm)" ]; then
     echo "helm not found. Helm is required to run tests."
@@ -89,9 +90,16 @@ fi
 helm lint "${llmos_crd_chart_path}"
 helm lint "${llmos_operator_chart_path}"
 
-helm package ${llmos_crd_chart_path} -d ${charts_dir} || true
-helm package ${llmos_operator_chart_path} -d ${charts_dir} || true
+helm package ${llmos_crd_chart_path} -d ${CHART_DIST_DIR} || true
+helm package ${llmos_operator_chart_path} -d ${CHART_DIST_DIR} || true
 
-helm repo index ${charts_dir} || true
+echo "Building new helm chart ${CHART_REPO} repo index:"
+curl -H "Cache-Control: no-cache" -fL "https://releases.1block.ai/charts/${CHART_REPO}/index.yaml" -o "${CHART_DIST_DIR}"/index.yaml
 
+helm repo index --merge "${CHART_DIST_DIR}"/index.yaml ${CHART_DIST_DIR} || true
+
+# Clean up the build
 rm -rf ${llmos_crd_chart_path} ${llmos_operator_chart_path}
+rm -rf ${CHART_DIST_DIR}/system-charts
+
+echo "Build llmos-operator charts completed successfully."

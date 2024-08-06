@@ -4,3 +4,4 @@ tmp/
 .tmp-earthly-out/
 main
 llmos-operator
+.DS_Store
