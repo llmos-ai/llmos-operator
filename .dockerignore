@@ -4,3 +4,4 @@ bin/
 tmp
 dist
 .tmp-earthly-out
+.DS_Store

@@ -44,3 +44,5 @@ jobs:
       run: make build-system-charts
     - name: Run build installer image test
       run: make build-installer
+      env:
+        UPLOAD_CHARTS: "false"
