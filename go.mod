@@ -5,7 +5,7 @@ go 1.22.3
 replace (
 	github.com/NVIDIA/gpu-operator => github.com/oneblock-ai/gpu-operator v0.0.0-20240110024524-05d6fccdf6c4
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
-	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240803041200-575c833ffb1d
+	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b
 	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0
 	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240725064501-d320c59befdd
 	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
@@ -58,7 +58,6 @@ require (
 	github.com/onsi/gomega v1.32.0
 	github.com/rancher/apiserver v0.0.0-20240708202538-39a6f2535146
 	github.com/rancher/dynamiclistener v1.27.5
-	github.com/rancher/kubernetes-provider-detector v0.1.5
 	github.com/rancher/lasso v0.0.0-20240705194423-b2a060d103c1
 	github.com/rancher/steve v0.0.0-20240731082423-435e220795a3
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
@@ -70,6 +69,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.24.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.30.3
 	k8s.io/apimachinery v0.30.3
 	k8s.io/apiserver v0.30.3
@@ -167,6 +167,7 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
+	github.com/rancher/kubernetes-provider-detector v0.1.5 // indirect
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9 // indirect
 	github.com/rancher/remotedialer v0.3.2 // indirect
 	github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 // indirect
@@ -212,7 +213,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.30.1 // indirect
 	k8s.io/code-generator v0.30.3 // indirect
 	k8s.io/component-base v0.30.3 // indirect

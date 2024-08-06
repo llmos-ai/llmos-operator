@@ -1482,8 +1482,8 @@ github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/ollama/ollama v0.1.38 h1:YaDV+02/X0j7Sn1DaMGAge3PFRt2F+GqfPh6XeD9sC4=
 github.com/ollama/ollama v0.1.38/go.mod h1:7el+Pwxjgm3MUUvmhC4d8SE9l3MrS8NQAywauUdyBDU=
-github.com/oneblock-ai/apiserver v0.0.0-20240803041200-575c833ffb1d h1:qpS3eksq7CpG+IOK+T6uw3aJ2yiSntYXPz6HX7RtHug=
-github.com/oneblock-ai/apiserver v0.0.0-20240803041200-575c833ffb1d/go.mod h1:/x7zaIcr0SFiwDe/IXsfgCqq5gTgRrD+JABa+8ifVQ8=
+github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b h1:sBIoCjBzgyILuXE01IT4rtv9r6ePhb7emBkpGpBU3qM=
+github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b/go.mod h1:/x7zaIcr0SFiwDe/IXsfgCqq5gTgRrD+JABa+8ifVQ8=
 github.com/oneblock-ai/dynamiclistener/v2 v2.0.0-20231114071240-8bd0d400c27d h1:d/n6ZT0n2x7QiGYWHc7GmX7vD/nfzMR3ZqjxlcN1Zow=
 github.com/oneblock-ai/dynamiclistener/v2 v2.0.0-20231114071240-8bd0d400c27d/go.mod h1:yKX/KgxhhidYj3vQjIY7UEvRJk7H1eY2D9ox90gj2j4=
 github.com/oneblock-ai/gpu-operator v0.0.0-20240110024524-05d6fccdf6c4 h1:o65r8OAbkI4knEJHix8hr3G+hh+2jjqY1/Kw9SLZ//U=
