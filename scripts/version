@@ -1,9 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 shopt -s extglob
 
-if [ -z "$ARCH" ]; then
-    ARCH=amd64
-fi
+ARCH=$(uname -m)
+case $ARCH in
+	amd64)
+		ARCH=amd64
+		;;
+	x86_64)
+		ARCH=amd64
+		;;
+	arm64)
+		ARCH=arm64
+		;;
+	aarch64)
+		ARCH=arm64
+		;;
+	*)
+		echo "Unsupported architecture $ARCH"
+		exit 1
+esac
 
 if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
     DIRTY="-dirty"
@@ -19,7 +35,8 @@ LAST_TAG=${GIT_TAG:-'v0.0.0'}
 if [[ -n "$VERSION" ]]; then
     echo "Use existing env version: $VERSION"
 elif [[ -z "$DIRTY" && -n "$GIT_TAG" ]]; then
-    VERSION=$GIT_TAG
+    VERSION=v${COMMIT}
+    TAG=${GIT_TAG}
 else
     VERSION="v${COMMIT}${DIRTY}"
 fi
@@ -50,7 +67,7 @@ else
 fi
 
 # Drop the v prefix for Chart version(Required a SemVer 2 version)
-CHART_VERSION="$(echo ${CHART_VERSION} | sed -E 's/^v//' | sed -e 's/^\(.\{55\}\).*/\1/')"
+CHART_VERSION="$(echo "${CHART_VERSION}" | sed -E 's/^v//' | sed -e 's/^\(.\{55\}\).*/\1/')"
 
 # Chart Repo - Target Repo for releases.
 case $CHART_VERSION in

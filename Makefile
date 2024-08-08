@@ -84,6 +84,14 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
+.PHONY: lint
+lint: golangci-lint ## Run golangci-lint linter & yamllint
+	$(GOLANGCI_LINT) run
+
+.PHONY: lint-fix
+lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
+	$(GOLANGCI_LINT) run --fix
+
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
@@ -94,20 +102,15 @@ test-e2e:
 	#go test ./test/e2e/ -v -ginkgo.v
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
-.PHONY: lint
-lint: golangci-lint ## Run golangci-lint linter & yamllint
-	$(GOLANGCI_LINT) run
-
-.PHONY: lint-fix
-lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
-	$(GOLANGCI_LINT) run --fix
-
 ##@ Build
 .PHONY: build
-build: manifests generate fmt vet build-operator package-system-charts-repo package-installer ## Run all llmos-operator builds
+build: lint test build-operator build-system-charts build-installer ## Run all llmos-operator builds
 
-.PHONY: build-operator-release
-build-operator-release: ## Build llmos-operator release using goreleaser.
+.PHONY: release
+release: lint test release-operator package-system-charts-repo package-installer ## Run all llmos-operator builds
+
+.PHONY: release-operator
+release-operator: ## release llmos-operator using goreleaser.
 	EXPORT_ENV=true source ./scripts/version && \
 	goreleaser release --clean
 

@@ -14,6 +14,9 @@ checksum:
   # https://goreleaser.com/customization/checksum/
   name_template: 'checksums.txt'
 
+release:
+  draft: true
+
 builds:
   - id: "llmos-operator"
     binary: llmos-operator

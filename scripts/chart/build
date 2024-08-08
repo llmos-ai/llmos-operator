@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e -x
+set -e
 
 echo "--- Starting the build process for llmos-operator charts ---"
 

@@ -1,14 +1,13 @@
-name: main-release
+name: release
 
 concurrency:
-  group: main-release
+  group: release
   cancel-in-progress: true
 
 on:
   push:
-    branches:
-    - main
-    - release-*
+    tags:
+    - v*
 
 permissions:
   contents: write
@@ -20,11 +19,13 @@ env:
   S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
 
 jobs:
-  main-release:
+  release:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
@@ -48,15 +49,14 @@ jobs:
         registry: docker.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - run: make test && make lint
     - name: Install GoReleaser
       uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
         install-only: true
-    - name: Build Operator with GoReleaser
-      run: make build-operator
+    - name: Release Operator with GoReleaser
+      run: make release-operator
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Setup Earthly
@@ -64,42 +64,20 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         version: "latest"
-    - name: Build system-charts repo Image
+    - name: Release system-charts repo Image
       run: make package-system-charts-repo
-    - name: Build Installer Image & Upload Charts to S3
+    - name: Release Installer Image & Upload Charts to S3
       run: make package-installer
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: 'us-east-1'
-    - name: Push Latest(main) Docker Images
-      run: |
-        . ./scripts/version
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-operator:${VERSION})
-        for i in ${IMAGES}; do
-          docker push $i
-        done
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${TAG} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${TAG}
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator:${VERSION} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator:${VERSION}
-    - name: Push Latest(main) Webhook Images
-      run: |
-        . ./scripts/version
-        WEBHOOK_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-operator-webhook:${VERSION})
-        for i in ${WEBHOOK_IMAGES}; do
-          docker push $i
-        done
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${TAG} ${WEBHOOK_IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${TAG}
-        docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION} ${WEBHOOK_IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure
       uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "${{ secrets.SLACK_BOT_FAILURE_CHANNEL }}"
-        slack-message: "❌ Main-Release failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        slack-message: "❌ Release failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
