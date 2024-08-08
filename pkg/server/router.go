@@ -8,6 +8,7 @@ import (
 	"github.com/rancher/apiserver/pkg/urlbuilder"
 
 	"github.com/llmos-ai/llmos-operator/pkg/api/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/api/clusterinfo"
 	"github.com/llmos-ai/llmos-operator/pkg/api/proxy"
 	"github.com/llmos-ai/llmos-operator/pkg/api/publicui"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
@@ -58,6 +59,10 @@ func (r *Router) Routes() http.Handler {
 	// public handlers
 	publicHandler := publicui.NewPublicHandler()
 	m.Path("/v1-public/ui").Handler(publicHandler)
+
+	clusterInfo := clusterinfo.NewClusterInfo(r.mgmt)
+	m.Path("/v1-cluster/readyz").Handler(clusterInfo.ReadyzHandler())
+	m.Path("/v1-cluster/cluster-info").Handler(clusterInfo.ClusterInfo())
 
 	return m
 }
