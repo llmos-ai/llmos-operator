@@ -39,7 +39,7 @@ build-installer:
     RUN apk update && apk add --no-cache git yq jq bash curl aws-cli
     ENV HELM_URL=https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz
     # set up helm 3
-    RUN curl ${HELM_URL} | tar xvzf - --strip-components=1 -C /usr/bin
+    RUN curl -sfL ${HELM_URL} | tar xvzf - --strip-components=1 -C /usr/bin
     COPY . .
     RUN ./scripts/ci
     RUN cp /usr/bin/helm dist/helm
