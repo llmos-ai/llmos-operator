@@ -39,7 +39,7 @@ if [[ -z "$CHART_REPO" ]]; then
   exit 1
 fi
 
-echo "Uploading charts and index.yaml in ${CHART_DIST_DIR} to ${S3_BUCKET_NAME}/${CHART_REPO}"
+echo "Uploading charts and index.yaml in ${CHART_DIST_DIR} to ${S3_BUCKET_NAME}/charts/${CHART_REPO}"
 aws s3 cp "$CHART_DIST_DIR" "s3://${S3_BUCKET_NAME}/charts/${CHART_REPO}" --recursive
 
 echo "Uploading llmos-operator charts completed successfully."

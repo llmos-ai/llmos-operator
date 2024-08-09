@@ -35,8 +35,7 @@ LAST_TAG=${GIT_TAG:-'v0.0.0'}
 if [[ -n "$VERSION" ]]; then
     echo "Use existing env version: $VERSION"
 elif [[ -z "$DIRTY" && -n "$GIT_TAG" ]]; then
-    VERSION=v${COMMIT}
-    TAG=${GIT_TAG}
+    VERSION=${GIT_TAG}
 else
     VERSION="v${COMMIT}${DIRTY}"
 fi
