@@ -51,7 +51,6 @@ package-installer:
     COPY +build-installer/dist/charts/*.tgz /
     COPY package/installer-run.sh /run.sh
     SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG}
-    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${VERSION}
 
 build-system-charts:
     FROM nginx:alpine$ALPINE
@@ -71,4 +70,6 @@ package-system-charts-repo:
     EXPOSE 80
     CMD ["nginx", "-g", "daemon off;"]
     SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${TAG} --push ${REGISTRY}/system-charts-repo:${TAG}
+    IF [ "$VERSION" != "$TAG" ]
     SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${VERSION} --push ${REGISTRY}/system-charts-repo:${VERSION}
+    END
