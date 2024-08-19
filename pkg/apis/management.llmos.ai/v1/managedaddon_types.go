@@ -1,8 +1,10 @@
 package v1
 
 import (
-	cond "github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
+	cond "github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
 const (
@@ -47,7 +49,7 @@ type ManagedAddonSpec struct {
 
 type ManagedAddonStatus struct {
 	// Conditions is an array of current conditions
-	Conditions []Condition `json:"conditions,omitempty"`
+	Conditions []common.Condition `json:"conditions,omitempty"`
 	// State is the state of managedAddon.
 	State AddonState `json:"state,omitempty"`
 

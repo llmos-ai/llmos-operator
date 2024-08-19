@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
@@ -228,7 +228,7 @@ func (h *Handler) generateService(notebook *mlv1.Notebook) error {
 	}
 
 	if svc == nil {
-		logrus.Infof("Creating new service %s/%s", notebook.Namespace, svcName)
+		logrus.Infof("creating new service %s/%s", notebook.Namespace, svcName)
 		svc = getService(notebook, svcName)
 
 		if err = ctrl.SetControllerReference(notebook, svc, h.scheme); err != nil {
@@ -311,7 +311,7 @@ func (h *Handler) updateNotebookStatus(notebook *mlv1.Notebook, ss *v1.StatefulS
 		toUpdateStatus = true
 	}
 	status := mlv1.NotebookStatus{
-		Conditions:    make([]mgmtv1.Condition, 0),
+		Conditions:    make([]common.Condition, 0),
 		ReadyReplicas: ss.Status.ReadyReplicas,
 		State:         corev1.ContainerState{},
 	}
@@ -344,7 +344,7 @@ func (h *Handler) updateNotebookStatus(notebook *mlv1.Notebook, ss *v1.StatefulS
 	}
 
 	// Mirroring pod condition
-	notebookConditions := make([]mgmtv1.Condition, 0)
+	notebookConditions := make([]common.Condition, 0)
 	for i := range pod.Status.Conditions {
 		condition := PodCondToNotebookCond(pod.Status.Conditions[i])
 		notebookConditions = append(notebookConditions, condition)

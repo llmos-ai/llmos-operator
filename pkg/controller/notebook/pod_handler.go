@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 	cond "github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
@@ -35,8 +35,8 @@ func (h *Handler) ReconcileNotebookPodOwners(_, _ string, obj runtime.Object) ([
 
 // PodCondToNotebookCond Note: this is referred to kubeflow notebook controller
 // https://github.com/kubeflow/kubeflow/tree/master/components/notebook-controller
-func PodCondToNotebookCond(pCond corev1.PodCondition) mgmtv1.Condition {
-	condition := mgmtv1.Condition{}
+func PodCondToNotebookCond(pCond corev1.PodCondition) common.Condition {
+	condition := common.Condition{}
 
 	if len(pCond.Type) > 0 {
 		condition.Type = cond.Cond(pCond.Type)

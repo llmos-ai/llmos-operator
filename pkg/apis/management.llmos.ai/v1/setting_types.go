@@ -3,6 +3,8 @@ package v1
 import (
 	"github.com/rancher/wrangler/v3/pkg/condition"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 )
 
 var (
@@ -36,5 +38,5 @@ type Setting struct {
 
 type SettingStatus struct {
 	// +optional
-	Conditions []Condition `json:"conditions,omitempty"`
+	Conditions []common.Condition `json:"conditions,omitempty"`
 }

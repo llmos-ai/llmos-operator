@@ -14,7 +14,7 @@ rm -rf "${out_dir}/*.yaml"
 echo "Using controller-gen: ${CONTROLLER_GEN}"
 
 # Generate CRD manifest YAMLs
-"${CONTROLLER_GEN}" crd \
+"${CONTROLLER_GEN}" crd:generateEmbeddedObjectMeta=true \
 	paths="${ROOT_DIR}/pkg/apis/..." \
 	output:crd:dir="${out_dir}"
 

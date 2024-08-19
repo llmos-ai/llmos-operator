@@ -61,4 +61,11 @@ const (
 	RedisSecretKeyName = "redis-password" // #nosec G101
 
 	DefaultAdminLabelKey = MgmtPrefix + "/default-admin"
+
+	LabelLLMOSMLAppName = MLPrefix + "/app"
+	LabelLLMOSMLType    = MLPrefix + "/type"
+
+	// ModelService constants
+	LabelModelServiceName        = MLPrefix + "/model-service-name"
+	LabelModelServiceServeEngine = MLPrefix + "/serve-engine"
 )

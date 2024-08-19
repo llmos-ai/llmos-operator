@@ -20,6 +20,7 @@ import (
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
@@ -61,7 +62,7 @@ type UpgradeStatus struct {
 	// +optional
 	NodeStatuses map[string]NodeUpgradeStatus `json:"nodeStatuses,omitempty"`
 	// +optional
-	Conditions []Condition `json:"conditions,omitempty"`
+	Conditions []common.Condition `json:"conditions,omitempty"`
 	// +optional
 	PlanStatus upgradev1.PlanStatus `json:"planStatus,omitempty"`
 }
