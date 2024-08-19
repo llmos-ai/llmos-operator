@@ -7,6 +7,7 @@ import (
 
 	"github.com/llmos-ai/llmos-operator/pkg/controller/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
@@ -27,6 +28,7 @@ var registerFuncs = []registerFunc{
 	notebook.Register,
 	raycluster.Register,
 	managedaddon.Register,
+	modelservice.Register,
 	//storage.Register,
 }
 

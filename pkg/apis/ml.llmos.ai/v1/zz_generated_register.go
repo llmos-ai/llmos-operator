@@ -27,8 +27,9 @@ import (
 )
 
 var (
-	ModelFileResourceName = "modelfiles"
-	NotebookResourceName  = "notebooks"
+	ModelFileResourceName    = "modelfiles"
+	ModelServiceResourceName = "modelservices"
+	NotebookResourceName     = "notebooks"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -54,6 +55,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ModelFile{},
 		&ModelFileList{},
+		&ModelService{},
+		&ModelServiceList{},
 		&Notebook{},
 		&NotebookList{},
 	)

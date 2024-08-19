@@ -67,7 +67,7 @@ func (h *handler) createOrUpdateAddon(addonTemplate *mgmtv1.ManagedAddon) error 
 		return fmt.Errorf("failed to get addon %s/%s, error: %s", addon.Namespace, addon.Name, err.Error())
 	}
 
-	logrus.Debugf("addon %s/%s already exists, %+v", addon.Namespace, addon.Name, addon)
+	logrus.Tracef("addon %s/%s already exists, %+v", addon.Namespace, addon.Name, addon)
 	if !reflect.DeepEqual(addon.Spec, addonTemplate.Spec) {
 		addonCpy := addon.DeepCopy()
 		addonCpy.Spec = addonTemplate.Spec

@@ -19,7 +19,7 @@ package v1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
@@ -67,16 +67,16 @@ type ModelFileSpec struct {
 
 // ModelFileStatus defines the observed state of ModelFile
 type ModelFileStatus struct {
-	Conditions []v1.Condition `json:"conditions,omitempty"`
-	IsPublic   bool           `json:"isPublic,omitempty"`
-	Model      string         `json:"model,omitempty"`
-	ByteSize   string         `json:"byteSize,omitempty"`
-	Size       int64          `json:"size,omitempty"`
-	Digest     string         `json:"digest,omitempty"`
-	ModelID    string         `json:"modelID,omitempty"`
-	Details    ModelDetails   `json:"details,omitempty"`
-	ModifiedAt string         `json:"modifiedAt,omitempty"`
-	ExpiresAt  string         `json:"expiresAt,omitempty"`
+	Conditions []common.Condition `json:"conditions,omitempty"`
+	IsPublic   bool               `json:"isPublic,omitempty"`
+	Model      string             `json:"model,omitempty"`
+	ByteSize   string             `json:"byteSize,omitempty"`
+	Size       int64              `json:"size,omitempty"`
+	Digest     string             `json:"digest,omitempty"`
+	ModelID    string             `json:"modelID,omitempty"`
+	Details    ModelDetails       `json:"details,omitempty"`
+	ModifiedAt string             `json:"modifiedAt,omitempty"`
+	ExpiresAt  string             `json:"expiresAt,omitempty"`
 }
 
 type ModelDetails struct {

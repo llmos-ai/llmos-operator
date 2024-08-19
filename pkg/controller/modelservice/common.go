@@ -1,0 +1,193 @@
+package modelservice
+
+import (
+	"fmt"
+	"reflect"
+	"strings"
+
+	"github.com/sirupsen/logrus"
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
+
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
+)
+
+func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
+	labels := getModelServiceLabels(ms)
+	replicas := ms.Spec.Replicas
+	if metav1.HasAnnotation(ms.ObjectMeta, constant.AnnotationResourceStopped) {
+		replicas = 0
+	}
+	ss := &v1.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      getFormattedMSName(ms.Name, ""),
+			Namespace: ms.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(ms, ms.GroupVersionKind()),
+			},
+			Labels: map[string]string{
+				constant.LabelLLMOSMLType:             typeName,
+				constant.LabelModelServiceName:        ms.Name,
+				constant.LabelModelServiceServeEngine: vllmEngineName,
+			},
+		},
+		Spec: v1.StatefulSetSpec{
+			Replicas: ptr.To(replicas),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels:      labels,
+					Annotations: map[string]string{},
+				},
+				Spec: *ms.Spec.Template.Spec.DeepCopy(),
+			},
+			UpdateStrategy:       *ms.Spec.UpdateStrategy.DeepCopy(),
+			VolumeClaimTemplates: ms.Spec.VolumeClaimTemplates,
+		},
+	}
+
+	ss.Spec.Template.Spec.Containers[0].Args = constructVllmArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+
+	// Copy all the labels to the pod
+	ls := &ss.Spec.Template.ObjectMeta.Labels
+	for k, v := range ms.ObjectMeta.Labels {
+		(*ls)[k] = v
+	}
+
+	// Copy all the annotations to the pod
+	annos := &ss.Spec.Template.ObjectMeta.Annotations
+	for k, v := range ms.ObjectMeta.Annotations {
+		if !strings.Contains(k, "kubectl") && !strings.Contains(k, "notebook") {
+			(*annos)[k] = v
+		}
+	}
+
+	return ss
+}
+func constructModelSvc(ms *mlv1.ModelService) *corev1.Service {
+	labels := getModelServiceLabels(ms)
+
+	svcPorts := make([]corev1.ServicePort, 0)
+	for _, port := range ms.Spec.Template.Spec.Containers[0].Ports {
+		svcPorts = append(svcPorts, corev1.ServicePort{
+			Name: port.Name,
+			Port: port.ContainerPort,
+			TargetPort: intstr.IntOrString{
+				Type:   intstr.String,
+				StrVal: port.Name,
+			},
+		})
+	}
+
+	service := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      getFormattedMSName(ms.Name, ""),
+			Namespace: ms.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(ms, ms.GroupVersionKind()),
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: labels,
+			Type:     ms.Spec.ServiceType,
+			Ports:    svcPorts,
+		},
+	}
+
+	return service
+}
+
+func constructModelStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.ModelServiceStatus {
+	status := mlv1.ModelServiceStatus{
+		Conditions:     make([]common.Condition, 0),
+		ReadyReplicas:  ss.Status.ReadyReplicas,
+		ContainerState: corev1.ContainerState{},
+		State:          "",
+	}
+
+	// Skip updating the status if the pod's status is empty
+	if reflect.DeepEqual(pod.Status, corev1.PodStatus{}) {
+		logrus.Infof("model service pod status is empty, skip updating conditions and state")
+		return status
+	}
+
+	if len(pod.Status.ContainerStatuses) > 0 {
+		cState := pod.Status.ContainerStatuses[0].State
+		status.ContainerState = cState
+		if cState.Running != nil {
+			status.State = "Running"
+		} else if cState.Waiting != nil {
+			status.State = "Waiting"
+		} else if cState.Terminated != nil {
+			status.State = "Terminated"
+		} else {
+			status.State = "Unknown"
+		}
+	}
+
+	// Mirror the pod conditions to the ModelService conditions
+	for i := range pod.Status.Conditions {
+		condition := reconcilehelper.PodCondToCond(pod.Status.Conditions[i])
+		status.Conditions = append(status.Conditions, condition)
+	}
+
+	return status
+}
+
+func constructVllmArgs(ms *mlv1.ModelService, args []string) []string {
+	if args == nil {
+		args = make([]string, 0)
+	}
+
+	specArgs := map[string]string{
+		"--model":             ms.Spec.ModelName,
+		"--served-model-name": ms.Spec.ServedModelName,
+	}
+
+	for k, v := range specArgs {
+		// Skip empty values
+		if v == "" {
+			continue
+		}
+		found := false
+		for i, arg := range args {
+			if strings.Contains(arg, k) {
+				args[i] = fmt.Sprintf("%s=%s", k, v)
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			args = append(args, fmt.Sprintf("%s=%s", k, v))
+		}
+	}
+
+	return args
+}
+
+func getModelServiceLabels(ms *mlv1.ModelService) map[string]string {
+	return map[string]string{
+		constant.LabelLLMOSMLType:      typeName,
+		constant.LabelModelServiceName: ms.Name,
+	}
+}
+
+func getFormattedMSName(name string, appendix string) string {
+	if appendix == "" {
+		return fmt.Sprintf("modelservice-%s", name)
+	}
+	return fmt.Sprintf("modelservice-%s-%s", name, appendix)
+}
+
+func getPodName(statefulSetName string) string {
+	return fmt.Sprintf("%s-0", statefulSetName)
+}

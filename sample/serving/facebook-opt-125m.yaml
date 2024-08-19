@@ -1,0 +1,45 @@
+# modelservice yaml file
+apiVersion: ml.llmos.ai/v1
+kind: ModelService
+metadata:
+  name: facebook-opt-125m
+spec:
+  replicas: 1
+  model: facebook/opt-125m
+  enableGUI: true
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    spec:
+      runtimeClassName: nvidia
+      containers:
+        - name: server
+          image: vllm/vllm-openai:latest
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+              name: http
+          env:
+            - name: HF_ENDPOINT
+              value: https://hf-mirror.com
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /root/.cache/huggingface
+              name: hf-dir
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+      volumes:
+        - emptyDir:
+            medium: Memory
+          name: dshm
+  volumeClaimTemplates:
+    - metadata:
+        name: hf-dir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
+  serviceType: NodePort

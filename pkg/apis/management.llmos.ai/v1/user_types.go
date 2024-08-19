@@ -2,6 +2,8 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 )
 
 // +genclient
@@ -40,8 +42,8 @@ type UserSpec struct {
 }
 
 type UserStatus struct {
-	Conditions     []Condition `json:"conditions,omitempty"`
-	LastUpdateTime string      `json:"lastUpdateTime,omitempty"`
-	IsAdmin        bool        `json:"isAdmin"`
-	IsActive       bool        `json:"isActive"`
+	Conditions     []common.Condition `json:"conditions,omitempty"`
+	LastUpdateTime string             `json:"lastUpdateTime,omitempty"`
+	IsAdmin        bool               `json:"isAdmin"`
+	IsActive       bool               `json:"isActive"`
 }

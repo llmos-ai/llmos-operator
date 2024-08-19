@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
 )
 
 // +genclient
@@ -37,7 +37,7 @@ type NotebookTemplateSpec struct {
 // NotebookStatus defines the observed state of Dataset
 type NotebookStatus struct {
 	// Conditions is an array of current conditions
-	Conditions []v1.Condition `json:"conditions"`
+	Conditions []common.Condition `json:"conditions"`
 	// ReadyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
 	ReadyReplicas int32 `json:"readyReplicas"`
 	// ContainerState is the state of underlying container.

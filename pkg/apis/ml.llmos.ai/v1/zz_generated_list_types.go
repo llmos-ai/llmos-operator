@@ -42,6 +42,23 @@ func NewModelFile(namespace, name string, obj ModelFile) *ModelFile {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// ModelServiceList is a list of ModelService resources
+type ModelServiceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []ModelService `json:"items"`
+}
+
+func NewModelService(namespace, name string, obj ModelService) *ModelService {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ModelService").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // NotebookList is a list of Notebook resources
 type NotebookList struct {
 	metav1.TypeMeta `json:",inline"`
