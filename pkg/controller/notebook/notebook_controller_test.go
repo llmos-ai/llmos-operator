@@ -11,7 +11,6 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/fake"
-	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/fakeclients"
 )
 
@@ -102,7 +101,6 @@ func TestHandler_OnNotebookChanged(t *testing.T) {
 		}
 
 		h := &Handler{
-			scheme:           config.Scheme,
 			notebooks:        fakeclients.NotebookClient(fakeClient.MlV1().Notebooks),
 			statefulSets:     fakeclients.StatefulSetClient(k8sClient.AppsV1().StatefulSets),
 			statefulSetCache: fakeclients.StatefulSetCache(k8sClient.AppsV1().StatefulSets),

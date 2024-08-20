@@ -40,6 +40,8 @@ type NotebookStatus struct {
 	Conditions []common.Condition `json:"conditions"`
 	// ReadyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
 	ReadyReplicas int32 `json:"readyReplicas"`
-	// ContainerState is the state of underlying container.
-	State corev1.ContainerState `json:"state"`
+	// ContainerState is the mirror state of underlying container
+	ContainerState corev1.ContainerState `json:"containerState,omitempty"`
+	// State is the state of the notebook
+	State string `json:"state,omitempty"`
 }
