@@ -62,6 +62,8 @@ const (
 
 	DefaultAdminLabelKey = MgmtPrefix + "/default-admin"
 
+	LabelNotebookName = MLPrefix + "/notebook-name"
+
 	LabelLLMOSMLAppName = MLPrefix + "/app"
 	LabelLLMOSMLType    = MLPrefix + "/type"
 
