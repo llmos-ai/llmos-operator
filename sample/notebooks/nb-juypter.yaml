@@ -18,21 +18,18 @@ spec:
             memory: 500Mi
         volumeMounts:
         - mountPath: /home/jovyan
-          name: test-vol
+          name: home-dir
         - mountPath: /dev/shm
           name: dshm
       volumes:
-      - name: test-vol
-        persistentVolumeClaim:
-          claimName: nb-jupyter # keep the name to be consistent with the spec.volumes name
       - emptyDir:
           medium: Memory
         name: dshm
-  volumes:
-  - name: nb-jupyter
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 5Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: home-dir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi

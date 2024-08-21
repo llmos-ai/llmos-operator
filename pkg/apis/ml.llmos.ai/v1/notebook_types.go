@@ -25,9 +25,9 @@ type Notebook struct {
 // NotebookSpec defines the desired state of Dataset
 type NotebookSpec struct {
 	// Template describes the notebooks that will be created.
-	Template    NotebookTemplateSpec `json:"template,omitempty"`
-	ServiceType corev1.ServiceType   `json:"serviceType,omitempty"`
-	Volumes     []Volume             `json:"volumes,omitempty"`
+	Template             NotebookTemplateSpec           `json:"template,omitempty"`
+	ServiceType          corev1.ServiceType             `json:"serviceType,omitempty"`
+	VolumeClaimTemplates []corev1.PersistentVolumeClaim `json:"volumeClaimTemplates,omitempty"`
 }
 
 type NotebookTemplateSpec struct {
