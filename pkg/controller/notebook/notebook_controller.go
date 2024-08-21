@@ -17,7 +17,6 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
-	"github.com/llmos-ai/llmos-operator/pkg/utils"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
 )
 
@@ -36,13 +35,11 @@ type Handler struct {
 	services         ctlcorev1.ServiceClient
 	serviceCache     ctlcorev1.ServiceCache
 	podCache         ctlcorev1.PodCache
-	pvcHandler       *utils.PVCHandler
 }
 
 const (
-	notebookControllerOnChange  = "notebook.onChange"
-	notebookControllerCreatePVC = "notebook.createNoteBookPVC"
-	notebookControllerWatchSs   = "notebook.watchStatefulSet"
+	notebookControllerOnChange = "notebook.onChange"
+	notebookControllerWatchSs  = "notebook.watchStatefulSet"
 )
 
 func Register(ctx context.Context, mgmt *config.Management) error {
@@ -50,7 +47,6 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 	ss := mgmt.AppsFactory.Apps().V1().StatefulSet()
 	services := mgmt.CoreFactory.Core().V1().Service()
 	pods := mgmt.CoreFactory.Core().V1().Pod()
-	pvcs := mgmt.CoreFactory.Core().V1().PersistentVolumeClaim()
 
 	h := Handler{
 		notebooks:        notebooks,
@@ -59,11 +55,9 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 		services:         services,
 		serviceCache:     services.Cache(),
 		podCache:         pods.Cache(),
-		pvcHandler:       utils.NewPVCHandler(pvcs, pvcs.Cache()),
 	}
 
 	notebooks.OnChange(ctx, notebookControllerOnChange, h.OnChanged)
-	notebooks.OnChange(ctx, notebookControllerCreatePVC, h.createNoteBookPVC)
 	relatedresource.Watch(ctx, notebookControllerWatchSs, h.ReconcileNotebookSsOwners, notebooks, ss)
 	return nil
 }

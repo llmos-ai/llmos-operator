@@ -353,9 +353,9 @@ func (in *NotebookList) DeepCopyObject() runtime.Object {
 func (in *NotebookSpec) DeepCopyInto(out *NotebookSpec) {
 	*out = *in
 	in.Template.DeepCopyInto(&out.Template)
-	if in.Volumes != nil {
-		in, out := &in.Volumes, &out.Volumes
-		*out = make([]Volume, len(*in))
+	if in.VolumeClaimTemplates != nil {
+		in, out := &in.VolumeClaimTemplates, &out.VolumeClaimTemplates
+		*out = make([]corev1.PersistentVolumeClaim, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
