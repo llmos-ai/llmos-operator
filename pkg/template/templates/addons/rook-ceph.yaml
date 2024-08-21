@@ -16,7 +16,7 @@ spec:
       tag: v1.14.9
       pullPolicy: IfNotPresent
     crds:
-      enabled: false
+      enabled: true
     csi:
       # -- Enable Ceph CSI RBD driver
       enableRbdDriver: true
