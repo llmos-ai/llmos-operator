@@ -54,7 +54,36 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		},
 	}
 
-	ss.Spec.Template.Spec.Containers[0].Args = constructVllmArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+	container := &ss.Spec.Template.Spec.Containers[0]
+	container.Args = constructVllmArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+	containerPort := container.Ports[0].ContainerPort
+
+	if container.LivenessProbe == nil {
+		ss.Spec.Template.Spec.Containers[0].LivenessProbe = &corev1.Probe{
+			ProbeHandler: corev1.ProbeHandler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/health",
+					Port: intstr.FromInt32(containerPort),
+				},
+			},
+			PeriodSeconds:    60,
+			FailureThreshold: 3,
+		}
+	}
+
+	if container.StartupProbe == nil {
+		ss.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
+			ProbeHandler: corev1.ProbeHandler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/health",
+					Port: intstr.FromInt32(containerPort),
+				},
+			},
+			InitialDelaySeconds: 30,
+			FailureThreshold:    720,
+			PeriodSeconds:       10,
+		}
+	}
 
 	// Copy all the labels to the pod
 	ls := &ss.Spec.Template.ObjectMeta.Labels
