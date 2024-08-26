@@ -89,7 +89,7 @@ func (h *Handler) OnChanged(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, 
 
 func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*v1.StatefulSet, error) {
 	ss := getNoteBookStatefulSet(notebook)
-	foundSs, err := h.statefulSetCache.Get(notebook.Namespace, notebook.Name)
+	foundSs, err := h.statefulSetCache.Get(ss.Namespace, ss.Name)
 	if err != nil && errors.IsNotFound(err) {
 		logrus.Infof("creating new statefulset for notebook %s/%s", notebook.Namespace, notebook.Name)
 		return h.statefulSets.Create(ss)

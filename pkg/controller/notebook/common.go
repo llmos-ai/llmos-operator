@@ -26,7 +26,7 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 	labels := getNotebookPodLabels(notebook)
 	ss := &v1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      notebook.Name,
+			Name:      getFormattedNotebookName(notebook),
 			Namespace: notebook.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(notebook, notebook.GroupVersionKind()),
