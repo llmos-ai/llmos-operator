@@ -5,6 +5,8 @@ metadata:
   namespace: llmos-system
   labels:
     llmos.ai/system-addon: "true"
+  annotations:
+    field.llmos.ai/description: "NVIDIA GPU Operator helps to automate the management of all NVIDIA software components needed to provision GPU."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: gpu-operator
