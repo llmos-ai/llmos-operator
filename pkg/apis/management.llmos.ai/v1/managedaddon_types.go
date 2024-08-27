@@ -40,10 +40,15 @@ type ManagedAddon struct {
 }
 
 type ManagedAddonSpec struct {
-	Repo          string `json:"repo"`
-	Chart         string `json:"chart"`
-	Version       string `json:"version"`
-	Enabled       bool   `json:"enabled"`
+	// +kubebuilder:validation:Required
+	Repo string `json:"repo"`
+	// +kubebuilder:validation:Required
+	Chart string `json:"chart"`
+	// +kubebuilder:validation:Required
+	Version string `json:"version"`
+	// +kubebuilder:validation:Required
+	Enabled bool `json:"enabled"`
+	// +optional
 	ValuesContent string `json:"valuesContent,omitempty"`
 }
 

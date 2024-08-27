@@ -5,6 +5,8 @@ metadata:
   namespace: llmos-system
   labels:
     llmos.ai/system-addon: "true"
+  annotations:
+    field.llmos.ai/description: "LLMOS managed redis service for internal service storage."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: redis

@@ -5,6 +5,8 @@ metadata:
   namespace: llmos-system
   labels:
     llmos.ai/system-addon: "true"
+  annotations:
+    field.llmos.ai/description: "LLMOS managed rook-ceph operator for the cluster's build-in storage service."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: rook-ceph

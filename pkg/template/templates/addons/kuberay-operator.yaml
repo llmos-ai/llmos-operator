@@ -5,13 +5,14 @@ metadata:
   namespace: llmos-system
   labels:
     llmos.ai/system-addon: "true"
+  annotations:
+    field.llmos.ai/description: "KubeRay Operator manages the deployment and management of Ray applications and resources."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: kuberay-operator
   version: 1.1.1
   enabled: true
   valuesContent: |-
-    enabled: true
     image:
       repository: quay.io/kuberay/operator
       tag: v1.1.1
