@@ -30,7 +30,9 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 	patchOps = append(patchOps, patchLabels(user.Labels))
 
 	// skip default admin password hash
-	if user.Labels != nil && user.Labels[constant.DefaultAdminLabelKey] != "true" {
+	if user.Labels != nil && user.Labels[constant.DefaultAdminLabelKey] == "true" {
+		logrus.Infof("skip default admin password hash")
+	} else {
 		// hash password
 		if passPatch, err := patchPassword(user.Spec.Password); err != nil {
 			return nil, err
@@ -68,18 +70,19 @@ func patchPassword(password string) (admission.PatchOp, error) {
 
 func (m *mutator) Update(_ *admission.Request, oldObj, newObj runtime.Object) (admission.Patch, error) {
 	oldUSer := oldObj.(*mgmtv1.User)
-	user := newObj.(*mgmtv1.User)
-	logrus.Debugf("user %s is updated", user.Name)
+	newUser := newObj.(*mgmtv1.User)
+	logrus.Debugf("newUser %s is updated", newUser.Name)
 
 	patchOps := make([]admission.PatchOp, 0)
 
-	if (oldUSer.Spec.Password != user.Spec.Password) && user.Spec.Password != "" {
-		logrus.Debugf("updating password to: %s from %s", user.Spec.Password, oldUSer.Spec.Password)
-		if passPatch, err := patchPassword(user.Spec.Password); err != nil {
+	if (oldUSer.Spec.Password != newUser.Spec.Password) && newUser.Spec.Password != "" {
+		logrus.Debugf("updating new password")
+		passPatch, err := patchPassword(newUser.Spec.Password)
+		if err != nil {
 			return nil, err
-		} else {
-			patchOps = append(patchOps, passPatch)
 		}
+
+		patchOps = append(patchOps, passPatch)
 	}
 
 	return patchOps, nil

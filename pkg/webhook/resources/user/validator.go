@@ -35,7 +35,7 @@ func (v *validator) Create(_ *admission.Request, newObj runtime.Object) error {
 	}
 
 	for _, u := range users {
-		if u.Spec.DisplayName == user.Spec.DisplayName {
+		if len(u.Spec.DisplayName) > 0 && (u.Spec.DisplayName == user.Spec.DisplayName) {
 			return fmt.Errorf("the display name %s is already taken", user.Spec.DisplayName)
 		}
 	}
