@@ -35,10 +35,10 @@ type UserSpec struct {
 	Password string `json:"password"`
 
 	// +optional
-	IsAdmin bool `json:"isAdmin"`
+	Admin bool `json:"isAdmin"`
 
 	// +kubebuilder:default:=true
-	IsActive bool `json:"isActive"`
+	Active bool `json:"isActive"`
 }
 
 type UserStatus struct {

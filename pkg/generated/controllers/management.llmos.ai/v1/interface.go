@@ -32,6 +32,7 @@ func init() {
 type Interface interface {
 	ManagedAddon() ManagedAddonController
 	Setting() SettingController
+	Token() TokenController
 	Upgrade() UpgradeController
 	User() UserController
 }
@@ -52,6 +53,10 @@ func (v *version) ManagedAddon() ManagedAddonController {
 
 func (v *version) Setting() SettingController {
 	return generic.NewNonNamespacedController[*v1.Setting, *v1.SettingList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Setting"}, "settings", v.controllerFactory)
+}
+
+func (v *version) Token() TokenController {
+	return generic.NewNonNamespacedController[*v1.Token, *v1.TokenList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Token"}, "tokens", v.controllerFactory)
 }
 
 func (v *version) Upgrade() UpgradeController {

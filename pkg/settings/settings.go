@@ -16,16 +16,17 @@ var (
 	InjectDefaults string
 	releasePattern = regexp.MustCompile("^v[0-9]")
 
-	APIUIVersion           = NewSetting("api-ui-version", "1.1.11") // Also update the API_UI_VERSION in Dockerfile
-	AuthSecretName         = NewSetting("auth-secret-name", "llmos-key-holder")
-	AuthTokenMaxTTLMinutes = NewSetting("auth-token-max-ttl-minutes", "720")
-	FirstLogin             = NewSetting(FirstLoginSettingName, "true")
-	ServerURL              = NewSetting("server-url", "")
-	ServerVersion          = NewSetting(ServerVersionName, "dev")
-	UIIndex                = NewSetting("ui-index", "https://releases.1block.ai/dashboard/latest/index.html")
-	UIPath                 = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-operator")
-	UIPl                   = NewSetting(UIPlSettingName, "llmos")
-	UISource               = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
+	APIUIVersion                 = NewSetting("api-ui-version", "1.1.11") // Also update the API_UI_VERSION in Dockerfile
+	AuthSecretName               = NewSetting("auth-secret-name", "llmos-key-holder")
+	AuthUserSessionMaxTTLMinutes = NewSetting("auth-user-session-max-ttl-minutes", "720") // 12 hrs
+	AuthTokenMaxTTLMinutes       = NewSetting("auth-token-max-ttl-minutes", "129600")     // 90 days
+	FirstLogin                   = NewSetting(FirstLoginSettingName, "true")
+	ServerURL                    = NewSetting("server-url", "")
+	ServerVersion                = NewSetting(ServerVersionName, "dev")
+	UIIndex                      = NewSetting("ui-index", "https://releases.1block.ai/dashboard/latest/index.html")
+	UIPath                       = NewSetting("ui-path", "/usr/share/llmos-ai/llmos-operator")
+	UIPl                         = NewSetting(UIPlSettingName, "llmos")
+	UISource                     = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
 	// LocalLLMServerURL specify local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
 	LocalLLMServerURL = NewSetting(LocalLLMServerURLSettingName, "")
 	// DatabaseURL set local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos

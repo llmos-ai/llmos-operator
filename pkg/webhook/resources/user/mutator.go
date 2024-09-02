@@ -1,13 +1,15 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/oneblock-ai/webhook/pkg/server/admission"
 	"github.com/sirupsen/logrus"
 	admissionregv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-operator/pkg/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/auth/tokens"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
@@ -25,6 +27,10 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 	user := newObj.(*mgmtv1.User)
 	logrus.Infof("[webhook mutating]user %s is created", user.Name)
 
+	if user.Spec.Password == "" {
+		return nil, fmt.Errorf("password can't be empty")
+	}
+
 	patchOps := make([]admission.PatchOp, 0)
 
 	patchOps = append(patchOps, patchLabels(user.Labels))
@@ -34,11 +40,11 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 		logrus.Infof("skip default admin password hash")
 	} else {
 		// hash password
-		if passPatch, err := patchPassword(user.Spec.Password); err != nil {
+		passPatch, err := patchPassword(user.Spec.Password)
+		if err != nil {
 			return nil, err
-		} else {
-			patchOps = append(patchOps, passPatch)
 		}
+		patchOps = append(patchOps, passPatch)
 	}
 
 	return patchOps, nil
@@ -57,7 +63,7 @@ func patchLabels(labels map[string]string) admission.PatchOp {
 }
 
 func patchPassword(password string) (admission.PatchOp, error) {
-	hash, err := auth.HashPassword(password)
+	hash, err := tokens.HashPassword(password)
 	if err != nil {
 		return admission.PatchOp{}, err
 	}

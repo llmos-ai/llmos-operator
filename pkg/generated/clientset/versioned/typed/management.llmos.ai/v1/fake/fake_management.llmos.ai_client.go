@@ -35,6 +35,10 @@ func (c *FakeManagementV1) Settings() v1.SettingInterface {
 	return &FakeSettings{c}
 }
 
+func (c *FakeManagementV1) Tokens() v1.TokenInterface {
+	return &FakeTokens{c}
+}
+
 func (c *FakeManagementV1) Upgrades(namespace string) v1.UpgradeInterface {
 	return &FakeUpgrades{c, namespace}
 }

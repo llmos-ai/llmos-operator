@@ -11,6 +11,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/token"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/user"
 	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
@@ -29,6 +30,7 @@ var registerFuncs = []registerFunc{
 	raycluster.Register,
 	managedaddon.Register,
 	modelservice.Register,
+	token.Register,
 	//storage.Register,
 }
 

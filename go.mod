@@ -7,7 +7,7 @@ replace (
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
 	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b
 	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0
-	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240725064501-d320c59befdd
+	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240903140330-7d83f8a95d8d
 	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
 
 	k8s.io/api => k8s.io/api v0.30.3
@@ -46,7 +46,6 @@ require (
 	entgo.io/ent v0.13.1
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/ehazlett/simplelog v0.0.0-20200226020431-d374894e92a4
-	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.7
@@ -56,6 +55,7 @@ require (
 	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
 	github.com/onsi/ginkgo/v2 v2.17.1
 	github.com/onsi/gomega v1.32.0
+	github.com/pkg/errors v0.9.1
 	github.com/rancher/apiserver v0.0.0-20240708202538-39a6f2535146
 	github.com/rancher/dynamiclistener v1.27.5
 	github.com/rancher/lasso v0.0.0-20240705194423-b2a060d103c1
@@ -160,7 +160,6 @@ require (
 	github.com/openshift/api v0.0.0-20240301093301-ce10821dc999 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.72.0 // indirect
 	github.com/prometheus/client_golang v1.18.0 // indirect

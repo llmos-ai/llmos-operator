@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,16 +10,30 @@ import (
 	"github.com/rancher/apiserver/pkg/apierror"
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/wrangler/v3/pkg/schemas/validation"
+	"k8s.io/apiserver/pkg/endpoints/request"
 
+	"github.com/llmos-ai/llmos-operator/pkg/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/auth/tokens"
+	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
-func formatter(request *types.APIRequest, resource *types.RawResource) {
+func Formatter(request *types.APIRequest, resource *types.RawResource) {
 	resource.Actions = make(map[string]string, 1)
 	if request.AccessControl.CanUpdate(request, resource.APIObject, resource.Schema) != nil {
 		return
 	}
 	resource.AddAction(request, ActionSetIsActive)
+}
+
+func CollectionFormatter(request *types.APIRequest, collection *types.GenericCollection) {
+	collection.AddAction(request, ActionChangePassword)
+}
+
+type Handler struct {
+	userClient ctlmgmtv1.UserClient
+	userCache  ctlmgmtv1.UserCache
+	middleware *auth.Middleware
 }
 
 func (h Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -28,42 +43,49 @@ func (h Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		if errors.As(err, &e) {
 			status = e.Code.Status
 		}
-		rw.WriteHeader(status)
-		_, _ = rw.Write([]byte(err.Error()))
+		utils.ResponseAPIError(rw, status, e)
 		return
 	}
-	rw.WriteHeader(http.StatusNoContent)
+	utils.ResponseOKWithNoContent(rw)
 }
 
 func (h Handler) do(rw http.ResponseWriter, req *http.Request) error {
 	vars := utils.EncodeVars(mux.Vars(req))
 	if req.Method == http.MethodPost {
-		return h.doPost(vars["action"], rw, req)
+		return h.doPost(rw, req, vars)
 	}
 
 	return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("Unsupported method %s", req.Method))
 }
 
-func (h Handler) doPost(action string, _ http.ResponseWriter, req *http.Request) error {
-	vars := utils.EncodeVars(mux.Vars(req))
+func (h Handler) doPost(_ http.ResponseWriter, req *http.Request, vars map[string]string) error {
+	action := vars["action"]
 	name := vars["name"]
 	switch action {
 	case ActionSetIsActive:
-		return h.setIsActive(name)
+		return h.setIsActive(name, req)
+	case ActionChangePassword:
+		return h.changeCurrentUserPassword(req)
 	default:
 		return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("Unsupported POST action %s", action))
 	}
 }
 
-func (h Handler) setIsActive(name string) error {
+func (h Handler) setIsActive(name string, req *http.Request) error {
+	input := &SetIsActiveInput{}
+	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+	}
+
 	// check if user exists
 	user, err := h.userCache.Get(name)
 	if err != nil {
 		return err
 	}
+
 	userCpy := user.DeepCopy()
-	userCpy.Spec.IsActive = !user.Spec.IsActive
-	if _, err = h.user.Update(userCpy); err != nil {
+	userCpy.Spec.Active = input.IsActive
+	if _, err = h.userClient.Update(userCpy); err != nil {
 		return err
 	}
 	return nil
@@ -99,4 +121,33 @@ func (h Handler) userListHandler(request *types.APIRequest) (types.APIObjectList
 	}
 
 	return store.List(request, request.Schema)
+}
+
+func (h Handler) changeCurrentUserPassword(req *http.Request) error {
+	input := &ChangePasswordInput{}
+	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+	}
+
+	userInfo, authed := request.UserFrom(req.Context())
+	if !authed {
+		return apierror.NewAPIError(validation.Unauthorized, "Unauthorized")
+	}
+
+	user, err := h.userCache.Get(userInfo.GetName())
+	if err != nil {
+		return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("failed to get user: %v", err))
+	}
+
+	if valid := tokens.CheckPasswordHash(user.Spec.Password, input.CurrentPassword); !valid {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Current password is incorrect")
+	}
+
+	toUpdate := user.DeepCopy()
+	toUpdate.Spec.Password = input.NewPassword
+	if _, err = h.userClient.Update(toUpdate); err != nil {
+		return apierror.NewAPIError(validation.ServerError, err.Error())
+	}
+
+	return nil
 }

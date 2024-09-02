@@ -11,16 +11,18 @@ import (
 
 const (
 	UserNameIndex               = "management.llmos.ai/user-username-index"
-	UserUIDIndex                = "management.llmos.ai/user-uid-index"
+	TokenNameIndex              = "management.llmos.ai/token-name-index"
 	ClusterRoleBindingNameIndex = "management.llmos.ai/crb-by-role-and-subject-index"
 )
 
 func Register(_ context.Context, mgmt *config.Management) error {
-	userInformer := mgmt.MgmtFactory.Management().V1().User().Cache()
-	userInformer.AddIndexer(UserNameIndex, indexUserByUsername)
-	userInformer.AddIndexer(UserUIDIndex, indexUserByUID)
 	crbInformer := mgmt.RbacFactory.Rbac().V1().ClusterRoleBinding().Cache()
+	userInformer := mgmt.MgmtFactory.Management().V1().User().Cache()
+	tokenInformer := mgmt.MgmtFactory.Management().V1().Token().Cache()
+
 	crbInformer.AddIndexer(ClusterRoleBindingNameIndex, rbByRoleAndSubject)
+	userInformer.AddIndexer(UserNameIndex, indexUserByUsername)
+	tokenInformer.AddIndexer(TokenNameIndex, tokenKeyIndexer)
 	return nil
 }
 
@@ -28,8 +30,8 @@ func indexUserByUsername(obj *mgmtv1.User) ([]string, error) {
 	return []string{obj.Spec.Username}, nil
 }
 
-func indexUserByUID(obj *mgmtv1.User) ([]string, error) {
-	return []string{string(obj.UID)}, nil
+func tokenKeyIndexer(token *mgmtv1.Token) ([]string, error) {
+	return []string{token.Name}, nil
 }
 
 func rbByRoleAndSubject(obj *rbacv1.ClusterRoleBinding) ([]string, error) {

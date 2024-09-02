@@ -10,7 +10,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/llmos-ai/llmos-operator/pkg/api"
-	"github.com/llmos-ai/llmos-operator/pkg/api/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/auth"
 	"github.com/llmos-ai/llmos-operator/pkg/config"
 	"github.com/llmos-ai/llmos-operator/pkg/controller"
 	"github.com/llmos-ai/llmos-operator/pkg/data"
@@ -123,7 +123,6 @@ func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
 		auth := auth.NewMiddleware(s.mgmt)
 		opts.AuthMiddleware = auth.AuthMiddleware
 	}
-
 	return opts, nil
 }
 
