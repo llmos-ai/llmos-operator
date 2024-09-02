@@ -59,6 +59,23 @@ func NewSetting(namespace, name string, obj Setting) *Setting {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// TokenList is a list of Token resources
+type TokenList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Token `json:"items"`
+}
+
+func NewToken(namespace, name string, obj Token) *Token {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Token").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // UpgradeList is a list of Upgrade resources
 type UpgradeList struct {
 	metav1.TypeMeta `json:",inline"`

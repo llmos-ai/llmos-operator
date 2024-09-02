@@ -29,6 +29,7 @@ import (
 var (
 	ManagedAddonResourceName = "managedaddons"
 	SettingResourceName      = "settings"
+	TokenResourceName        = "tokens"
 	UpgradeResourceName      = "upgrades"
 	UserResourceName         = "users"
 )
@@ -58,6 +59,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ManagedAddonList{},
 		&Setting{},
 		&SettingList{},
+		&Token{},
+		&TokenList{},
 		&Upgrade{},
 		&UpgradeList{},
 		&User{},

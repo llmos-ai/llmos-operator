@@ -10,7 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-operator/pkg/auth"
+	"github.com/llmos-ai/llmos-operator/pkg/auth/tokens"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
@@ -37,7 +37,7 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 	}
 
 	// admin user not exist, attempt to create the default admin user
-	hash, err := auth.HashPassword(defaultAdminPassword)
+	hash, err := tokens.HashPassword(defaultAdminPassword)
 	if err != nil {
 		return err
 	}
@@ -51,8 +51,8 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 			DisplayName: "Default Admin",
 			Username:    "admin",
 			Password:    hash,
-			IsAdmin:     true,
-			IsActive:    true,
+			Admin:       true,
+			Active:      true,
 		},
 	})
 	if err != nil && !apierrors.IsAlreadyExists(err) {

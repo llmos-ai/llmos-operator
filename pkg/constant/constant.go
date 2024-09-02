@@ -51,7 +51,9 @@ const (
 	AnnotationAddCephToolbox            = LLMOSPrefix + "/add-ceph-toolbox"
 	AnnotationAddedCephToolbox          = LLMOSPrefix + "/added-ceph-toolbox"
 
-	// kubeRay related constant
+	/*
+		KubeRay related constant
+	*/
 	LabelRaySchedulerName           = "ray.io/scheduler-name"
 	AnnotationRayClusterInitialized = MLPrefix + "rayClusterInitialized"
 	AnnotationRayFTEnabledKey       = "ray.io/ft-enabled"
@@ -60,14 +62,19 @@ const (
 	RayServiceKind     = "RayService"
 	RedisSecretKeyName = "redis-password" // #nosec G101
 
-	DefaultAdminLabelKey = MgmtPrefix + "/default-admin"
+	/*
+		Management related constants
+	*/
+	DefaultAdminLabelKey       = MgmtPrefix + "/default-admin"
+	LabelManagementUsernameKey = MgmtPrefix + "/username"
+	LabelManagementUserIdKey   = MgmtPrefix + "/user-id"
 
-	LabelNotebookName = MLPrefix + "/notebook-name"
-
-	LabelLLMOSMLAppName = MLPrefix + "/app"
-	LabelLLMOSMLType    = MLPrefix + "/type"
-
-	// ModelService constants
+	/*
+		ML related constants
+	*/
+	LabelNotebookName            = MLPrefix + "/notebook-name"
+	LabelLLMOSMLAppName          = MLPrefix + "/app"
+	LabelLLMOSMLType             = MLPrefix + "/type"
 	LabelModelServiceName        = MLPrefix + "/model-service-name"
 	LabelModelServiceServeEngine = MLPrefix + "/serve-engine"
 )

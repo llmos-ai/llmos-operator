@@ -19,13 +19,11 @@ import (
 )
 
 const (
-	usernameLabelKey     = "management.llmos.ai/username"
 	publicInfoViewerRole = "system:public-info-viewer"
 	userControllerName   = "user.onChange"
 )
 
-// userHandler reconcile the user's clusterRole and clusterRoleBinding
-type userHandler struct {
+type handler struct {
 	users                   ctlmgmtv1.UserClient
 	clusterRoleBindings     ctlrbacv1.ClusterRoleBindingClient
 	clusterRoleBindingCache ctlrbacv1.ClusterRoleBindingCache
@@ -34,7 +32,7 @@ type userHandler struct {
 func Register(ctx context.Context, management *config.Management) error {
 	users := management.MgmtFactory.Management().V1().User()
 
-	userRBACController := &userHandler{
+	userRBACController := &handler{
 		users:                   users,
 		clusterRoleBindings:     management.RbacFactory.Rbac().V1().ClusterRoleBinding(),
 		clusterRoleBindingCache: management.RbacFactory.Rbac().V1().ClusterRoleBinding().Cache(),
@@ -44,15 +42,27 @@ func Register(ctx context.Context, management *config.Management) error {
 	return nil
 }
 
-func (h *userHandler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
+// OnChanged reconcile the user status and add user clusterRole and clusterRoleBinding if needed
+func (h *handler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
 	if user == nil || user.DeletionTimestamp != nil {
 		return user, nil
 	}
 
 	roleName := publicInfoViewerRole
 	toUpdate := user.DeepCopy()
-	if toUpdate.Spec.IsAdmin {
+	if toUpdate.Spec.Admin {
 		roleName = constant.AdminRole
+	}
+	if toUpdate.Labels == nil {
+		toUpdate.Labels = map[string]string{}
+	}
+	toUpdate.Labels[constant.LabelManagementUsernameKey] = user.Spec.Username
+
+	if !reflect.DeepEqual(user, toUpdate) {
+		_, err := h.users.Update(toUpdate)
+		if err != nil {
+			return user, err
+		}
 	}
 
 	if err := h.ensureClusterBinding(roleName, toUpdate); err != nil {
@@ -62,9 +72,9 @@ func (h *userHandler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, erro
 	return h.updateStatus(user, toUpdate)
 }
 
-func (h *userHandler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*mgmtv1.User, error) {
-	toUpdate.Status.IsAdmin = toUpdate.Spec.IsAdmin
-	toUpdate.Status.IsActive = toUpdate.Spec.IsActive
+func (h *handler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*mgmtv1.User, error) {
+	toUpdate.Status.IsAdmin = toUpdate.Spec.Admin
+	toUpdate.Status.IsActive = toUpdate.Spec.Active
 	if !reflect.DeepEqual(user.Status, toUpdate.Status) {
 		toUpdate.Status.LastUpdateTime = metav1.Now().Format(constant.TimeLayout)
 		return h.users.UpdateStatus(toUpdate)
@@ -72,7 +82,7 @@ func (h *userHandler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*m
 	return nil, nil
 }
 
-func (h *userHandler) ensureClusterBinding(roleName string, user *mgmtv1.User) error {
+func (h *handler) ensureClusterBinding(roleName string, user *mgmtv1.User) error {
 	subject := rbacv1.Subject{
 		Kind: "User",
 		Name: user.Name,
@@ -94,7 +104,7 @@ func (h *userHandler) ensureClusterBinding(roleName string, user *mgmtv1.User) e
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: fmt.Sprintf("%s-", user.Name),
 			Labels: map[string]string{
-				usernameLabelKey: user.Name,
+				constant.LabelManagementUserIdKey: user.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{

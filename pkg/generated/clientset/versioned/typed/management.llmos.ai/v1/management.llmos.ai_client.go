@@ -29,6 +29,7 @@ type ManagementV1Interface interface {
 	RESTClient() rest.Interface
 	ManagedAddonsGetter
 	SettingsGetter
+	TokensGetter
 	UpgradesGetter
 	UsersGetter
 }
@@ -44,6 +45,10 @@ func (c *ManagementV1Client) ManagedAddons(namespace string) ManagedAddonInterfa
 
 func (c *ManagementV1Client) Settings() SettingInterface {
 	return newSettings(c)
+}
+
+func (c *ManagementV1Client) Tokens() TokenInterface {
+	return newTokens(c)
 }
 
 func (c *ManagementV1Client) Upgrades(namespace string) UpgradeInterface {

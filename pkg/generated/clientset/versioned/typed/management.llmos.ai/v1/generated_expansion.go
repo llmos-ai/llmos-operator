@@ -21,6 +21,8 @@ type ManagedAddonExpansion interface{}
 
 type SettingExpansion interface{}
 
+type TokenExpansion interface{}
+
 type UpgradeExpansion interface{}
 
 type UserExpansion interface{}
