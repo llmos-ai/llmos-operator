@@ -5,6 +5,7 @@ import (
 
 	"github.com/rancher/wrangler/v3/pkg/leader"
 
+	"github.com/llmos-ai/llmos-operator/pkg/controller/globalrole"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelservice"
@@ -31,6 +32,7 @@ var registerFuncs = []registerFunc{
 	managedaddon.Register,
 	modelservice.Register,
 	token.Register,
+	globalrole.Register,
 	//storage.Register,
 }
 

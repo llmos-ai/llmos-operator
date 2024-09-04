@@ -1,0 +1,224 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    {}
+  name: globalroles.management.llmos.ai
+spec:
+  group: management.llmos.ai
+  names:
+    kind: GlobalRole
+    listKind: GlobalRoleList
+    plural: globalroles
+    singular: globalrole
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.summary
+      name: STATUS
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          namespacedRules:
+            additionalProperties:
+              items:
+                description: |-
+                  PolicyRule holds information that describes a policy rule, but does not contain information
+                  about who the rule applies to or which namespace the rule applies to.
+                properties:
+                  apiGroups:
+                    description: |-
+                      APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                      the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  nonResourceURLs:
+                    description: |-
+                      NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                      Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                      Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  resourceNames:
+                    description: ResourceNames is an optional white list of names
+                      that the rule applies to.  An empty set means that everything
+                      is allowed.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  resources:
+                    description: Resources is a list of resources this rule applies
+                      to. '*' represents all resources.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  verbs:
+                    description: Verbs is a list of Verbs that apply to ALL the ResourceKinds
+                      contained in this rule. '*' represents all verbs.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                required:
+                - verbs
+                type: object
+              type: array
+            description: |-
+              NamespacedRules are the rules that are active in each namespace of this GlobalRole.
+              These are applied to the local cluster only.
+              * has no special meaning in the keys - these keys are read as raw strings
+              and must exactly match with one existing namespace.
+            type: object
+          rules:
+            description: Rules holds a list of PolicyRules that are applied to the
+              local cluster only.
+            items:
+              description: |-
+                PolicyRule holds information that describes a policy rule, but does not contain information
+                about who the rule applies to or which namespace the rule applies to.
+              properties:
+                apiGroups:
+                  description: |-
+                    APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                    the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: atomic
+                nonResourceURLs:
+                  description: |-
+                    NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                    Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                    Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: atomic
+                resourceNames:
+                  description: ResourceNames is an optional white list of names that
+                    the rule applies to.  An empty set means that everything is allowed.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: atomic
+                resources:
+                  description: Resources is a list of resources this rule applies
+                    to. '*' represents all resources.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: atomic
+                verbs:
+                  description: Verbs is a list of Verbs that apply to ALL the ResourceKinds
+                    contained in this rule. '*' represents all verbs.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: atomic
+              required:
+              - verbs
+              type: object
+            type: array
+          spec:
+            description: Spec holds the desired configs of the GlobalRole.
+            properties:
+              builtin:
+                description: Builtin specifies that this GlobalRole was created by
+                  LLMOS if true.
+                type: boolean
+              displayName:
+                description: DisplayName is the human-readable name displayed in the
+                  UI.
+                type: string
+              newUserDefault:
+                description: NewUserDefault specifies that all new users created should
+                  be bound to this role if true.
+                type: boolean
+            type: object
+          status:
+            description: Status is the most recently observed status of the GlobalRole.
+            properties:
+              conditions:
+                description: |-
+                  Conditions is a slice of Condition, indicating the status of specific backing RBAC objects.
+                  There is one condition per ClusterRole and Role managed by the GlobalRole.
+                items:
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another.
+                      type: string
+                    lastUpdateTime:
+                      description: The last time this condition was updated.
+                      type: string
+                    message:
+                      description: Human-readable message indicating details about
+                        last transition
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of the condition.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              lastUpdateTime:
+                description: LastUpdate is a k8s timestamp of the last time the status
+                  was updated.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the most recent generation (metadata.generation in GlobalRole CR)
+                  observed by the controller. Populated by the system.
+                format: int64
+                type: integer
+              state:
+                description: State represent a state of "Complete", "InProgress" or
+                  "Error".
+                enum:
+                - Complete
+                - InProgress
+                - Error
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
