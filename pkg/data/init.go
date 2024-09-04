@@ -10,5 +10,9 @@ func Init(mgmt *config.Management) error {
 		return err
 	}
 
+	if err := BootstrapGlobalRoles(mgmt); err != nil {
+		return err
+	}
+
 	return BootstrapDefaultAdmin(mgmt)
 }

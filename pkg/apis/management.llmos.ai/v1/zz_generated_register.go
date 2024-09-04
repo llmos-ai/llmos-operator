@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	GlobalRoleResourceName   = "globalroles"
 	ManagedAddonResourceName = "managedaddons"
 	SettingResourceName      = "settings"
 	TokenResourceName        = "tokens"
@@ -55,6 +56,8 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
+		&GlobalRole{},
+		&GlobalRoleList{},
 		&ManagedAddon{},
 		&ManagedAddonList{},
 		&Setting{},

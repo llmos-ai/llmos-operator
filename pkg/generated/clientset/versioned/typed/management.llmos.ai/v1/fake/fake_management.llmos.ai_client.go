@@ -27,6 +27,10 @@ type FakeManagementV1 struct {
 	*testing.Fake
 }
 
+func (c *FakeManagementV1) GlobalRoles() v1.GlobalRoleInterface {
+	return &FakeGlobalRoles{c}
+}
+
 func (c *FakeManagementV1) ManagedAddons(namespace string) v1.ManagedAddonInterface {
 	return &FakeManagedAddons{c, namespace}
 }

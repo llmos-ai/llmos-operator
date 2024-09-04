@@ -25,6 +25,23 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// GlobalRoleList is a list of GlobalRole resources
+type GlobalRoleList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []GlobalRole `json:"items"`
+}
+
+func NewGlobalRole(namespace, name string, obj GlobalRole) *GlobalRole {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("GlobalRole").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // ManagedAddonList is a list of ManagedAddon resources
 type ManagedAddonList struct {
 	metav1.TypeMeta `json:",inline"`

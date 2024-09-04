@@ -30,6 +30,7 @@ func init() {
 }
 
 type Interface interface {
+	GlobalRole() GlobalRoleController
 	ManagedAddon() ManagedAddonController
 	Setting() SettingController
 	Token() TokenController
@@ -45,6 +46,10 @@ func New(controllerFactory controller.SharedControllerFactory) Interface {
 
 type version struct {
 	controllerFactory controller.SharedControllerFactory
+}
+
+func (v *version) GlobalRole() GlobalRoleController {
+	return generic.NewNonNamespacedController[*v1.GlobalRole, *v1.GlobalRoleList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "GlobalRole"}, "globalroles", v.controllerFactory)
 }
 
 func (v *version) ManagedAddon() ManagedAddonController {

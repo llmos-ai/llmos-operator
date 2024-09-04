@@ -27,6 +27,7 @@ import (
 
 type ManagementV1Interface interface {
 	RESTClient() rest.Interface
+	GlobalRolesGetter
 	ManagedAddonsGetter
 	SettingsGetter
 	TokensGetter
@@ -37,6 +38,10 @@ type ManagementV1Interface interface {
 // ManagementV1Client is used to interact with features provided by the management.llmos.ai group.
 type ManagementV1Client struct {
 	restClient rest.Interface
+}
+
+func (c *ManagementV1Client) GlobalRoles() GlobalRoleInterface {
+	return newGlobalRoles(c)
 }
 
 func (c *ManagementV1Client) ManagedAddons(namespace string) ManagedAddonInterface {

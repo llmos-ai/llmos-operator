@@ -17,6 +17,8 @@ limitations under the License.
 
 package v1
 
+type GlobalRoleExpansion interface{}
+
 type ManagedAddonExpansion interface{}
 
 type SettingExpansion interface{}
