@@ -5,13 +5,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 	rbacv1 "k8s.io/api/rbac/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/auth/tokens"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
@@ -24,25 +23,35 @@ var defaultAdminLabel = map[string]string{
 	constant.DefaultAdminLabelKey: defaultAdminLabelValue,
 }
 
+type handler struct {
+	userClient ctlmgmtv1.UserClient
+	rtbClient  ctlmgmtv1.RoleTemplateBindingClient
+}
+
 func BootstrapDefaultAdmin(mgmt *config.Management) error {
-	set := labels.Set(defaultAdminLabel)
-	admins, err := mgmt.MgmtFactory.Management().V1().User().List(metav1.ListOptions{LabelSelector: set.String()})
+	h := &handler{
+		userClient: mgmt.MgmtFactory.Management().V1().User(),
+		rtbClient:  mgmt.MgmtFactory.Management().V1().RoleTemplateBinding(),
+	}
+
+	users, err := h.userClient.List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	if len(admins.Items) > 0 {
-		logrus.Info("Default admin already exist, skip creating")
-		return nil
+	for _, user := range users.Items {
+		if user.Status.IsAdmin {
+			logrus.Info("Default admin already exist, skip creating")
+			return nil
+		}
 	}
 
-	// admin user not exist, attempt to create the default admin user
 	hash, err := tokens.HashPassword(defaultAdminPassword)
 	if err != nil {
 		return err
 	}
 
-	user, err := mgmt.MgmtFactory.Management().V1().User().Create(&mgmtv1.User{
+	user := &mgmtv1.User{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "user-",
 			Labels:       defaultAdminLabel,
@@ -54,44 +63,44 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 			Admin:       true,
 			Active:      true,
 		},
-	})
-	if err != nil && !apierrors.IsAlreadyExists(err) {
+	}
+
+	user, err = h.userClient.Create(user)
+	if err != nil {
 		return err
 	}
 
-	_, err = mgmt.RbacFactory.Rbac().V1().ClusterRoleBinding().Create(
-		&rbacv1.ClusterRoleBinding{
-			ObjectMeta: metav1.ObjectMeta{
-				GenerateName: "default-admin-",
-				Labels: map[string]string{
-					constant.DefaultAdminLabelKey: defaultAdminLabelValue,
-				},
-				OwnerReferences: []metav1.OwnerReference{
-					{
-						APIVersion: mgmtv1.SchemeGroupVersion.String(),
-						Kind:       "User",
-						Name:       user.Name,
-						UID:        user.UID,
-					},
-				},
-			},
-			Subjects: []rbacv1.Subject{
-				{
-					Kind:     "User",
-					APIGroup: rbacv1.GroupName,
-					Name:     user.Name,
-				},
-			},
-			RoleRef: rbacv1.RoleRef{
-				APIGroup: rbacv1.GroupName,
-				Kind:     "ClusterRole",
-				Name:     "cluster-admin",
-			},
-		})
-	if err != nil {
-		return fmt.Errorf("failed to create default admin cluster role binding: %v", err)
+	rtb := constructRoleTemplateBinding(user)
+	if _, err := h.rtbClient.Create(rtb); err != nil {
+		return fmt.Errorf("failed to create default admin role template binding: %v", err)
 	}
-	logrus.Info("successfully created default admin user and cluster role binding")
 
+	logrus.Info("bootstrap default admin successfully")
 	return nil
+}
+
+func constructRoleTemplateBinding(user *mgmtv1.User) *mgmtv1.RoleTemplateBinding {
+	return &mgmtv1.RoleTemplateBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: "rtb-",
+			Labels: map[string]string{
+				constant.DefaultAdminLabelKey: defaultAdminLabelValue,
+			},
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(user, user.GroupVersionKind()),
+			},
+		},
+		RoleTemplateRef: mgmtv1.RoleTemplateRef{
+			APIGroup: mgmtv1.SchemeGroupVersion.Group,
+			Kind:     "GlobalRole",
+			Name:     DefaultAdminRoleName,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				APIGroup: rbacv1.GroupName,
+				Kind:     "User",
+				Name:     user.Name,
+			},
+		},
+	}
 }

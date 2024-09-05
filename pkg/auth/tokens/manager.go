@@ -19,8 +19,8 @@ import (
 type tokenKind string
 
 const (
-	UserIDLabel    = "auth.management.llmos.ai/user-id"
-	TokenKindLabel = "auth.management.llmos.ai/kind"
+	LabelAuthUserId    = "auth.management.llmos.ai/user-id"
+	LabelAuthTokenKind = "auth.management.llmos.ai/kind"
 
 	LocalProviderName = "local"
 	CookieName        = "L_SESS"
@@ -75,8 +75,8 @@ func (m *Manager) createToken(generateName, userId string, token *mgmtv1.Token, 
 		if toCreate.Labels == nil {
 			toCreate.Labels = map[string]string{}
 		}
-		toCreate.Labels[UserIDLabel] = userId
-		toCreate.Labels[TokenKindLabel] = string(kind)
+		toCreate.Labels[LabelAuthUserId] = userId
+		toCreate.Labels[LabelAuthTokenKind] = string(kind)
 		toCreate.Spec = mgmtv1.TokenSpec{
 			AuthProvider: LocalProviderName,
 			Expired:      ttl != 0,
@@ -89,8 +89,8 @@ func (m *Manager) createToken(generateName, userId string, token *mgmtv1.Token, 
 			ObjectMeta: metav1.ObjectMeta{
 				GenerateName: generateName,
 				Labels: map[string]string{
-					UserIDLabel:    userId,
-					TokenKindLabel: string(kind),
+					LabelAuthUserId:    userId,
+					LabelAuthTokenKind: string(kind),
 				},
 				Annotations: map[string]string{},
 			},

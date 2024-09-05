@@ -27,7 +27,7 @@ type GlobalRole struct {
 
 	// Spec holds the desired configs of the GlobalRole.
 	// +optional
-	Spec GlobalRoleTemplate `json:"spec,omitempty"`
+	Spec GlobalRoleSpec `json:"spec,omitempty"`
 
 	// Rules holds a list of PolicyRules that are applied to the local cluster only.
 	// +optional
@@ -45,7 +45,7 @@ type GlobalRole struct {
 	Status GlobalRoleStatus `json:"status,omitempty"`
 }
 
-type GlobalRoleTemplate struct {
+type GlobalRoleSpec struct {
 	// DisplayName is the human-readable name displayed in the UI.
 	// +optional
 	DisplayName string `json:"displayName,omitempty"`
@@ -78,4 +78,33 @@ type GlobalRoleStatus struct {
 	// +optional
 	// +kubebuilder:validation:Enum={"Complete","InProgress","Error"}
 	State string `json:"state,omitempty"`
+}
+
+// +genclient
+// +genclient:nonNamespaced
+// +kubebuilder:resource:scope=Cluster
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// RoleTemplateBinding binds a given subject user to a GlobalRole.
+type RoleTemplateBinding struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	// RoleTemplateRef can reference a RoleTemplate in the current namespace or a GlobalRole in the global namespace.
+	// If the RoleTemplateRef cannot be resolved, the Webhook must return an error.
+	// This field is immutable.
+	RoleTemplateRef RoleTemplateRef `json:"roleTemplateRef"`
+	// Subjects holds references to the objects the global role applies to.
+	// +optional
+	// +listType=atomic
+	Subjects []rbacv1.Subject `json:"subjects,omitempty"`
+}
+
+type RoleTemplateRef struct {
+	// APIGroup is the group for the resource being referenced
+	APIGroup string `json:"apiGroup"`
+	// Kind is the type of resource being referenced
+	Kind string `json:"kind"`
+	// Name is the name of resource being referenced
+	Name string `json:"name"`
 }

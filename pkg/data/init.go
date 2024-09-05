@@ -10,6 +10,7 @@ func Init(mgmt *config.Management) error {
 		return err
 	}
 
+	// bootstrap global roles first before adding any user
 	if err := BootstrapGlobalRoles(mgmt); err != nil {
 		return err
 	}

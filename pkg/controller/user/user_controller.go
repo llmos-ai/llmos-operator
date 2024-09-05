@@ -2,43 +2,42 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
-	ctlrbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
-	"github.com/sirupsen/logrus"
-	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/auth/tokens"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
 
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
 const (
-	publicInfoViewerRole = "system:public-info-viewer"
-	userControllerName   = "user.onChange"
+	userOnChangeName = "user.onChange"
+	userOnRemoveName = "user.onRemove"
 )
 
 type handler struct {
-	users                   ctlmgmtv1.UserClient
-	clusterRoleBindings     ctlrbacv1.ClusterRoleBindingClient
-	clusterRoleBindingCache ctlrbacv1.ClusterRoleBindingCache
+	users     ctlmgmtv1.UserClient
+	rtbClient ctlmgmtv1.RoleTemplateBindingClient
+	rtbCache  ctlmgmtv1.RoleTemplateBindingCache
 }
 
 func Register(ctx context.Context, management *config.Management) error {
 	users := management.MgmtFactory.Management().V1().User()
-
-	userRBACController := &handler{
-		users:                   users,
-		clusterRoleBindings:     management.RbacFactory.Rbac().V1().ClusterRoleBinding(),
-		clusterRoleBindingCache: management.RbacFactory.Rbac().V1().ClusterRoleBinding().Cache(),
+	rtb := management.MgmtFactory.Management().V1().RoleTemplateBinding()
+	h := &handler{
+		users:     users,
+		rtbClient: rtb,
+		rtbCache:  rtb.Cache(),
 	}
 
-	users.OnChange(ctx, userControllerName, userRBACController.OnChanged)
+	users.OnChange(ctx, userOnChangeName, h.OnChanged)
+	users.OnRemove(ctx, userOnRemoveName, h.OnDelete)
 	return nil
 }
 
@@ -48,11 +47,7 @@ func (h *handler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
 		return user, nil
 	}
 
-	roleName := publicInfoViewerRole
 	toUpdate := user.DeepCopy()
-	if toUpdate.Spec.Admin {
-		roleName = constant.AdminRole
-	}
 	if toUpdate.Labels == nil {
 		toUpdate.Labels = map[string]string{}
 	}
@@ -63,10 +58,6 @@ func (h *handler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
 		if err != nil {
 			return user, err
 		}
-	}
-
-	if err := h.ensureClusterBinding(roleName, toUpdate); err != nil {
-		return user, err
 	}
 
 	return h.updateStatus(user, toUpdate)
@@ -82,45 +73,25 @@ func (h *handler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*mgmtv
 	return nil, nil
 }
 
-func (h *handler) ensureClusterBinding(roleName string, user *mgmtv1.User) error {
-	subject := rbacv1.Subject{
-		Kind: "User",
-		Name: user.Name,
+// OnDelete helps to remove the user's roleTemplateBindings which is bound to the user on init
+func (h *handler) OnDelete(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
+	if user == nil || user.DeletionTimestamp == nil {
+		return nil, nil
 	}
 
-	// find if there is a clusterRoleBinding with the same role and subject
-	key := indexeres.GetCrbKey(roleName, subject)
-	crbs, err := h.clusterRoleBindingCache.GetByIndex(indexeres.ClusterRoleBindingNameIndex, key)
-	if err != nil {
-		return err
-	}
-	if len(crbs) > 0 {
-		logrus.Infof("ClusterRoleBinding with role %v for subject %v already exists, skip creating.", roleName, subject.Name)
-		return nil
-	}
-
-	logrus.Infof("Creating clusterRoleBinding with role %v for subject %v", roleName, subject.Name)
-	_, err = h.clusterRoleBindings.Create(&rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: fmt.Sprintf("%s-", user.Name),
-			Labels: map[string]string{
-				constant.LabelManagementUserIdKey: user.Name,
-			},
-			OwnerReferences: []metav1.OwnerReference{
-				{
-					APIVersion: mgmtv1.SchemeGroupVersion.String(),
-					Kind:       "User",
-					Name:       user.Name,
-					UID:        user.UID,
-				},
-			},
-		},
-		Subjects: []rbacv1.Subject{subject},
-		RoleRef: rbacv1.RoleRef{
-			Kind: "ClusterRole",
-			Name: roleName,
-		},
+	selector := labels.SelectorFromSet(map[string]string{
+		tokens.LabelAuthUserId: user.Name,
 	})
+	rtbs, err := h.rtbCache.List(selector)
+	if err != nil {
+		return user, err
+	}
 
-	return err
+	for _, rtb := range rtbs {
+		if err = h.rtbClient.Delete(rtb.Name, &metav1.DeleteOptions{}); err != nil && !errors.IsNotFound(err) {
+			return user, err
+		}
+	}
+
+	return nil, nil
 }
