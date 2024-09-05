@@ -11,6 +11,11 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
+const (
+	DefaultAdminRoleName = "admin"
+	DefaultUserRoleName  = "user"
+)
+
 type roleHandler struct {
 	roleClient ctlmgmtv1.GlobalRoleClient
 	roleCache  ctlmgmtv1.GlobalRoleCache
@@ -38,9 +43,9 @@ func initDefaultRoles() []*mgmtv1.GlobalRole {
 	return []*mgmtv1.GlobalRole{
 		{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "admin",
+				Name: DefaultAdminRoleName,
 			},
-			Spec: mgmtv1.GlobalRoleTemplate{
+			Spec: mgmtv1.GlobalRoleSpec{
 				DisplayName: "Admin",
 				Builtin:     true,
 			},
@@ -68,11 +73,12 @@ func initDefaultRoles() []*mgmtv1.GlobalRole {
 		},
 		{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "user",
+				Name: DefaultUserRoleName,
 			},
-			Spec: mgmtv1.GlobalRoleTemplate{
-				DisplayName: "User",
-				Builtin:     true,
+			Spec: mgmtv1.GlobalRoleSpec{
+				DisplayName:    "User",
+				Builtin:        true,
+				NewUserDefault: true,
 			},
 			Rules: []rbacv1.PolicyRule{
 				{
@@ -81,6 +87,8 @@ func initDefaultRoles() []*mgmtv1.GlobalRole {
 					},
 					Resources: []string{
 						"tokens",
+						"users",
+						"settings",
 					},
 					Verbs: []string{
 						"get",
@@ -94,6 +102,21 @@ func initDefaultRoles() []*mgmtv1.GlobalRole {
 					{
 						APIGroups: []string{
 							"*",
+						},
+						Resources: []string{
+							"persistentvolumes",
+							"persistetnvolumeclaims",
+						},
+						Verbs: []string{
+							"get",
+							"list",
+							"watch",
+						},
+					},
+					{
+						APIGroups: []string{
+							"ml.llmos.ai",
+							"management.llmos.ai",
 						},
 						Resources: []string{
 							"*",

@@ -59,6 +59,23 @@ func NewManagedAddon(namespace, name string, obj ManagedAddon) *ManagedAddon {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// RoleTemplateBindingList is a list of RoleTemplateBinding resources
+type RoleTemplateBindingList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []RoleTemplateBinding `json:"items"`
+}
+
+func NewRoleTemplateBinding(namespace, name string, obj RoleTemplateBinding) *RoleTemplateBinding {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("RoleTemplateBinding").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // SettingList is a list of Setting resources
 type SettingList struct {
 	metav1.TypeMeta `json:",inline"`

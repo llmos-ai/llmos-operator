@@ -13,7 +13,7 @@ import (
 func constructClusterRole(role *v1.GlobalRole) *rbacv1.ClusterRole {
 	return &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: generateCRName(role.Name),
+			Name: GenerateCRName(role.Name),
 			Labels: map[string]string{
 				defaultGlobalRoleLabelKey: "true",
 			},
@@ -37,7 +37,7 @@ func constructRoles(role *v1.GlobalRole) []*rbacv1.Role {
 	for ns, rules := range role.NamespacedRules {
 		role := &rbacv1.Role{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      generateRoleName(role.Name, ns),
+				Name:      GenerateRoleName(role.Name, ns),
 				Namespace: ns,
 				Labels: map[string]string{
 					defaultGlobalRoleLabelKey: "true",
@@ -51,9 +51,9 @@ func constructRoles(role *v1.GlobalRole) []*rbacv1.Role {
 	return roles
 }
 
-func generateCRName(name string) string {
+func GenerateCRName(name string) string {
 	return fmt.Sprintf("llmos-globalrole-%s", name)
 }
-func generateRoleName(name, ns string) string {
+func GenerateRoleName(name, ns string) string {
 	return wrangler.SafeConcatName(name, ns)
 }

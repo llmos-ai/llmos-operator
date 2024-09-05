@@ -27,12 +27,13 @@ import (
 )
 
 var (
-	GlobalRoleResourceName   = "globalroles"
-	ManagedAddonResourceName = "managedaddons"
-	SettingResourceName      = "settings"
-	TokenResourceName        = "tokens"
-	UpgradeResourceName      = "upgrades"
-	UserResourceName         = "users"
+	GlobalRoleResourceName          = "globalroles"
+	ManagedAddonResourceName        = "managedaddons"
+	RoleTemplateBindingResourceName = "roletemplatebindings"
+	SettingResourceName             = "settings"
+	TokenResourceName               = "tokens"
+	UpgradeResourceName             = "upgrades"
+	UserResourceName                = "users"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -60,6 +61,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&GlobalRoleList{},
 		&ManagedAddon{},
 		&ManagedAddonList{},
+		&RoleTemplateBinding{},
+		&RoleTemplateBindingList{},
 		&Setting{},
 		&SettingList{},
 		&Token{},

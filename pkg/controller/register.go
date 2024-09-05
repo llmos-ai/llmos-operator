@@ -11,6 +11,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/roletemplatebinding"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/token"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/upgrade"
@@ -33,6 +34,7 @@ var registerFuncs = []registerFunc{
 	modelservice.Register,
 	token.Register,
 	globalrole.Register,
+	roletemplatebinding.Register,
 	//storage.Register,
 }
 

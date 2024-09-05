@@ -35,6 +35,10 @@ func (c *FakeManagementV1) ManagedAddons(namespace string) v1.ManagedAddonInterf
 	return &FakeManagedAddons{c, namespace}
 }
 
+func (c *FakeManagementV1) RoleTemplateBindings() v1.RoleTemplateBindingInterface {
+	return &FakeRoleTemplateBindings{c}
+}
+
 func (c *FakeManagementV1) Settings() v1.SettingInterface {
 	return &FakeSettings{c}
 }

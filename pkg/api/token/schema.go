@@ -145,7 +145,7 @@ func (h *handler) listHandler(request *types.APIRequest) (types.APIObjectList, e
 		return types.APIObjectList{}, err
 	}
 	selector := labels.SelectorFromSet(map[string]string{
-		tokens2.UserIDLabel: currentUser.Name,
+		tokens2.LabelAuthUserId: currentUser.Name,
 	})
 
 	tokens, err := h.tokensCache.List(selector)

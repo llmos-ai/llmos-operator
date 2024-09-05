@@ -14,6 +14,7 @@ import (
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	cond "github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
 const (
@@ -23,7 +24,6 @@ const (
 
 type handler struct {
 	globalRoleClient ctlmgmtv1.GlobalRoleClient
-	globalRoleCache  ctlmgmtv1.GlobalRoleCache
 	crClient         ctlrbacv1.ClusterRoleClient
 	crCache          ctlrbacv1.ClusterRoleCache
 	roleClient       ctlrbacv1.RoleClient
@@ -37,7 +37,6 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 
 	h := &handler{
 		globalRoleClient: globalRoles,
-		globalRoleCache:  globalRoles.Cache(),
 		crClient:         crs,
 		crCache:          crs.Cache(),
 		roleClient:       roles,
@@ -52,14 +51,22 @@ func (h *handler) onChangeRoles(_ string, globalRole *mgmtv1.GlobalRole) (*mgmtv
 		return nil, nil
 	}
 
+	// init status first
+	if globalRole.Status.State == "" {
+		grCopy := globalRole.DeepCopy()
+		mgmtv1.ClusterRoleExists.CreateUnknownIfNotExists(grCopy)
+		grCopy.Status.State = "InProgress"
+		return h.globalRoleClient.UpdateStatus(grCopy)
+	}
+
 	cr, err := h.reconcileClusterRole(globalRole)
 	if err != nil {
-		return globalRole, err
+		return h.updateErrorStatus(globalRole, mgmtv1.ClusterRoleExists, err)
 	}
 
 	roles, err := h.reconcileNamespacedRoles(globalRole)
 	if err != nil {
-		return globalRole, err
+		return h.updateErrorStatus(globalRole, mgmtv1.NamespacedRoleExists, err)
 	}
 
 	if err = h.updateStatus(globalRole, cr, roles); err != nil {
@@ -138,7 +145,7 @@ func (h *handler) updateStatus(globalRole *mgmtv1.GlobalRole, cr *rbacv1.Cluster
 	mgmtv1.ClusterRoleExists.SetStatus(toUpdate, "True")
 
 	if len(roles) > 0 {
-		mgmtv1.NamespacedRoleExists.Message(toUpdate, fmt.Sprintf("%s created", roleNames))
+		mgmtv1.NamespacedRoleExists.Message(toUpdate, fmt.Sprintf("%screated", roleNames))
 		mgmtv1.NamespacedRoleExists.SetStatus(toUpdate, "True")
 	}
 	toUpdate.Status.LastUpdate = time.Now().Format(time.RFC3339)
@@ -152,4 +159,12 @@ func (h *handler) updateStatus(globalRole *mgmtv1.GlobalRole, cr *rbacv1.Cluster
 	}
 
 	return nil
+}
+
+func (h *handler) updateErrorStatus(globalRole *mgmtv1.GlobalRole, cond cond.Cond,
+	err error) (*mgmtv1.GlobalRole, error) {
+	toUpdate := globalRole.DeepCopy()
+	cond.SetError(toUpdate, "Error", err)
+	toUpdate.Status.State = "Error"
+	return h.globalRoleClient.UpdateStatus(toUpdate)
 }

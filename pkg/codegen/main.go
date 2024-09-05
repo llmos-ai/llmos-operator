@@ -6,8 +6,6 @@ import (
 
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
-	"github.com/sirupsen/logrus"
-
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
@@ -15,6 +13,7 @@ import (
 	"github.com/rancher/wrangler/v3/pkg/controller-gen/args"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	"github.com/sirupsen/logrus"
 	storagev1 "k8s.io/api/storage/v1"
 )
 
