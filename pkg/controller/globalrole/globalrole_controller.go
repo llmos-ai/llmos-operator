@@ -143,10 +143,12 @@ func (h *handler) updateStatus(globalRole *mgmtv1.GlobalRole, cr *rbacv1.Cluster
 	logrus.Debugf("cr name %s", cr.Name)
 	mgmtv1.ClusterRoleExists.Message(toUpdate, fmt.Sprintf("%s created", cr.Name))
 	mgmtv1.ClusterRoleExists.SetStatus(toUpdate, "True")
+	mgmtv1.ClusterRoleExists.Reason(toUpdate, "Created")
 
 	if len(roles) > 0 {
 		mgmtv1.NamespacedRoleExists.Message(toUpdate, fmt.Sprintf("%screated", roleNames))
 		mgmtv1.NamespacedRoleExists.SetStatus(toUpdate, "True")
+		mgmtv1.NamespacedRoleExists.Reason(toUpdate, "Created")
 	}
 	toUpdate.Status.LastUpdate = time.Now().Format(time.RFC3339)
 	toUpdate.Status.ObservedGeneration = toUpdate.ObjectMeta.Generation

@@ -78,7 +78,7 @@ func (m *Middleware) GetUserInfoFromToken(tokenStr string) (authUser.Info, error
 	userInfo.Groups = []string{
 		"system:authenticated",
 	}
-	if user.Spec.Admin {
+	if user.Status.IsAdmin {
 		userInfo.Groups = append(userInfo.Groups, constant.AdminRole)
 	}
 

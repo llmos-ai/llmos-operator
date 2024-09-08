@@ -13,6 +13,7 @@ import (
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Display Name",type="string",JSONPath=`.spec.displayName`
 // +kubebuilder:printcolumn:name="Username",type="string",JSONPath=`.spec.username`
+// +kubebuilder:printcolumn:name="Admin",type="boolean",JSONPath=`.status.isAdmin`
 
 type User struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -34,11 +35,8 @@ type UserSpec struct {
 	// +kubebuilder:validation:Required
 	Password string `json:"password"`
 
-	// +optional
-	Admin bool `json:"isAdmin"`
-
 	// +kubebuilder:default:=true
-	Active bool `json:"isActive"`
+	Active bool `json:"active"`
 }
 
 type UserStatus struct {

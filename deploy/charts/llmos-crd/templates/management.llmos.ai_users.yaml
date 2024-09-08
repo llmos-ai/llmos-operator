@@ -21,6 +21,9 @@ spec:
     - jsonPath: .spec.username
       name: Username
       type: string
+    - jsonPath: .status.isAdmin
+      name: Admin
+      type: boolean
     name: v1
     schema:
       openAPIV3Schema:
@@ -44,21 +47,19 @@ spec:
             type: object
           spec:
             properties:
+              active:
+                default: true
+                type: boolean
               description:
                 type: string
               displayName:
                 type: string
-              isActive:
-                default: true
-                type: boolean
-              isAdmin:
-                type: boolean
               password:
                 type: string
               username:
                 type: string
             required:
-            - isActive
+            - active
             - password
             - username
             type: object
