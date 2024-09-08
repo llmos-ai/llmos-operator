@@ -60,7 +60,6 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 			DisplayName: "Default Admin",
 			Username:    "admin",
 			Password:    hash,
-			Admin:       true,
 			Active:      true,
 		},
 	}
@@ -85,6 +84,7 @@ func constructRoleTemplateBinding(user *mgmtv1.User) *mgmtv1.RoleTemplateBinding
 			GenerateName: "rtb-",
 			Labels: map[string]string{
 				constant.DefaultAdminLabelKey: defaultAdminLabelValue,
+				tokens.LabelAuthUserId:        user.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(user, user.GroupVersionKind()),

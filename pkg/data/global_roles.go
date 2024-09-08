@@ -46,8 +46,9 @@ func initDefaultRoles() []*mgmtv1.GlobalRole {
 				Name: DefaultAdminRoleName,
 			},
 			Spec: mgmtv1.GlobalRoleSpec{
-				DisplayName: "Admin",
-				Builtin:     true,
+				DisplayName:    "Admin",
+				Builtin:        true,
+				NewUserDefault: false,
 			},
 			Rules: []rbacv1.PolicyRule{
 				{

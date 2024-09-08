@@ -17,12 +17,15 @@ import (
 )
 
 const (
-	userOnChangeName = "user.onChange"
-	userOnRemoveName = "user.onRemove"
+	userOnChangeName                = "user.onChange"
+	userRoleTemplateBindingOnChange = "user.roleTemplateBindingOnChange"
+	userRoleTemplateBindingOnRemove = "user.roleTemplateBindingOnRemove"
+	userOnRemoveName                = "user.onRemove"
 )
 
 type handler struct {
 	users     ctlmgmtv1.UserClient
+	userCache ctlmgmtv1.UserCache
 	rtbClient ctlmgmtv1.RoleTemplateBindingClient
 	rtbCache  ctlmgmtv1.RoleTemplateBindingCache
 }
@@ -32,12 +35,15 @@ func Register(ctx context.Context, management *config.Management) error {
 	rtb := management.MgmtFactory.Management().V1().RoleTemplateBinding()
 	h := &handler{
 		users:     users,
+		userCache: users.Cache(),
 		rtbClient: rtb,
 		rtbCache:  rtb.Cache(),
 	}
 
 	users.OnChange(ctx, userOnChangeName, h.OnChanged)
 	users.OnRemove(ctx, userOnRemoveName, h.OnDelete)
+	rtb.OnChange(ctx, userRoleTemplateBindingOnChange, h.OnRoleTemplateBindingChanged)
+	rtb.OnRemove(ctx, userRoleTemplateBindingOnRemove, h.OnRoleTemplateBindingDeleted)
 	return nil
 }
 
@@ -64,7 +70,6 @@ func (h *handler) OnChanged(_ string, user *mgmtv1.User) (*mgmtv1.User, error) {
 }
 
 func (h *handler) updateStatus(user *mgmtv1.User, toUpdate *mgmtv1.User) (*mgmtv1.User, error) {
-	toUpdate.Status.IsAdmin = toUpdate.Spec.Admin
 	toUpdate.Status.IsActive = toUpdate.Spec.Active
 	if !reflect.DeepEqual(user.Status, toUpdate.Status) {
 		toUpdate.Status.LastUpdateTime = metav1.Now().Format(constant.TimeLayout)
