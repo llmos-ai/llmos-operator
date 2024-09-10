@@ -15,14 +15,14 @@ func (h *handler) getClusterRole(rtb *mgmtv1.RoleTemplateBinding) (*rbacv1.Clust
 	return h.crCache.Get(crName)
 }
 
-func constructClusterRoleBinding(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.GlobalRole,
-	cr *rbacv1.ClusterRole) *rbacv1.ClusterRoleBinding {
+func constructClusterRoleBinding(rtb *mgmtv1.RoleTemplateBinding, cr *rbacv1.ClusterRole) *rbacv1.ClusterRoleBinding {
 	return &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: GenerateCRBName(rtb),
 			Labels: map[string]string{
-				globalRoleNameLabelKey: gr.Name,
-				rtbNameLabelKey:        rtb.Name,
+				roleTemplateRefNameLabelKey: rtb.RoleTemplateRef.Name,
+				roleTemplateRefKindLabelKey: rtb.RoleTemplateRef.Kind,
+				rtbNameLabelKey:             rtb.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(rtb, rtb.GroupVersionKind()),
@@ -37,15 +37,15 @@ func constructClusterRoleBinding(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.Glo
 	}
 }
 
-func constructRole(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.GlobalRole,
-	rules []rbacv1.PolicyRule, ns string) *rbacv1.Role {
+func constructRole(rtb *mgmtv1.RoleTemplateBinding, rules []rbacv1.PolicyRule, ns string) *rbacv1.Role {
 	return &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GenerateRoleBindingName(rtb),
 			Namespace: ns,
 			Labels: map[string]string{
-				globalRoleNameLabelKey: gr.Name,
-				rtbNameLabelKey:        rtb.Name,
+				roleTemplateRefNameLabelKey: rtb.RoleTemplateRef.Name,
+				roleTemplateRefKindLabelKey: rtb.RoleTemplateRef.Kind,
+				rtbNameLabelKey:             rtb.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(rtb, rtb.GroupVersionKind()),
@@ -55,15 +55,15 @@ func constructRole(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.GlobalRole,
 	}
 }
 
-func constructRoleBinding(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.GlobalRole,
-	role *rbacv1.Role, ns string) *rbacv1.RoleBinding {
+func constructRoleBinding(rtb *mgmtv1.RoleTemplateBinding, role *rbacv1.Role, ns string) *rbacv1.RoleBinding {
 	return &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GenerateRoleBindingName(rtb),
 			Namespace: ns,
 			Labels: map[string]string{
-				globalRoleNameLabelKey: gr.Name,
-				rtbNameLabelKey:        rtb.Name,
+				roleTemplateRefNameLabelKey: rtb.RoleTemplateRef.Name,
+				roleTemplateRefKindLabelKey: rtb.RoleTemplateRef.Kind,
+				rtbNameLabelKey:             rtb.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(rtb, rtb.GroupVersionKind()),

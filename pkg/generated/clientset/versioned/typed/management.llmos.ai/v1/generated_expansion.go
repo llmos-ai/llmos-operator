@@ -21,6 +21,8 @@ type GlobalRoleExpansion interface{}
 
 type ManagedAddonExpansion interface{}
 
+type RoleTemplateExpansion interface{}
+
 type RoleTemplateBindingExpansion interface{}
 
 type SettingExpansion interface{}

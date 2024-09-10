@@ -4,14 +4,14 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     {}
-  name: globalroles.management.llmos.ai
+  name: roletemplates.management.llmos.ai
 spec:
   group: management.llmos.ai
   names:
-    kind: GlobalRole
-    listKind: GlobalRoleList
-    plural: globalroles
-    singular: globalrole
+    kind: RoleTemplate
+    listKind: RoleTemplateList
+    plural: roletemplates
+    singular: roletemplate
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -42,65 +42,8 @@ spec:
             type: string
           metadata:
             type: object
-          namespacedRules:
-            additionalProperties:
-              items:
-                description: |-
-                  PolicyRule holds information that describes a policy rule, but does not contain information
-                  about who the rule applies to or which namespace the rule applies to.
-                properties:
-                  apiGroups:
-                    description: |-
-                      APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
-                      the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-                    items:
-                      type: string
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  nonResourceURLs:
-                    description: |-
-                      NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
-                      Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
-                      Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-                    items:
-                      type: string
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  resourceNames:
-                    description: ResourceNames is an optional white list of names
-                      that the rule applies to.  An empty set means that everything
-                      is allowed.
-                    items:
-                      type: string
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  resources:
-                    description: Resources is a list of resources this rule applies
-                      to. '*' represents all resources.
-                    items:
-                      type: string
-                    type: array
-                    x-kubernetes-list-type: atomic
-                  verbs:
-                    description: Verbs is a list of Verbs that apply to ALL the ResourceKinds
-                      contained in this rule. '*' represents all verbs.
-                    items:
-                      type: string
-                    type: array
-                    x-kubernetes-list-type: atomic
-                required:
-                - verbs
-                type: object
-              type: array
-            description: |-
-              NamespacedRules are the rules that are active in each namespace of this GlobalRole.
-              These are applied to the local cluster only.
-              * has no special meaning in the keys - these keys are read as raw strings
-              and must exactly match with one existing namespace.
-            type: object
           rules:
-            description: Rules holds a list of PolicyRules that are applied to the
-              local cluster only.
+            description: Rules hold a list of PolicyRules for this RoleTemplate.
             items:
               description: |-
                 PolicyRule holds information that describes a policy rule, but does not contain information
@@ -149,28 +92,32 @@ spec:
               type: object
             type: array
           spec:
-            description: Spec holds the desired configs of the GlobalRole.
+            description: Spec holds the desired configs of the RoleTemplate.
             properties:
               builtin:
-                description: Builtin specifies that this GlobalRole was created by
-                  LLMOS if true.
+                description: Builtin specifies that this RoleTemplate was created
+                  by LLMOS if true.
                 type: boolean
               displayName:
                 description: DisplayName is the human-readable name displayed in the
                   UI.
                 type: string
-              newUserDefault:
-                description: NewUserDefault specifies that all new users created should
-                  be bound to this role if true.
+              locked:
+                description: Locked specified that if new bindings will not be able
+                  to use this RoleTemplate.
+                type: boolean
+              newNamespaceDefault:
+                description: NewNamespaceDefault specifies that this RoleTemplate
+                  should be applied to all new created namespaces if true.
                 type: boolean
             type: object
           status:
-            description: Status is the most recently observed status of the GlobalRole.
+            description: Status is the most recently observed status of the RoleTemplate.
             properties:
               conditions:
                 description: |-
                   Conditions is a slice of Condition, indicating the status of specific backing RBAC objects.
-                  There is one condition per ClusterRole and Role managed by the GlobalRole.
+                  There is one condition per ClusterRole and Role managed by the RoleTemplate.
                 items:
                   properties:
                     lastTransitionTime:
@@ -204,7 +151,7 @@ spec:
                 type: string
               observedGeneration:
                 description: |-
-                  ObservedGeneration is the most recent generation (metadata.generation in GlobalRole CR)
+                  ObservedGeneration is the most recent generation (metadata.generation in RoleTemplate CR)
                   observed by the controller. Populated by the system.
                 format: int64
                 type: integer

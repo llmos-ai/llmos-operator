@@ -29,6 +29,7 @@ import (
 var (
 	GlobalRoleResourceName          = "globalroles"
 	ManagedAddonResourceName        = "managedaddons"
+	RoleTemplateResourceName        = "roletemplates"
 	RoleTemplateBindingResourceName = "roletemplatebindings"
 	SettingResourceName             = "settings"
 	TokenResourceName               = "tokens"
@@ -61,6 +62,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&GlobalRoleList{},
 		&ManagedAddon{},
 		&ManagedAddonList{},
+		&RoleTemplate{},
+		&RoleTemplateList{},
 		&RoleTemplateBinding{},
 		&RoleTemplateBindingList{},
 		&Setting{},

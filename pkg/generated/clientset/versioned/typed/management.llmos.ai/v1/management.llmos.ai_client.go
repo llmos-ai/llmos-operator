@@ -29,6 +29,7 @@ type ManagementV1Interface interface {
 	RESTClient() rest.Interface
 	GlobalRolesGetter
 	ManagedAddonsGetter
+	RoleTemplatesGetter
 	RoleTemplateBindingsGetter
 	SettingsGetter
 	TokensGetter
@@ -47,6 +48,10 @@ func (c *ManagementV1Client) GlobalRoles() GlobalRoleInterface {
 
 func (c *ManagementV1Client) ManagedAddons(namespace string) ManagedAddonInterface {
 	return newManagedAddons(c, namespace)
+}
+
+func (c *ManagementV1Client) RoleTemplates() RoleTemplateInterface {
+	return newRoleTemplates(c)
 }
 
 func (c *ManagementV1Client) RoleTemplateBindings() RoleTemplateBindingInterface {
