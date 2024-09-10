@@ -9,8 +9,10 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelfile"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/modelservice"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/roletemplate"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/roletemplatebinding"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/setting"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/token"
@@ -34,7 +36,9 @@ var registerFuncs = []registerFunc{
 	modelservice.Register,
 	token.Register,
 	globalrole.Register,
+	roletemplate.Register,
 	roletemplatebinding.Register,
+	namespace.Register,
 	//storage.Register,
 }
 

@@ -16,6 +16,7 @@ const (
 	userSchemaID         = "management.llmos.ai.user"
 	ActionSetIsActive    = "setIsActive"
 	ActionChangePassword = "changePassword"
+	ActionSearch         = "search"
 )
 
 type SetIsActiveInput struct {
@@ -25,6 +26,10 @@ type SetIsActiveInput struct {
 type ChangePasswordInput struct {
 	CurrentPassword string `json:"currentPassword"`
 	NewPassword     string `json:"newPassword"`
+}
+
+type SearchInput struct {
+	Name string `json:"name"`
 }
 
 func RegisterSchema(mgmt *config.Management, server *server.Server) error {
@@ -37,6 +42,7 @@ func RegisterSchema(mgmt *config.Management, server *server.Server) error {
 
 	server.BaseSchemas.MustImportAndCustomize(SetIsActiveInput{}, nil)
 	server.BaseSchemas.MustImportAndCustomize(ChangePasswordInput{}, nil)
+	server.BaseSchemas.MustImportAndCustomize(SearchInput{}, nil)
 	t := []schema.Template{
 		{
 			ID: userSchemaID,
@@ -45,6 +51,9 @@ func RegisterSchema(mgmt *config.Management, server *server.Server) error {
 				s.CollectionActions = map[string]schemas.Action{
 					ActionChangePassword: {
 						Input: "changePasswordInput",
+					},
+					ActionSearch: {
+						Input: "searchInput",
 					},
 				}
 				s.ListHandler = h.userListHandler
@@ -57,6 +66,7 @@ func RegisterSchema(mgmt *config.Management, server *server.Server) error {
 				s.ActionHandlers = map[string]http.Handler{
 					ActionSetIsActive:    h,
 					ActionChangePassword: h,
+					ActionSearch:         h,
 				}
 			},
 		},

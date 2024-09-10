@@ -32,6 +32,7 @@ func init() {
 type Interface interface {
 	GlobalRole() GlobalRoleController
 	ManagedAddon() ManagedAddonController
+	RoleTemplate() RoleTemplateController
 	RoleTemplateBinding() RoleTemplateBindingController
 	Setting() SettingController
 	Token() TokenController
@@ -55,6 +56,10 @@ func (v *version) GlobalRole() GlobalRoleController {
 
 func (v *version) ManagedAddon() ManagedAddonController {
 	return generic.NewController[*v1.ManagedAddon, *v1.ManagedAddonList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "ManagedAddon"}, "managedaddons", true, v.controllerFactory)
+}
+
+func (v *version) RoleTemplate() RoleTemplateController {
+	return generic.NewNonNamespacedController[*v1.RoleTemplate, *v1.RoleTemplateList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "RoleTemplate"}, "roletemplates", v.controllerFactory)
 }
 
 func (v *version) RoleTemplateBinding() RoleTemplateBindingController {
