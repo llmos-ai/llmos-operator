@@ -3,6 +3,7 @@ package roletemplatebinding
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	ctlrbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
 	"github.com/sirupsen/logrus"
@@ -137,7 +138,7 @@ func (h *handler) reconcileClusterRoleBinding(rtb *mgmtv1.RoleTemplateBinding) e
 func (h *handler) reconcileNamespacedRoles(rtb *mgmtv1.RoleTemplateBinding, gr *mgmtv1.GlobalRole) error {
 	for ns, rules := range gr.NamespacedRules {
 		role := constructRole(rtb, rules, ns)
-		_, err := h.roleCache.Get(ns, role.Name)
+		foundRole, err := h.roleCache.Get(ns, role.Name)
 		if err != nil && errors.IsNotFound(err) {
 			logrus.Debugf("creating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
 			role, err = h.roleClient.Create(role)
@@ -146,6 +147,16 @@ func (h *handler) reconcileNamespacedRoles(rtb *mgmtv1.RoleTemplateBinding, gr *
 			}
 		} else if err != nil {
 			return err
+		}
+
+		if !reflect.DeepEqual(role.Rules, foundRole.Rules) {
+			logrus.Debugf("updating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
+			toUpdate := foundRole.DeepCopy()
+			toUpdate.Rules = role.Rules
+			_, err = h.roleClient.Update(toUpdate)
+			if err != nil {
+				return err
+			}
 		}
 
 		rb := constructRoleBinding(rtb, role, ns)
@@ -165,7 +176,7 @@ func (h *handler) reconcileNamespacedRoles(rtb *mgmtv1.RoleTemplateBinding, gr *
 func (h *handler) reconcileRoleTemplateRoles(rtb *mgmtv1.RoleTemplateBinding, rt *mgmtv1.RoleTemplate) error {
 	ns := rtb.NamespaceId
 	role := constructRole(rtb, rt.Rules, ns)
-	_, err := h.roleCache.Get(ns, role.Name)
+	foundRole, err := h.roleCache.Get(ns, role.Name)
 	if err != nil && errors.IsNotFound(err) {
 		logrus.Debugf("creating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
 		role, err = h.roleClient.Create(role)
@@ -174,6 +185,16 @@ func (h *handler) reconcileRoleTemplateRoles(rtb *mgmtv1.RoleTemplateBinding, rt
 		}
 	} else if err != nil {
 		return err
+	}
+
+	if !reflect.DeepEqual(role.Rules, foundRole.Rules) {
+		logrus.Debugf("updating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
+		toUpdate := foundRole.DeepCopy()
+		toUpdate.Rules = role.Rules
+		_, err = h.roleClient.Update(toUpdate)
+		if err != nil {
+			return err
+		}
 	}
 
 	rb := constructRoleBinding(rtb, role, ns)

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	ctlrbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
-	"github.com/sirupsen/logrus"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 
@@ -99,7 +98,7 @@ func (h *handler) reconcileClusterRole(globalRole *mgmtv1.GlobalRole) (*rbacv1.C
 }
 
 func (h *handler) reconcileNamespacedRoles(globalRole *mgmtv1.GlobalRole) ([]*rbacv1.Role, error) {
-	roles := constructRoles(globalRole)
+	roles := constructGlobalNsRoles(globalRole)
 	if len(roles) == 0 {
 		return nil, nil
 	}
@@ -140,7 +139,6 @@ func (h *handler) updateStatus(globalRole *mgmtv1.GlobalRole, cr *rbacv1.Cluster
 		roleNames += fmt.Sprintf("%s ", role.Name)
 	}
 
-	logrus.Debugf("cr name %s", cr.Name)
 	mgmtv1.ClusterRoleExists.Message(toUpdate, fmt.Sprintf("%s created", cr.Name))
 	mgmtv1.ClusterRoleExists.SetStatus(toUpdate, "True")
 	mgmtv1.ClusterRoleExists.Reason(toUpdate, "Created")

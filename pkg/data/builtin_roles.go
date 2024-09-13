@@ -1,13 +1,14 @@
 package data
 
 import (
+	"fmt"
+
 	rbacv1 "k8s.io/api/rbac/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
-	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
@@ -18,45 +19,25 @@ const (
 	DefaultNsReadOnly    = "namespace-readonly"
 )
 
-type roleHandler struct {
-	globalRoleClient ctlmgmtv1.GlobalRoleClient
-	globalRoleCache  ctlmgmtv1.GlobalRoleCache
-	rtClient         ctlmgmtv1.RoleTemplateClient
-	rtCache          ctlmgmtv1.RoleTemplateCache
-}
-
 func BootstrapGlobalRoles(mgmt *config.Management) error {
-	globalRole := mgmt.MgmtFactory.Management().V1().GlobalRole()
-	roleTemplate := mgmt.MgmtFactory.Management().V1().RoleTemplate()
-	h := &roleHandler{
-		globalRoleClient: globalRole,
-		globalRoleCache:  globalRole.Cache(),
-		rtClient:         roleTemplate,
-		rtCache:          roleTemplate.Cache(),
-	}
-
 	globalRoles := constructDefaultGlobalRole()
-	for _, role := range globalRoles {
-		_, err := h.globalRoleClient.Create(role)
-		if err != nil && !errors.IsAlreadyExists(err) {
-			return err
-		}
+	err := mgmt.Apply.WithDynamicLookup().WithSetID("apply-admin-init-password").ApplyObjects(globalRoles...)
+	if err != nil {
+		return fmt.Errorf("failed to apply built-in GlobalRoles: %v", err)
 	}
 
-	roleTemplates := constructDefaultRoleTemplates()
-	for _, rt := range roleTemplates {
-		_, err := h.rtClient.Create(rt)
-		if err != nil && !errors.IsAlreadyExists(err) {
-			return err
-		}
+	roleTemplates := constructDefaultNsRoleTemplates()
+	err = mgmt.Apply.WithDynamicLookup().WithSetID("apply-admin-init-password").ApplyObjects(roleTemplates...)
+	if err != nil {
+		return fmt.Errorf("failed to apply built-in RoleTempaltes: %v", err)
 	}
 
 	return nil
 }
 
-func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
-	return []*mgmtv1.GlobalRole{
-		{
+func constructDefaultGlobalRole() []runtime.Object {
+	return []runtime.Object{
+		&mgmtv1.GlobalRole{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: DefaultAdminRoleName,
 			},
@@ -87,7 +68,7 @@ func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
 				},
 			},
 		},
-		{
+		&mgmtv1.GlobalRole{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: DefaultUserRoleName,
 			},
@@ -103,6 +84,58 @@ func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
 					},
 					Resources: []string{
 						"nodes",
+						"persistentvolumes",
+					},
+					Verbs: []string{
+						"get",
+						"list",
+						"watch",
+					},
+				},
+				{
+					APIGroups: []string{
+						"storage.k8s.io",
+					},
+					Resources: []string{
+						"storageclasses",
+					},
+					Verbs: []string{
+						"get",
+						"list",
+						"watch",
+					},
+				},
+				{
+					APIGroups: []string{
+						"apiregistration.k8s.io",
+					},
+					Resources: []string{
+						"apiservices",
+					},
+					Verbs: []string{
+						"get",
+						"list",
+						"watch",
+					},
+				},
+				{
+					APIGroups: []string{
+						"metrics.k8s.io",
+					},
+					Resources: []string{
+						"pods",
+					},
+					Verbs: []string{
+						"*",
+					},
+				},
+				{
+					APIGroups: []string{
+						"management.llmos.ai",
+					},
+					Resources: []string{
+						"users",
+						"settings",
 					},
 					Verbs: []string{
 						"get",
@@ -116,13 +149,13 @@ func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
 					},
 					Resources: []string{
 						"tokens",
-						"users",
-						"settings",
 					},
 					Verbs: []string{
+						"create",
 						"get",
-						"list",
+						"list", // list all is filtered by admin role
 						"watch",
+						"delete",
 					},
 				},
 			},
@@ -133,23 +166,16 @@ func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
 							"",
 						},
 						Resources: []string{
-							"persistentvolumes",
+							"persistentvolumeclaims",
+							"configmaps",
+							"services",
+							"pods",
+							"events",
 						},
 						Verbs: []string{
 							"get",
 							"list",
 							"watch",
-						},
-					},
-					{
-						APIGroups: []string{
-							"",
-						},
-						Resources: []string{
-							"persistetnvolumeclaims",
-						},
-						Verbs: []string{
-							"*",
 						},
 					},
 					{
@@ -173,9 +199,9 @@ func constructDefaultGlobalRole() []*mgmtv1.GlobalRole {
 	}
 }
 
-func constructDefaultRoleTemplates() []*mgmtv1.RoleTemplate {
-	return []*mgmtv1.RoleTemplate{
-		{
+func constructDefaultNsRoleTemplates() []runtime.Object {
+	return []runtime.Object{
+		&mgmtv1.RoleTemplate{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: DefaultNsOwner,
 			},
@@ -199,11 +225,12 @@ func constructDefaultRoleTemplates() []*mgmtv1.RoleTemplate {
 					},
 				},
 				{
+					// for now, we allow all actions on all resources within the namespace
 					APIGroups: []string{
 						"",
 					},
 					Resources: []string{
-						"persistetnvolumeclaims",
+						"*",
 					},
 					Verbs: []string{
 						"*",
@@ -261,7 +288,7 @@ func constructDefaultRoleTemplates() []*mgmtv1.RoleTemplate {
 				},
 			},
 		},
-		{
+		&mgmtv1.RoleTemplate{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: DefaultNsReadOnly,
 			},
@@ -289,7 +316,18 @@ func constructDefaultRoleTemplates() []*mgmtv1.RoleTemplate {
 						"",
 					},
 					Resources: []string{
-						"persistetnvolumeclaims",
+						"namespaces",
+					},
+					Verbs: []string{
+						"get",
+					},
+				},
+				{
+					APIGroups: []string{
+						"",
+					},
+					Resources: []string{
+						"persistentvolumeclaims",
 					},
 					Verbs: []string{
 						"get",

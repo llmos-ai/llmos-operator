@@ -125,6 +125,7 @@ func (h Handler) userListHandler(request *types.APIRequest) (types.APIObjectList
 					Object: user,
 				},
 			},
+			Revision: "0",
 		}, nil
 	}
 

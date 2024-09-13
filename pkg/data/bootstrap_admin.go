@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -12,11 +13,11 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 const (
 	defaultAdminLabelValue = "true"
-	defaultAdminPassword   = "password"
 )
 
 var defaultAdminLabel = map[string]string{
@@ -46,9 +47,30 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 		}
 	}
 
-	hash, err := tokens.HashPassword(defaultAdminPassword)
+	initPassword, err := utils.GenerateToken()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate init password: %v", err)
+	}
+
+	logrus.Infof("Bootstrap password: %s", initPassword)
+	initPassSecret := &v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "llmos-bootstrap-passwd",
+			Namespace: constant.SystemNamespaceName,
+		},
+		Data: map[string][]byte{
+			"password": []byte(initPassword),
+		},
+	}
+
+	err = mgmt.Apply.WithDynamicLookup().WithSetID("apply-admin-init-password").ApplyObjects(initPassSecret)
+	if err != nil {
+		return fmt.Errorf("failed to create init password secret: %v", err)
+	}
+
+	hash, err := tokens.HashPassword(initPassword)
+	if err != nil {
+		return fmt.Errorf("failed to hash init password: %v", err)
 	}
 
 	user := &mgmtv1.User{
