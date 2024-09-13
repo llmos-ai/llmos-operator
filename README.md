@@ -3,9 +3,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/llmos-ai/llmos-operator)](https://goreportcard.com/report/github.com/llmos-ai/llmos-operator)
 [![Releases](https://img.shields.io/github/release/llmos-ai/llmos-operator.svg)](https://github.com/llmos-ai/llmos-operator/releases)
 
-LLMOS-Operator is a Kubernetes controller that helps to manage the lifecycle and system components of the [LLMOS](https://github.com/llmos-ai/llmos).
-
 ## Description
+LLMOS-Operator is a Kubernetes controller that helps to manage the lifecycle and system components of the [LLMOS](https://github.com/llmos-ai/llmos).
 
 ## Getting Started
 
