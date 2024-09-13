@@ -38,6 +38,11 @@ func constructClusterRoleBinding(rtb *mgmtv1.RoleTemplateBinding, cr *rbacv1.Clu
 }
 
 func constructRole(rtb *mgmtv1.RoleTemplateBinding, rules []rbacv1.PolicyRule, ns string) *rbacv1.Role {
+	roleRules := append(rules, rbacv1.PolicyRule{
+		APIGroups: []string{""},
+		Resources: []string{"namespaces"},
+		Verbs:     []string{"get", "list", "watch"},
+	})
 	return &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GenerateRoleBindingName(rtb),
@@ -51,7 +56,7 @@ func constructRole(rtb *mgmtv1.RoleTemplateBinding, rules []rbacv1.PolicyRule, n
 				*metav1.NewControllerRef(rtb, rtb.GroupVersionKind()),
 			},
 		},
-		Rules: rules,
+		Rules: roleRules,
 	}
 }
 

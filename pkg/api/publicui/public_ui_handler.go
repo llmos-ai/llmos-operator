@@ -20,6 +20,7 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, _ *http.Request) {
 		settings.UIPlSettingName:                  settings.UIPl.Get(),
 		settings.UISourceSettingName:              getUISource(),
 		settings.DefaultNotebookImagesSettingName: settings.DefaultNotebookImages.Get(),
+		settings.FirstLoginSettingName:            settings.FirstLogin.Get(),
 	})
 }
 

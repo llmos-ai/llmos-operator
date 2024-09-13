@@ -98,7 +98,7 @@ func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*v1.StatefulSet
 	}
 
 	if reconcilehelper.CopyStatefulSetFields(ss, foundSs) {
-		logrus.Infof("updating notebook statefulset %s/%s", notebook.Namespace, notebook.Name)
+		logrus.Debugf("updating notebook statefulset %s/%s", notebook.Namespace, notebook.Name)
 		toUpdate := foundSs.DeepCopy()
 		return h.statefulSets.Update(toUpdate)
 	}
@@ -146,7 +146,6 @@ func (h *Handler) updateNotebookStatus(notebook *mlv1.Notebook, ss *v1.StatefulS
 	}
 
 	status := getNotebookStatus(ss, pod)
-	logrus.Debugf("updating notebook %s status, status: %v", notebook.Name, status)
 	if !reflect.DeepEqual(notebook.Status, status) {
 		nbCpy := notebook.DeepCopy()
 		nbCpy.Status = status

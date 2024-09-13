@@ -1,13 +1,13 @@
 module github.com/llmos-ai/llmos-operator
 
-go 1.22.3
+go 1.22.7
 
 replace (
 	github.com/NVIDIA/gpu-operator => github.com/oneblock-ai/gpu-operator v0.0.0-20240110024524-05d6fccdf6c4
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
 	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b
 	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0
-	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240903140330-7d83f8a95d8d
+	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240913011323-7840150bc342
 	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240709071553-8976c195d866
 
 	k8s.io/api => k8s.io/api v0.30.3

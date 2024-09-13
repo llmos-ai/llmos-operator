@@ -53,7 +53,7 @@ func (m *Manager) NewLoginToken(userId string, ttl int64) (*mgmtv1.Token, string
 }
 
 func (m *Manager) NewAPIKeyToken(userId string, ttl int64, token *mgmtv1.Token) (*mgmtv1.Token, string, error) {
-	return m.createToken("token-", userId, token, apiKeyToken, ttl)
+	return m.createToken("llmos-", userId, token, apiKeyToken, ttl)
 }
 
 func (m *Manager) createToken(generateName, userId string, token *mgmtv1.Token, kind tokenKind,

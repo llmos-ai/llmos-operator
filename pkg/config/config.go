@@ -20,6 +20,7 @@ type CommonOptions struct {
 	KubeConfig      string
 	Namespace       string
 	ReleaseName     string
+	InitPassword    string
 }
 
 func InitProfiling(profileAddress string) {
