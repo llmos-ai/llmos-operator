@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rancher/lasso/pkg/controller"
 	"github.com/rancher/wrangler/v3/pkg/generic"
@@ -57,4 +58,8 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, releaseName s
 
 func (m *Management) Start(threadiness int) error {
 	return start.All(m.ctx, threadiness, m.starters...)
+}
+
+func GetWebhookName(releaseName string) string {
+	return fmt.Sprintf("%s-webhook", releaseName)
 }
