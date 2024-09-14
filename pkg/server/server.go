@@ -78,6 +78,11 @@ func NewServer(o Options) (*APIServer, error) {
 		return nil, err
 	}
 
+	// wait for webhooks to be registered before proceeding controller operations
+	if err = WaitingWebhooks(s.ctx, s.mgmt.ClientSet, s.releaseName); err != nil {
+		return nil, err
+	}
+
 	if err = data.Init(s.mgmt); err != nil {
 		return nil, err
 	}

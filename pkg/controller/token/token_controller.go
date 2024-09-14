@@ -77,6 +77,7 @@ func (h *handler) onCleanUpSync(ctx context.Context) {
 				}
 
 				if token.Status.IsExpired || tokens.IsExpired(token) {
+					logrus.Debugf("deleting expired token %s", token.Name)
 					if err := h.tokens.Delete(token.Name, &metav1.DeleteOptions{}); err != nil {
 						logrus.Errorf("failed to delete token %s: %v", token.Name, err)
 					}
