@@ -53,9 +53,7 @@ func (h *handler) setAddonCondStatus(addon *mgmtv1.ManagedAddon, state mgmtv1.Ad
 	case mgmtv1.AddonStateInProgress:
 		// in progress state will be treated as in progress condition
 		mgmtv1.AddonCondInProgress.SetError(addonCpy, reason, err)
-		if err != nil {
-			mgmtv1.AddonCondReady.SetStatusBool(addonCpy, false)
-		}
+		mgmtv1.AddonCondReady.SetStatusBool(addonCpy, false)
 	case mgmtv1.AddonStateComplete, mgmtv1.AddonStateError, mgmtv1.AddonStateFailed:
 		// all other state will be treated as ready condition
 		mgmtv1.AddonCondReady.SetError(addonCpy, reason, err)

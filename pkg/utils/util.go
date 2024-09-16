@@ -36,3 +36,11 @@ func ArrayStringContains(s []string, e string) bool {
 	}
 	return false
 }
+
+func GetImageAndTag(image string) (string, string) {
+	parts := strings.Split(image, ":")
+	if len(parts) != 2 {
+		return "", ""
+	}
+	return parts[0], parts[1]
+}

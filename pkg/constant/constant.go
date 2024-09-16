@@ -15,14 +15,23 @@ const (
 	SUCNamespace            = "system-upgrade"
 	CephClusterName         = "llmos-ceph"
 	AdminRole               = "cluster-admin"
+	NvidiaGPUKey            = "nvidia.com/gpu"
 
 	TimeLayout = time.RFC3339
 
+	KubeNodeRoleLabelPrefix      = "node-role.kubernetes.io/"
+	KubeMasterNodeLabelKey       = KubeNodeRoleLabelPrefix + "master"
+	KubeControlPlaneNodeLabelKey = KubeNodeRoleLabelPrefix + "control-plane"
+	KubeEtcdNodeLabelKey         = KubeNodeRoleLabelPrefix + "etcd"
+
+	LabelAppName    = "app.kubernetes.io/name"
+	LabelAppVersion = "app.kubernetes.io/version"
+
 	LLMOSVersionLabel       = LLMOSPrefix + "/version"
-	LLMOSUpgradeLabel       = LLMOSPrefix + "/upgrade"
+	LLMOSServerVersionLabel = LLMOSPrefix + "/server-version"
 	LLMOSManagedLabel       = LLMOSPrefix + "/managed"
 	ManagedAddonLabel       = LLMOSPrefix + "/managed-addon"
-	ManagedSystemAddonLabel = LLMOSPrefix + "/managed-system-addon"
+	SystemAddonLabel        = LLMOSPrefix + "/system-addon"
 
 	SettingPreConfiguredValueAnno = LLMOSPrefix + "/previous-configured-value"
 	SecretNameRefAnno             = LLMOSPrefix + "/secret-name"

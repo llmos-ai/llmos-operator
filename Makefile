@@ -153,6 +153,18 @@ package-system-charts-repo: ## Package LLMOS system-charts-repo image
 	EXPORT_ENV=true source ./scripts/version && \
 	earthly --push +package-all-system-charts-repo
 
+.PHONY: build-upgrade
+build-upgrade: ## Build upgrade image
+	@echo Building upgrade image
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly -i +build-upgrade
+
+.PHONY: package-upgrade
+package-upgrade: ## Package upgrade image
+	@echo Building upgrade image
+	EXPORT_ENV=true source ./scripts/version && \
+	earthly --push +package-all-upgrade-image
+
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/

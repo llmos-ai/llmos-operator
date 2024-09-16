@@ -50,9 +50,12 @@ Webhook labels
 app.llmos.ai/webhook: "true"
 {{- end }}
 
+{{/*
+System charts labels
+*/}}
 {{- define "llmos-operator.systemChartsLabels" -}}
 {{ include "llmos-operator.labels" . }}
-app.llmos.ai/system-charts-repo: "true"
+app.llmos.ai/system-charts: "true"
 {{- end }}
 
 {{/*
@@ -69,6 +72,14 @@ Webhook selector labels
 {{- define "llmos-operator.webhookSelectorLabels" -}}
 {{ include "llmos-operator.selectorLabels" . }}
 app.llmos.ai/webhook: "true"
+{{- end }}
+
+{{/*
+System charts selector labels
+*/}}
+{{- define "llmos-operator.systemChartsSelectorLabels" -}}
+{{ include "llmos-operator.selectorLabels" . }}
+app.llmos.ai/system-charts: "true"
 {{- end }}
 
 {{/*

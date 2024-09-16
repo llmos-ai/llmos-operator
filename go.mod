@@ -49,6 +49,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.7
+	github.com/hashicorp/go-version v1.7.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/k3s-io/helm-controller v0.16.3
 	github.com/ollama/ollama v0.1.38
@@ -60,7 +61,7 @@ require (
 	github.com/rancher/dynamiclistener v1.27.5
 	github.com/rancher/lasso v0.0.0-20240705194423-b2a060d103c1
 	github.com/rancher/steve v0.0.0-20240731082423-435e220795a3
-	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240308073002-4a643535e6ea
+	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20240829171850-8ccc20735485
 	github.com/rancher/wrangler/v3 v3.0.0
 	github.com/ray-project/kuberay/ray-operator v0.0.0-00010101000000-000000000000
 	github.com/rook/rook/pkg/apis v0.0.0-20231204200402-5287527732f7
@@ -169,7 +170,6 @@ require (
 	github.com/rancher/kubernetes-provider-detector v0.1.5 // indirect
 	github.com/rancher/norman v0.0.0-20240708202514-a0127673d1b9 // indirect
 	github.com/rancher/remotedialer v0.3.2 // indirect
-	github.com/rancher/wrangler v1.1.1-0.20230425173236-39a4707f0689 // indirect
 	github.com/rancher/wrangler/v2 v2.1.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect

@@ -116,6 +116,9 @@ spec:
                   - type
                   type: object
                 type: array
+              jobName:
+                description: The name of the job that was created for this managedAddon.
+                type: string
               ready:
                 description: The number of pods which have a Ready condition.
                 format: int32

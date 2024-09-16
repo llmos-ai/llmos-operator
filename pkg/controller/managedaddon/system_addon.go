@@ -13,6 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 	"github.com/llmos-ai/llmos-operator/pkg/template"
 )
 
@@ -25,6 +27,7 @@ var systemAddonTemplates = []string{
 }
 
 func (h *handler) registerSystemAddons(_ context.Context) error {
+	serverVersion := settings.ServerVersion.Get()
 	for _, fileName := range systemAddonTemplates {
 		template, err := template.Render(template.AddonTemplate, fileName, nil)
 		if err != nil {
@@ -46,7 +49,12 @@ func (h *handler) registerSystemAddons(_ context.Context) error {
 			return fmt.Errorf("addon name %s is not equal to file name %s", addonTemplate.Name, fileName)
 		}
 
-		if err = h.createOrUpdateAddon(addonTemplate); err != nil {
+		if addonTemplate.Labels == nil {
+			addonTemplate.Labels = make(map[string]string)
+		}
+		addonTemplate.Labels[constant.LLMOSServerVersionLabel] = serverVersion
+
+		if _, err = h.createOrUpdateAddon(addonTemplate, serverVersion); err != nil {
 			return err
 		}
 	}
@@ -54,29 +62,25 @@ func (h *handler) registerSystemAddons(_ context.Context) error {
 	return nil
 }
 
-func (h *handler) createOrUpdateAddon(addonTemplate *mgmtv1.ManagedAddon) error {
-	addon, err := h.managedAddons.Get(addonTemplate.Namespace, addonTemplate.Name, metav1.GetOptions{})
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			if _, err = h.managedAddons.Create(addonTemplate); err != nil {
-				return fmt.Errorf("failed to create addon %s/%s, error: %s",
-					addonTemplate.Namespace, addonTemplate.Name, err.Error())
-			}
-			return nil
-		}
-		return fmt.Errorf("failed to get addon %s/%s, error: %s", addon.Namespace, addon.Name, err.Error())
+func (h *handler) createOrUpdateAddon(addonTemplate *mgmtv1.ManagedAddon,
+	serverVersion string) (*mgmtv1.ManagedAddon, error) {
+	addon, err := h.managedAddon.Get(addonTemplate.Namespace, addonTemplate.Name, metav1.GetOptions{})
+	if err != nil && apierrors.IsNotFound(err) {
+		return h.managedAddons.Create(addonTemplate)
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get addon %s/%s, error: %s",
+			addonTemplate.Namespace, addonTemplate.Name, err.Error())
 	}
 
 	logrus.Tracef("addon %s/%s already exists, %+v", addon.Namespace, addon.Name, addon)
-	if !reflect.DeepEqual(addon.Spec, addonTemplate.Spec) {
+	if !reflect.DeepEqual(addon.Spec, addonTemplate.Spec) ||
+		addon.Labels[constant.LLMOSServerVersionLabel] != serverVersion {
 		addonCpy := addon.DeepCopy()
 		addonCpy.Spec = addonTemplate.Spec
+		addonCpy.Labels[constant.LLMOSServerVersionLabel] = serverVersion
 		logrus.Debugf("addon %s/%s spec is not equal, update it", addonCpy.Name, addonCpy.Namespace)
-		if _, err = h.managedAddons.Update(addonCpy); err != nil {
-			return fmt.Errorf("failed to update addon %s/%s, error: %s",
-				addonCpy.Namespace, addonCpy.Name, err.Error())
-		}
+		return h.managedAddons.Update(addonCpy)
 	}
 
-	return nil
+	return nil, nil
 }

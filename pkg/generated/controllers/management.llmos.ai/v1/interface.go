@@ -38,6 +38,7 @@ type Interface interface {
 	Token() TokenController
 	Upgrade() UpgradeController
 	User() UserController
+	Version() VersionController
 }
 
 func New(controllerFactory controller.SharedControllerFactory) Interface {
@@ -75,9 +76,13 @@ func (v *version) Token() TokenController {
 }
 
 func (v *version) Upgrade() UpgradeController {
-	return generic.NewController[*v1.Upgrade, *v1.UpgradeList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Upgrade"}, "upgrades", true, v.controllerFactory)
+	return generic.NewNonNamespacedController[*v1.Upgrade, *v1.UpgradeList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Upgrade"}, "upgrades", v.controllerFactory)
 }
 
 func (v *version) User() UserController {
 	return generic.NewNonNamespacedController[*v1.User, *v1.UserList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "User"}, "users", v.controllerFactory)
+}
+
+func (v *version) Version() VersionController {
+	return generic.NewNonNamespacedController[*v1.Version, *v1.VersionList](schema.GroupVersionKind{Group: "management.llmos.ai", Version: "v1", Kind: "Version"}, "versions", v.controllerFactory)
 }

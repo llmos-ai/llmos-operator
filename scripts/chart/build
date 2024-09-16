@@ -4,12 +4,13 @@ set -e
 echo "--- Starting the build process for llmos-operator charts ---"
 
 TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
+LLMOS_CHARTS_DIR=${LLMOS_CHARTS_DIR:-deploy/charts}
 CHART_REPO=${CHART_REPO:-dev}
 
 cd "${TOP_DIR}"
 . ./scripts/version
 
-CHART_DIST_DIR=dist/charts
+CHART_DIST_DIR=${CHART_DIST_DIR:-dist/llmos-charts}
 ## create dist dir if not exist
 if [ ! -d "${CHART_DIST_DIR}" ]; then
   mkdir -p "dist"
@@ -18,7 +19,7 @@ else
 fi
 
 
-cp -rf "${1}" "${CHART_DIST_DIR}"
+cp -rf "${LLMOS_CHARTS_DIR}" "${CHART_DIST_DIR}"
 
 function updateImageConfig() {
     # Update pullPolicy to IfNotPresent
@@ -80,12 +81,7 @@ patchChartVersion
 updateImageConfig "${llmos_operator_chart_path}"
 cd "${TOP_DIR}"
 
-echo "Check helm exist"
-# Check for helm
-if [ -z "$(type -p helm)" ]; then
-    echo "helm not found. Helm is required to run tests."
-    exit 1
-fi
+./scripts/chart/check "${LLMOS_CHARTS_DIR}"
 
 helm lint "${llmos_crd_chart_path}"
 helm lint "${llmos_operator_chart_path}"

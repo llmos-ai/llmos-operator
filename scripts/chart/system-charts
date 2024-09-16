@@ -3,56 +3,39 @@ set -e
 
 echo "--- Starting the build process for system charts ---"
 
-
 TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
-SYSTEM_CHARTS_DIR=${CHARTS_FILE:-deploy/charts/system-charts}
+SYSTEM_CHARTS_DIR=${SYSTEM_CHARTS_DIR:-deploy/charts/system-charts/charts}
 
 cd "${TOP_DIR}"
 
 # Source the version script
 . ./scripts/version
 
-DIST_DIR=dist/system-charts
-## create dist dir if not exist
-if [ ! -d "${DIST_DIR}" ]; then
-  echo "Creating distribution directory at ${DIST_DIR}"
-  mkdir -p ${DIST_DIR}
-else
-  rm -rf "${DIST_DIR}"/*
+CHART_DIST_DIR=${CHART_DIST_DIR:-dist/system-charts}
+## check if dist dir exist
+if [ ! -d "${CHART_DIST_DIR}" ]; then
+  echo "Directory ${CHART_DIST_DIR} is not exist"
+  exit 1
 fi
 
-echo "check helm exist"
-# Check for helm
-if ! command -v helm &> /dev/null; then
-    echo "Helm not found. Helm is required to run tests."
-    exit 1
-fi
+./scripts/chart/check "${SYSTEM_CHARTS_DIR}"
 
-# Check if the system charts directory exists
-if [ ! -d "${SYSTEM_CHARTS_DIR}" ]; then
-    echo "System charts directory does not exist at ${SYSTEM_CHARTS_DIR}"
-    exit 1
-fi
+echo "packaging system charts in ${CHART_DIST_DIR}"
 
-
-echo "packaging system charts in ${SYSTEM_CHARTS_DIR}"
-cd "${TOP_DIR}/${SYSTEM_CHARTS_DIR}"
+cp -rf "${SYSTEM_CHARTS_DIR}"/* "${CHART_DIST_DIR}/"
 
 # Lint the charts
 echo "Linting Helm charts..."
-if [ -e "charts/index.yaml" ]; then
-  rm -f "charts/index.yaml"
+if [ -e "${CHART_DIST_DIR}/index.yaml" ]; then
+  rm -f "${CHART_DIST_DIR}/index.yaml"
 fi
-helm lint charts/*
 
-# Build the Helm repository index
+helm lint "${CHART_DIST_DIR}"/*
+
+## Build the Helm repository index
 echo "Building helm repo index.yaml"
-helm repo index charts
-cat charts/index.yaml || true
+helm repo index "${CHART_DIST_DIR}"
+cat "${CHART_DIST_DIR}"/index.yaml || true
 
-# Copy charts to the distribution directory
-cd "${TOP_DIR}"
-cp -rf "${SYSTEM_CHARTS_DIR}"/charts/* ${DIST_DIR}
-rm -f "${SYSTEM_CHARTS_DIR}"/charts/index.yaml
 
 echo "Build system-charts repo completed successfully."

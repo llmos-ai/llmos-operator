@@ -25,14 +25,24 @@ import (
 )
 
 var (
+	// UpgradeCompleted is true when the upgrade is completion
 	UpgradeCompleted condition.Cond = "Completed"
+	// UpgradeChartsRepoReady is true when the upgrade chart repo is ready
+	UpgradeChartsRepoReady condition.Cond = "ChartsRepoReady"
+	// ManifestUpgradeComplete is true when the llmos-operator charts is upgraded
+	ManifestUpgradeComplete condition.Cond = "ManifestUpgradeComplete"
+	// ManagedAddonsIsReady is true when all the activated managed-addons are upgraded
+	ManagedAddonsIsReady condition.Cond = "ManagedAddonsIsReady"
+	// NodesUpgraded is true when all nodes are upgraded
+	NodesUpgraded condition.Cond = "NodesUpgraded"
 )
 
 // +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +genclient:nonNamespaced
+// +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=`.spec.version`
-// +kubebuilder:printcolumn:name="Image",type="string",JSONPath=`.spec.image`
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // Upgrade is the Schema for the upgrades API
 type Upgrade struct {
@@ -45,26 +55,46 @@ type Upgrade struct {
 
 // UpgradeSpec defines the desired state of Upgrade
 type UpgradeSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 	// +kubebuilder:validation:Required
-	Version                  string `json:"version"`
-	*upgradev1.ContainerSpec `json:",omitempty"`
-	Drain                    *upgradev1.DrainSpec `json:"drain,omitempty"`
+	// The LLMOS Operator version to upgrade to
+	Version string `json:"version"`
+
+	// +Optional, Specify the Kubernetes version to upgrade to
+	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
+
+	// +Optional, override the default image registry if provided
+	Registry string `json:"registry,omitempty"`
+
+	// +Optional, Specify the drain spec
+	Drain *upgradev1.DrainSpec `json:"drain,omitempty"`
 }
 
 // UpgradeStatus defines the observed state of Upgrade
 type UpgradeStatus struct {
 	// +optional
-	PreviousVersion string `json:"previousVersion,omitempty"`
-	// +optional
-	ImageID string `json:"imageID,omitempty"`
-	// +optional
-	NodeStatuses map[string]NodeUpgradeStatus `json:"nodeStatuses,omitempty"`
-	// +optional
 	Conditions []common.Condition `json:"conditions,omitempty"`
+	// +optional, a map of node name to upgrade status
+	NodeStatuses map[string]NodeUpgradeStatus `json:"nodeStatuses,omitempty"`
+	// +optional, previous llmos version
+	PreviousVersion string `json:"previousVersion,omitempty"`
+	// +optional, previous Kubernetes version
+	PreviousKubernetesVersion string `json:"PreviousKubernetesVersion,omitempty"`
+	// +optional, Node image used for upgrade
+	NodeImageId string `json:"nodeImageId,omitempty"`
 	// +optional
-	PlanStatus upgradev1.PlanStatus `json:"planStatus,omitempty"`
+	State string `json:"state,omitempty"`
+	// +optional, save the applied version
+	AppliedVersion string `json:"appliedVersion,omitempty"`
+	// +optional, a list of upgrade jobs that are required to be completed before the upgrade can be ready
+	UpgradeJobs []UpgradeJobStatus `json:"upgradeJobs,omitempty"`
+	// +optional, a map of plan name to upgrade status
+	PlanStatus []UpgradePlanStatus `json:"planStatus,omitempty"`
+	// +optional, a list of managed addon upgrade status
+	ManagedAddonStatus []UpgradeManagedAddonStatus `json:"managedAddonStatus,omitempty"`
+	// +optional
+	StartTime metav1.Time `json:"startTime,omitempty"`
+	// +optional
+	CompleteTime metav1.Time `json:"completeTime,omitempty"`
 }
 
 type NodeUpgradeStatus struct {
@@ -74,4 +104,27 @@ type NodeUpgradeStatus struct {
 	Reason string `json:"reason,omitempty"`
 	// +optional
 	Message string `json:"message,omitempty"`
+}
+
+type UpgradePlanStatus struct {
+	Name           string      `json:"name"`
+	Complete       bool        `json:"complete"`
+	LatestHash     string      `json:"latestHash,omitempty"`
+	LatestVersion  string      `json:"latestVersion,omitempty"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+}
+
+type UpgradeJobStatus struct {
+	Name           string      `json:"name"`
+	HelmChartName  string      `json:"helmChartName"`
+	Complete       bool        `json:"complete"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+}
+
+type UpgradeManagedAddonStatus struct {
+	Name           string      `json:"name"`
+	JobName        string      `json:"jobName,omitempty"`
+	Complete       bool        `json:"complete"`
+	Disabled       bool        `json:"disabled"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
 }

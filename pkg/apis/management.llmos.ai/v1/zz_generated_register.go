@@ -35,6 +35,7 @@ var (
 	TokenResourceName               = "tokens"
 	UpgradeResourceName             = "upgrades"
 	UserResourceName                = "users"
+	VersionResourceName             = "versions"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -74,6 +75,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&UpgradeList{},
 		&User{},
 		&UserList{},
+		&Version{},
+		&VersionList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

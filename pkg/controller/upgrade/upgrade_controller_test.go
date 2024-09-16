@@ -8,27 +8,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	llmosv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/fake"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/fakeclients"
 )
 
 var newUpgrade = &llmosv1.Upgrade{
 	ObjectMeta: metav1.ObjectMeta{
-		Namespace: "llmos-system",
-		Name:      "new-upgrade",
+		Name: "new-upgrade",
 	},
 	Spec: llmosv1.UpgradeSpec{
-		Version: "v0.1.0",
-		ContainerSpec: &upgradev1.ContainerSpec{
-			Image: "ghcr.io/llmos-ai/llmos-operator",
-			Command: []string{
-				"/usr/sbin/llmos-upgrade",
-			},
-			Args: []string{
-				"--debug", "--force",
-			},
-		},
+		Version: "v0.2.0-rc1",
 	},
 }
 
@@ -94,8 +83,7 @@ func TestHandler_OnUpgradeChanged(t *testing.T) {
 			assert.Nil(t, err, "mock resource should add into fake controller tracker")
 		}
 
-		h := &handler{
-			namespace:     constant.SUCNamespace,
+		h := &upgradeHandler{
 			upgradeClient: fakeclients.UpgradeClient(fakeClient.ManagementV1().Upgrades),
 			upgradeCache:  fakeclients.UpgradeCache(fakeClient.ManagementV1().Upgrades),
 			planClient:    fakeclients.PlanClient(fakeClient.UpgradeV1().Plans),

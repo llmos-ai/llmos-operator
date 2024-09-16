@@ -32,7 +32,7 @@ import (
 // UpgradesGetter has a method to return a UpgradeInterface.
 // A group's client should implement this interface.
 type UpgradesGetter interface {
-	Upgrades(namespace string) UpgradeInterface
+	Upgrades() UpgradeInterface
 }
 
 // UpgradeInterface has methods to work with Upgrade resources.
@@ -52,14 +52,12 @@ type UpgradeInterface interface {
 // upgrades implements UpgradeInterface
 type upgrades struct {
 	client rest.Interface
-	ns     string
 }
 
 // newUpgrades returns a Upgrades
-func newUpgrades(c *ManagementV1Client, namespace string) *upgrades {
+func newUpgrades(c *ManagementV1Client) *upgrades {
 	return &upgrades{
 		client: c.RESTClient(),
-		ns:     namespace,
 	}
 }
 
@@ -67,7 +65,6 @@ func newUpgrades(c *ManagementV1Client, namespace string) *upgrades {
 func (c *upgrades) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Upgrade, err error) {
 	result = &v1.Upgrade{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("upgrades").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -84,7 +81,6 @@ func (c *upgrades) List(ctx context.Context, opts metav1.ListOptions) (result *v
 	}
 	result = &v1.UpgradeList{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("upgrades").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -101,7 +97,6 @@ func (c *upgrades) Watch(ctx context.Context, opts metav1.ListOptions) (watch.In
 	}
 	opts.Watch = true
 	return c.client.Get().
-		Namespace(c.ns).
 		Resource("upgrades").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -112,7 +107,6 @@ func (c *upgrades) Watch(ctx context.Context, opts metav1.ListOptions) (watch.In
 func (c *upgrades) Create(ctx context.Context, upgrade *v1.Upgrade, opts metav1.CreateOptions) (result *v1.Upgrade, err error) {
 	result = &v1.Upgrade{}
 	err = c.client.Post().
-		Namespace(c.ns).
 		Resource("upgrades").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(upgrade).
@@ -125,7 +119,6 @@ func (c *upgrades) Create(ctx context.Context, upgrade *v1.Upgrade, opts metav1.
 func (c *upgrades) Update(ctx context.Context, upgrade *v1.Upgrade, opts metav1.UpdateOptions) (result *v1.Upgrade, err error) {
 	result = &v1.Upgrade{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("upgrades").
 		Name(upgrade.Name).
 		VersionedParams(&opts, scheme.ParameterCodec).
@@ -140,7 +133,6 @@ func (c *upgrades) Update(ctx context.Context, upgrade *v1.Upgrade, opts metav1.
 func (c *upgrades) UpdateStatus(ctx context.Context, upgrade *v1.Upgrade, opts metav1.UpdateOptions) (result *v1.Upgrade, err error) {
 	result = &v1.Upgrade{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("upgrades").
 		Name(upgrade.Name).
 		SubResource("status").
@@ -154,7 +146,6 @@ func (c *upgrades) UpdateStatus(ctx context.Context, upgrade *v1.Upgrade, opts m
 // Delete takes name of the upgrade and deletes it. Returns an error if one occurs.
 func (c *upgrades) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("upgrades").
 		Name(name).
 		Body(&opts).
@@ -169,7 +160,6 @@ func (c *upgrades) DeleteCollection(ctx context.Context, opts metav1.DeleteOptio
 		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("upgrades").
 		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -182,7 +172,6 @@ func (c *upgrades) DeleteCollection(ctx context.Context, opts metav1.DeleteOptio
 func (c *upgrades) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Upgrade, err error) {
 	result = &v1.Upgrade{}
 	err = c.client.Patch(pt).
-		Namespace(c.ns).
 		Resource("upgrades").
 		Name(name).
 		SubResource(subresources...).
