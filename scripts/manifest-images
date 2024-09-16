@@ -31,7 +31,7 @@ if [[ -z "$PUSH_IMAGES" ]]; then
 fi
 
 for i in ${PUSH_IMAGES}; do
-    echo "$i";
+    echo "Pushing image $i";
     docker push "$i"
 done
 

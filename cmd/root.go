@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/llmos-ai/llmos-operator/cmd/apiserver"
+	"github.com/llmos-ai/llmos-operator/cmd/version"
 	wServer "github.com/llmos-ai/llmos-operator/cmd/webhook"
 	"github.com/llmos-ai/llmos-operator/pkg/config"
 )
@@ -35,6 +36,7 @@ func New() *cobra.Command {
 	rootCmd.AddCommand(
 		apiserver.NewAPIServer(),
 		wServer.NewWebhookServer(),
+		version.NewVersion(),
 	)
 	rootCmd.SilenceUsage = true
 	rootCmd.InitDefaultHelpCmd()

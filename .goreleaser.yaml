@@ -24,6 +24,7 @@ builds:
       - CGO_ENABLED=0
       - VERSION={{ .Env.VERSION }}
       - COMMIT={{ .Env.COMMIT }}
+      - DATE={{ .Date }}
     goos:
       - linux
       - darwin
@@ -35,8 +36,8 @@ builds:
     ldflags:
       - -s
       - -w
-      - -X "github.com/llmos-ai/llmos-operator/version/version.Version={{ .Env.VERSION }}"
-      - -X "github.com/llmos-ai/llmos-operator/version/version.Commit={{ .Env.COMMIT }}"
+      - -X "github.com/llmos-ai/llmos-operator/pkg/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos-operator/pkg/version.Commit={{ .Env.COMMIT }}"
 
 changelog:
   use: github
@@ -57,6 +58,8 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -77,6 +80,8 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -97,6 +102,8 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -117,6 +124,8 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"

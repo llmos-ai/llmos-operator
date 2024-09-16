@@ -16,7 +16,7 @@ permissions:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
-  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY || 'docker.io/llmosai' }}
+  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY || 'docker.io/llmos' }}
   S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
 
 jobs:

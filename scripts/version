@@ -43,7 +43,7 @@ fi
 # image registry repo & tag
 TAG=${TAG:-${VERSION}}
 REGISTRY=${REGISTRY:-ghcr.io/llmos-ai}
-DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmosai}
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmos}
 REPO=llmos-operator
 
 if echo "$TAG" | grep -q dirty || [[ -z $GIT_TAG ]];  then

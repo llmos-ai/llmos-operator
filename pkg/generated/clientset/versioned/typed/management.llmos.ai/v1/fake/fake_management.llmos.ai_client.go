@@ -51,12 +51,16 @@ func (c *FakeManagementV1) Tokens() v1.TokenInterface {
 	return &FakeTokens{c}
 }
 
-func (c *FakeManagementV1) Upgrades(namespace string) v1.UpgradeInterface {
-	return &FakeUpgrades{c, namespace}
+func (c *FakeManagementV1) Upgrades() v1.UpgradeInterface {
+	return &FakeUpgrades{c}
 }
 
 func (c *FakeManagementV1) Users() v1.UserInterface {
 	return &FakeUsers{c}
+}
+
+func (c *FakeManagementV1) Versions() v1.VersionInterface {
+	return &FakeVersions{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

@@ -10,7 +10,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "llmos-operator.systemChartsLabels" . | nindent 6 }}
+      {{- include "llmos-operator.systemChartsSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:

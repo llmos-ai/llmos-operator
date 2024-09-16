@@ -35,17 +35,17 @@ import (
 
 // UpgradeController interface for managing Upgrade resources.
 type UpgradeController interface {
-	generic.ControllerInterface[*v1.Upgrade, *v1.UpgradeList]
+	generic.NonNamespacedControllerInterface[*v1.Upgrade, *v1.UpgradeList]
 }
 
 // UpgradeClient interface for managing Upgrade resources in Kubernetes.
 type UpgradeClient interface {
-	generic.ClientInterface[*v1.Upgrade, *v1.UpgradeList]
+	generic.NonNamespacedClientInterface[*v1.Upgrade, *v1.UpgradeList]
 }
 
 // UpgradeCache interface for retrieving Upgrade resources in memory.
 type UpgradeCache interface {
-	generic.CacheInterface[*v1.Upgrade]
+	generic.NonNamespacedCacheInterface[*v1.Upgrade]
 }
 
 // UpgradeStatusHandler is executed for every added or modified Upgrade. Should return the new status to be updated

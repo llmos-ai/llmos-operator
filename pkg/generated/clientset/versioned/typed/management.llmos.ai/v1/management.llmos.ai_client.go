@@ -35,6 +35,7 @@ type ManagementV1Interface interface {
 	TokensGetter
 	UpgradesGetter
 	UsersGetter
+	VersionsGetter
 }
 
 // ManagementV1Client is used to interact with features provided by the management.llmos.ai group.
@@ -66,12 +67,16 @@ func (c *ManagementV1Client) Tokens() TokenInterface {
 	return newTokens(c)
 }
 
-func (c *ManagementV1Client) Upgrades(namespace string) UpgradeInterface {
-	return newUpgrades(c, namespace)
+func (c *ManagementV1Client) Upgrades() UpgradeInterface {
+	return newUpgrades(c)
 }
 
 func (c *ManagementV1Client) Users() UserInterface {
 	return newUsers(c)
+}
+
+func (c *ManagementV1Client) Versions() VersionInterface {
+	return newVersions(c)
 }
 
 // NewForConfig creates a new ManagementV1Client for the given config.

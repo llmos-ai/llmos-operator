@@ -32,3 +32,5 @@ type TokenExpansion interface{}
 type UpgradeExpansion interface{}
 
 type UserExpansion interface{}
+
+type VersionExpansion interface{}

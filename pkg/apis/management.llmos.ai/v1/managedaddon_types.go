@@ -82,4 +82,7 @@ type ManagedAddonStatus struct {
 	// The value is zero for finished jobs.
 	// +optional
 	Active int32 `json:"active,omitempty"`
+
+	// The name of the job that was created for this managedAddon.
+	JobName string `json:"jobName,omitempty"`
 }

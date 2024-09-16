@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+echo "--- Run Chart Validation ---"
+
+echo "check helm exist"
+# Check for helm
+if ! command -v helm &> /dev/null; then
+    echo "Helm not found. Helm is required to run tests."
+    exit 1
+fi
+
+# Check if the charts directory exists
+if [ ! -d "${1}" ]; then
+    echo "Charts directory ${SYSTEM_CHARTS_DIR} does not exist."
+    exit 1
+fi
+
