@@ -119,6 +119,10 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	EXPORT_ENV=true source ./scripts/version && \
 	goreleaser release --snapshot --clean $(VERBOSE)
 
+.PHONY: package-operator
+package-operator: docker-manifest docker-manifest-webhook ## Package multi-arch images for llmos-operator and webhook
+	@echo Build & pushed llmos-operator && webhook images
+
 .PHONY: build-installer
 build-installer: ## Build installer artifacts (i.e., operator charts & index.yaml)
 	@echo Building llmos system-installer assets
