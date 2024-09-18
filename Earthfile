@@ -10,6 +10,7 @@ ARG --global REGISTRY=
 ARG --global DOCKER_REGISTRY=
 ARG --global TAG=
 ARG --global VERSION=
+ARG --global CHART_VERSION=
 ARG --global HELM_VERSION=v3.15.3
 ARG --global AWS_ACCESS_KEY_ID=
 ARG --global AWS_SECRET_ACCESS_KEY=
@@ -43,13 +44,16 @@ build-installer:
     COPY . .
     RUN ./scripts/ci
     RUN cp /usr/bin/helm dist/helm
+    COPY package/installer-run.sh dist/run.sh
+    RUN sed -i "s/\${CHART_VERSION}/$CHART_VERSION/g" dist/run.sh
+    RUN cat dist/run.sh
     SAVE ARTIFACT dist AS LOCAL dist/charts
 
 package-installer:
     FROM scratch
     COPY +build-installer/dist/helm /
     COPY +build-installer/dist/charts/*.tgz /
-    COPY package/installer-run.sh /run.sh
+    COPY +build-installer/dist/run.sh /run.sh
     SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG}
 
 build-system-charts:

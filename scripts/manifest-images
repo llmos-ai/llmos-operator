@@ -22,7 +22,7 @@ else
 fi
 
 # Get the list of images to push
-PUSH_IMAGES=$( docker images --format "{{.Repository}}:{{.Tag}}" | grep "${IMAGE_REPO}:${VERSION}" )
+PUSH_IMAGES=$( docker images --format "{{.Repository}}:{{.Tag}}" | grep "/${IMAGE_REPO}:${VERSION}" )
 
 # Check if any images matched
 if [[ -z "$PUSH_IMAGES" ]]; then
