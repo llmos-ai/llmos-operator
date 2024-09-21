@@ -3,5 +3,5 @@ set -e
 
 cd $(dirname $0)
 
-./build deploy/charts
+./build
 ./upload

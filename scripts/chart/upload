@@ -15,7 +15,7 @@ TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
 cd "${TOP_DIR}"
 . ./scripts/version
 
-CHART_DIST_DIR=${CHART_DIST_DIR:-dist/charts}
+CHART_DIST_DIR=${CHART_DIST_DIR:-dist/llmos-charts}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
 AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}

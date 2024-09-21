@@ -55,7 +55,7 @@ System charts labels
 */}}
 {{- define "llmos-operator.systemChartsLabels" -}}
 {{ include "llmos-operator.labels" . }}
-app.llmos.ai/system-charts: "true"
+app.llmos.ai/system-charts-repo: "true"
 {{- end }}
 
 {{/*
@@ -79,7 +79,7 @@ System charts selector labels
 */}}
 {{- define "llmos-operator.systemChartsSelectorLabels" -}}
 {{ include "llmos-operator.selectorLabels" . }}
-app.llmos.ai/system-charts: "true"
+app.llmos.ai/system-charts-repo: "true"
 {{- end }}
 
 {{/*

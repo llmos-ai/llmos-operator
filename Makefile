@@ -104,10 +104,10 @@ test-e2e:
 
 ##@ Build
 .PHONY: build
-build: lint test build-operator build-system-charts build-installer ## Run all llmos-operator builds
+build: lint test build-operator build-system-charts build-installer build-upgrade ## Run all llmos-operator builds
 
 .PHONY: release
-release: lint test release-operator package-system-charts-repo package-installer ## Run all llmos-operator builds
+release: lint test release-operator package-system-charts-repo package-installer package-upgrade ## Run all llmos-operator builds
 
 .PHONY: release-operator
 release-operator: ## release llmos-operator using goreleaser.
@@ -157,10 +157,10 @@ package-system-charts-repo: ## Package LLMOS system-charts-repo image
 build-upgrade: ## Build upgrade image
 	@echo Building upgrade image
 	EXPORT_ENV=true source ./scripts/version && \
-	earthly -i +build-upgrade
+	earthly +build-upgrade
 
 .PHONY: package-upgrade
-package-upgrade: ## Package upgrade image
+package-upgrade: ## Package multi-arch upgrade manifest
 	@echo Building upgrade image
 	EXPORT_ENV=true source ./scripts/version && \
 	earthly --push +package-all-upgrade-image
