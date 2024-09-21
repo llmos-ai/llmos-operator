@@ -46,3 +46,5 @@ jobs:
       run: make build-installer
       env:
         UPLOAD_CHARTS: "false"
+    - name: Run build node-upgrade image
+      run: make build-upgrade

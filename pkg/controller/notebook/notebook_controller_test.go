@@ -1,7 +1,6 @@
 package notebook
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -110,7 +109,6 @@ func TestHandler_OnNotebookChanged(t *testing.T) {
 		}
 		var actual output
 		actual.Notebook, actual.err = h.OnChanged(tc.given.key, tc.given.Notebook)
-		fmt.Println(actual.Notebook)
 		assert.Equal(t, tc.expected, actual, "case %q", tc.name)
 	}
 }

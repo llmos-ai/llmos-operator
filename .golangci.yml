@@ -31,6 +31,9 @@ issues:
       linters:
         - dupl
         - lll
+    - path: "^*_test.go"
+      linters:
+        - lll
 linters:
   disable-all: true
   enable:

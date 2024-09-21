@@ -59,25 +59,23 @@ func (u PlanCache) Get(namespace string, name string) (*upgradev1.Plan, error) {
 }
 
 func (u PlanCache) List(namespace string, selector labels.Selector) ([]*upgradev1.Plan, error) {
-	pods, err := u(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: selector.String()})
+	list, err := u(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: selector.String()})
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]*upgradev1.Plan, 0, len(pods.Items))
-	for _, pod := range pods.Items {
-		obj := pod
+	result := make([]*upgradev1.Plan, 0, len(list.Items))
+	for _, item := range list.Items {
+		obj := item
 		result = append(result, &obj)
 	}
 	return result, nil
 }
 
 func (u PlanCache) AddIndexer(_ string, _ generic.Indexer[*upgradev1.Plan]) {
-	//TODO implement me
 	panic("implement me")
 }
 
 func (u PlanCache) GetByIndex(_ string, _ string) ([]*upgradev1.Plan, error) {
-	//TODO implement me
 	panic("implement me")
 }
