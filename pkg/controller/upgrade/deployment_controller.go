@@ -39,7 +39,7 @@ func (h *deploymentHandler) watchDeployment(_ string, deployment *appsv1.Deploym
 	// Skip upgrade sync if:
 	// 1. deployment is not ready
 	// 2. deployment is not an upgrade repo and not an operator manifest
-	if !isDeploymentReady(deployment) || (component == "" && appName != h.releaseName) {
+	if !DeploymentIsReady(deployment) || (component == "" && appName != h.releaseName) {
 		return deployment, nil
 	}
 
@@ -98,7 +98,7 @@ func (h *deploymentHandler) syncManifestUpgrade(deployment *appsv1.Deployment, u
 
 	chartVersion := deployment.Labels[constant.LabelAppVersion]
 	for _, manifestDeployment := range manifestDeployments {
-		if !isDeploymentReady(manifestDeployment) {
+		if !DeploymentIsReady(manifestDeployment) {
 			return nil
 		}
 		if !isLatestChartVersion(chartVersion, upgrade.Spec.Version) {
@@ -113,7 +113,7 @@ func (h *deploymentHandler) syncManifestUpgrade(deployment *appsv1.Deployment, u
 	return nil
 }
 
-func isDeploymentReady(deployment *appsv1.Deployment) bool {
+func DeploymentIsReady(deployment *appsv1.Deployment) bool {
 	return deployment.Status.ReadyReplicas == *deployment.Spec.Replicas
 }
 

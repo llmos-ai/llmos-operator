@@ -11,6 +11,7 @@ import (
 	wconfig "github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/user"
 )
 
@@ -19,6 +20,7 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		user.NewValidator(mgmt),
 		raycluster.NewValidator(mgmt),
 		notebook.NewValidator(),
+		upgrade.NewValidator(mgmt),
 	}
 
 	mutators = []admission.Mutator{

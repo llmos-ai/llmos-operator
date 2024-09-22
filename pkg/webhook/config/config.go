@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"github.com/rancher/lasso/pkg/controller"
+	appsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps"
+	corev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core"
 	"github.com/rancher/wrangler/v3/pkg/generic"
 	"github.com/rancher/wrangler/v3/pkg/start"
 	"k8s.io/client-go/rest"
 
+	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io"
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
@@ -20,7 +23,10 @@ type Management struct {
 	RestConfig  *rest.Config
 
 	MgmtFactory *mgmtv1.Factory
+	CoreFactory *corev1.Factory
+	AppsFactory *appsv1.Factory
 	RayFactory  *rayv1.Factory
+	HelmFactory *helmv1.Factory
 	starters    []start.Starter
 }
 
@@ -46,12 +52,33 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, releaseName s
 	}
 	mgmt.starters = append(mgmt.starters, mgmt.MgmtFactory)
 
+	core, err := corev1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.CoreFactory = core
+	mgmt.starters = append(mgmt.starters, core)
+
+	apps, err := appsv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.AppsFactory = apps
+	mgmt.starters = append(mgmt.starters, apps)
+
 	kuberay, err := rayv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
 	if err != nil {
 		return nil, err
 	}
 	mgmt.RayFactory = kuberay
 	mgmt.starters = append(mgmt.starters, kuberay)
+
+	helm, err := helmv1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.HelmFactory = helm
+	mgmt.starters = append(mgmt.starters, helm)
 
 	return mgmt, nil
 }

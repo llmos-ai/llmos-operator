@@ -50,6 +50,7 @@ const (
 	AnnotationResourceStopped          = LLMOSPrefix + "/resource-stopped"
 	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volume-claim-templates"
 	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8s-provider"
+	AnnotationSkipWebhook              = LLMOSPrefix + "/skip-webhook"
 
 	AnnotationAddRookCephRbac           = LLMOSPrefix + "/add-ceph-cluster-rbac"
 	AnnotationAddedRookCephRbac         = LLMOSPrefix + "/added-ceph-cluster-rbac"
