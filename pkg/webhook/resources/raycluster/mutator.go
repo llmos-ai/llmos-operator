@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
-	clusterctl "github.com/llmos-ai/llmos-operator/pkg/controller/raycluster"
+	clusterctl "github.com/llmos-ai/llmos-operator/pkg/controller/master/raycluster"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 )
 

@@ -4,133 +4,165 @@ import (
 	"context"
 
 	dlserver "github.com/rancher/dynamiclistener/server"
+	"github.com/rancher/lasso/pkg/controller"
+	"github.com/rancher/steve/pkg/accesscontrol"
 	steve "github.com/rancher/steve/pkg/server"
+	"github.com/rancher/wrangler/v3/pkg/generic"
 	"github.com/rancher/wrangler/v3/pkg/k8scheck"
 	"github.com/rancher/wrangler/v3/pkg/ratelimit"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"github.com/llmos-ai/llmos-operator/pkg/api"
 	"github.com/llmos-ai/llmos-operator/pkg/auth"
-	"github.com/llmos-ai/llmos-operator/pkg/config"
-	"github.com/llmos-ai/llmos-operator/pkg/controller"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/global"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master"
 	"github.com/llmos-ai/llmos-operator/pkg/data"
+	"github.com/llmos-ai/llmos-operator/pkg/indexeres"
 	sconfig "github.com/llmos-ai/llmos-operator/pkg/server/config"
 	"github.com/llmos-ai/llmos-operator/pkg/server/ui"
 )
 
 type APIServer struct {
-	ctx             context.Context
-	kubeconfig      string
-	httpListenPort  int
-	httpsListenPort int
-	threadiness     int
-	namespace       string
-	releaseName     string
-	skipAuth        bool
-
-	mgmt        *sconfig.Management
-	steveServer *steve.Server
-	restConfig  *rest.Config
+	ctx            context.Context
+	clientSet      *kubernetes.Clientset
+	scaled         *sconfig.Scaled
+	steveServer    *steve.Server
+	controllers    *steve.Controllers
+	restConfig     *rest.Config
+	startHooks     []StartHook
+	postStartHooks []PostStartHook
 }
 
-// Options define the api server options
-type Options struct {
-	Context         context.Context
-	HTTPListenPort  int
-	HTTPSListenPort int
-	Threadiness     int
-	SkipAuth        bool
+type StartHook func(context.Context, *steve.Controllers, sconfig.Options) error
+type PostStartHook func(int) error
 
-	config.CommonOptions
-}
-
-func NewServer(o Options) (*APIServer, error) {
+func NewServer(opts sconfig.Options) (*APIServer, error) {
 	s := &APIServer{
-		ctx:             o.Context,
-		kubeconfig:      o.KubeConfig,
-		httpListenPort:  o.HTTPListenPort,
-		httpsListenPort: o.HTTPSListenPort,
-		threadiness:     o.Threadiness,
-		namespace:       o.Namespace,
-		skipAuth:        o.SkipAuth,
-		releaseName:     o.ReleaseName,
+		ctx: opts.Context,
 	}
 
-	clientConfig, err := GetConfig(s.kubeconfig)
+	var err error
+	kubeConfig, err := GetConfig(opts.KubeConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	restConfig, err := clientConfig.ClientConfig()
+	s.restConfig, err = kubeConfig.ClientConfig()
 	if err != nil {
 		return nil, err
 	}
-	restConfig.RateLimiter = ratelimit.None
-	s.restConfig = restConfig
+	s.restConfig.RateLimiter = ratelimit.None
 
-	err = k8scheck.Wait(s.ctx, *restConfig)
-	if err != nil {
+	// Wait for k8s to be ready first
+	if err = k8scheck.Wait(s.ctx, *s.restConfig); err != nil {
 		return nil, err
 	}
 
-	serverOptions, err := s.setDefaults(restConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	// wait for webhooks to be registered before proceeding controller operations
-	if err = WaitingWebhooks(s.ctx, s.mgmt.ClientSet, s.releaseName); err != nil {
-		return nil, err
-	}
-
-	if err = data.Init(s.mgmt); err != nil {
-		return nil, err
-	}
-
-	// register the controller
-	if err = controller.Register(s.ctx, s.mgmt, s.threadiness); err != nil {
-		return nil, err
-	}
-
-	// set up a new api server
-	s.steveServer, err = steve.New(o.Context, restConfig, serverOptions)
+	s.clientSet, err = kubernetes.NewForConfig(s.restConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	// configure the api ui
+	if err = s.setDefaults(opts); err != nil {
+		return nil, err
+	}
+
+	// Configure the api ui
 	ui.ConfigureAPIUI(s.steveServer.APIServer)
 
-	// register api schemas
-	if err = api.Register(s.ctx, s.mgmt, s.steveServer); err != nil {
-		return nil, err
+	s.startHooks = []StartHook{
+		indexeres.Register,
+		master.Register,
+		global.Register,
 	}
 
-	return s, nil
+	s.postStartHooks = []PostStartHook{
+		s.scaled.Start,
+	}
+
+	return s, s.start(opts)
 }
 
-func (s *APIServer) setDefaults(cfg *rest.Config) (*steve.Options, error) {
+func (s *APIServer) start(opts sconfig.Options) error {
 	var err error
-	opts := &steve.Options{}
-
-	// set up the management config
-	s.mgmt, err = sconfig.SetupManagement(s.ctx, cfg, s.namespace, s.releaseName)
-	if err != nil {
-		return nil, err
+	for _, hook := range s.startHooks {
+		if err = hook(s.ctx, s.controllers, opts); err != nil {
+			return err
+		}
 	}
 
-	// define the next handler after the mgmt is set up
-	r := NewRouter(s.mgmt)
-	opts.Next = r.Routes()
-
-	// define auth middleware
-	if !s.skipAuth {
-		auth := auth.NewMiddleware(s.mgmt)
-		opts.AuthMiddleware = auth.AuthMiddleware
+	// Register api schemas formatter
+	if err = api.Register(s.ctx, s.steveServer); err != nil {
+		return err
 	}
-	return opts, nil
+
+	if err = s.controllers.Start(s.ctx); err != nil {
+		return err
+	}
+
+	for _, hook := range s.postStartHooks {
+		if err = hook(opts.Threadiness); err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }
 
-func (s *APIServer) ListenAndServe(opts *dlserver.ListenOpts) error {
-	return s.steveServer.ListenAndServe(s.ctx, s.httpsListenPort, s.httpListenPort, opts)
+func (s *APIServer) setDefaults(opts sconfig.Options) error {
+	factory, err := controller.NewSharedControllerFactoryFromConfig(s.restConfig, sconfig.Scheme)
+	if err != nil {
+		return err
+	}
+
+	factoryOpts := &generic.FactoryOptions{
+		SharedControllerFactory: factory,
+	}
+
+	// Set up scaled config
+	s.ctx, s.scaled, err = sconfig.SetupScaled(s.ctx, s.restConfig, factoryOpts)
+	if err != nil {
+		return err
+	}
+
+	s.controllers, err = steve.NewController(s.restConfig, factoryOpts)
+	if err != nil {
+		return err
+	}
+
+	asl := accesscontrol.NewAccessStore(s.ctx, true, s.controllers.RBAC)
+
+	// Define the route handler after the scaled is set up
+	r := NewRouter(s.scaled)
+
+	// Define the auth middleware
+	auth := auth.NewMiddleware(s.scaled)
+
+	// Wait for webhooks to be registered before proceeding controller operations
+	if err = WaitingWebhooks(s.ctx, s.clientSet, opts.ReleaseName); err != nil {
+		return err
+	}
+
+	if err = data.Init(s.scaled.Management); err != nil {
+		return err
+	}
+
+	// Set up a new API server
+	s.steveServer, err = steve.New(s.ctx, s.restConfig, &steve.Options{
+		Controllers:     s.controllers,
+		Next:            r.Routes(),
+		AccessSetLookup: asl,
+		AuthMiddleware:  auth.AuthMiddleware,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *APIServer) ListenAndServe(opts sconfig.Options, listenOpts *dlserver.ListenOpts) error {
+	return s.steveServer.ListenAndServe(s.ctx, opts.HTTPSListenPort, opts.HTTPListenPort, listenOpts)
 }

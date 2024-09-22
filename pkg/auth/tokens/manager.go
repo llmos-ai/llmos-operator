@@ -40,8 +40,8 @@ type Manager struct {
 	tokensClient ctlmgmtv1.TokenClient
 }
 
-func NewManager(mgmt *config.Management) *Manager {
-	tokens := mgmt.MgmtFactory.Management().V1().Token()
+func NewManager(scaled *config.Scaled) *Manager {
+	tokens := scaled.MgmtFactory.Management().V1().Token()
 
 	return &Manager{
 		tokensClient: tokens,

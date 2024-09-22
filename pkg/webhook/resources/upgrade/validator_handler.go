@@ -10,7 +10,7 @@ import (
 
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
-	upgrade2 "github.com/llmos-ai/llmos-operator/pkg/controller/upgrade"
+	upgrade2 "github.com/llmos-ai/llmos-operator/pkg/controller/master/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 	werror "github.com/llmos-ai/llmos-operator/pkg/webhook/error"
 )

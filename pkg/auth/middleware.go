@@ -24,9 +24,9 @@ var (
 	ErrMsgEmptyList     = errors.New("empty list")
 )
 
-func NewMiddleware(mgmt *config.Management) *Middleware {
-	users := mgmt.MgmtFactory.Management().V1().User()
-	tokens := mgmt.MgmtFactory.Management().V1().Token()
+func NewMiddleware(scaled *config.Scaled) *Middleware {
+	users := scaled.MgmtFactory.Management().V1().User()
+	tokens := scaled.MgmtFactory.Management().V1().Token()
 	return &Middleware{
 		userClient:  users,
 		userCache:   users.Cache(),

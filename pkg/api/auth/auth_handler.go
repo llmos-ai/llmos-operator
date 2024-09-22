@@ -46,9 +46,9 @@ type Handler struct {
 	middleware *auth.Middleware
 }
 
-func NewAuthHandler(mgmt *config.Management) *Handler {
-	middleware := auth.NewMiddleware(mgmt)
-	manager := tokens.NewManager(mgmt)
+func NewAuthHandler(scaled *config.Scaled) *Handler {
+	middleware := auth.NewMiddleware(scaled)
+	manager := tokens.NewManager(scaled)
 	return &Handler{
 		manager:    manager,
 		middleware: middleware,

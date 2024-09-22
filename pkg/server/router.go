@@ -16,12 +16,12 @@ import (
 )
 
 type Router struct {
-	mgmt *config.Management
+	scaled *config.Scaled
 }
 
-func NewRouter(mgmt *config.Management) *Router {
+func NewRouter(mgmt *config.Scaled) *Router {
 	return &Router{
-		mgmt: mgmt,
+		scaled: mgmt,
 	}
 }
 
@@ -33,7 +33,7 @@ func (r *Router) Routes() http.Handler {
 	m.Use(urlbuilder.RedirectRewrite)
 
 	// public auth handler
-	authHandler := auth.NewAuthHandler(r.mgmt)
+	authHandler := auth.NewAuthHandler(r.scaled)
 	m.Path("/v1-public/auth").Handler(authHandler)
 
 	m.Handle("/", http.RedirectHandler("/dashboard/", http.StatusFound))
@@ -60,7 +60,7 @@ func (r *Router) Routes() http.Handler {
 	publicHandler := publicui.NewPublicHandler()
 	m.Path("/v1-public/ui").Handler(publicHandler)
 
-	clusterInfo := clusterinfo.NewClusterInfo(r.mgmt)
+	clusterInfo := clusterinfo.NewClusterInfo(r.scaled)
 	m.Path("/v1-cluster/readyz").Handler(clusterInfo.ReadyzHandler())
 	m.Path("/v1-cluster/cluster-info").Handler(clusterInfo.ClusterInfo())
 

@@ -15,17 +15,17 @@ import (
 )
 
 type ClusterInfo struct {
-	mgmt *config.Management
+	scaled *config.Scaled
 }
 
-func NewClusterInfo(mgmt *config.Management) ClusterInfo {
+func NewClusterInfo(scaled *config.Scaled) ClusterInfo {
 	return ClusterInfo{
-		mgmt: mgmt,
+		scaled: scaled,
 	}
 }
 
 func (c ClusterInfo) tokenAuthMiddleware(req *http.Request) error {
-	secrets := c.mgmt.CoreFactory.Core().V1().Secret()
+	secrets := c.scaled.CoreFactory.Core().V1().Secret()
 	secret, err := secrets.Get(constant.SystemNamespaceName, "local-k8s-state", metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to get secret: %v", err)
@@ -79,7 +79,7 @@ func (c ClusterInfo) ClusterInfo() http.Handler {
 			return
 		}
 
-		info, err := c.mgmt.ClientSet.ServerVersion()
+		info, err := c.scaled.ClientSet.ServerVersion()
 		if err != nil {
 			utils.ResponseError(rw, http.StatusInternalServerError, err)
 			return

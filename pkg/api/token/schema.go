@@ -38,14 +38,14 @@ func formatter(_ *types.APIRequest, resource *types.RawResource) {
 	delete(resource.Links, "update")
 }
 
-func RegisterSchema(mgmt *config.Management, server *server.Server) error {
-	tokens := mgmt.MgmtFactory.Management().V1().Token()
+func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
+	tokens := scaled.MgmtFactory.Management().V1().Token()
 	h := &handler{
 		httpClient:  http.Client{},
 		tokens:      tokens,
 		tokensCache: tokens.Cache(),
-		manager:     tokens2.NewManager(mgmt),
-		middleware:  auth.NewMiddleware(mgmt),
+		manager:     tokens2.NewManager(scaled),
+		middleware:  auth.NewMiddleware(scaled),
 	}
 
 	t := []schema.Template{
