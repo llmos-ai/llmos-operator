@@ -43,8 +43,8 @@ func Register(ctx context.Context, mgmt *config.Management) error {
 		deploymentCache:  deployments.Cache(),
 		svcClient:        svc,
 		svcCache:         svc.Cache(),
-		discovery:        mgmt.ClientSet.Discovery(),
 		addonCache:       addons.Cache(),
+		discovery:        mgmt.ClientSet.Discovery(),
 		commonHandler:    comHandler,
 	}
 

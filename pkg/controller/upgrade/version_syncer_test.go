@@ -283,7 +283,7 @@ func Test_CheckUpgradableVersions(t *testing.T) {
 		assert.Nil(t, err)
 
 		for i := range tc.given.versions {
-			actual.canUpgrade, actual.err = canUpgrade(currentVersion, &tc.given.versions[i])
+			actual.canUpgrade, actual.err = CanUpgradeVersion(currentVersion, &tc.given.versions[i])
 			assert.Equal(t, tc.expected[i], actual, "case %q", tc.name)
 		}
 	}

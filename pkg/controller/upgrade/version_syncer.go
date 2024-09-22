@@ -139,12 +139,11 @@ func (s *versionSyncer) sync() error {
 		return err
 	}
 
-	current := settings.ServerVersion.Get()
-	return s.syncNewVersions(checkResp, current, checkURL)
+	return s.syncNewVersions(checkResp, checkURL)
 }
 
-func (s *versionSyncer) syncNewVersions(resp CheckUpgradeResponse, currentVersion, checkUrl string) error {
-	cVersion, err := gversion.NewSemver(currentVersion)
+func (s *versionSyncer) syncNewVersions(resp CheckUpgradeResponse, checkUrl string) error {
+	currentVersion, err := gversion.NewSemver(settings.ServerVersion.Get())
 	if err != nil {
 		return err
 	}
@@ -164,7 +163,7 @@ func (s *versionSyncer) syncNewVersions(resp CheckUpgradeResponse, currentVersio
 				Tags:                 v.Tags,
 			},
 		}
-		canUpgrade, err := canUpgrade(cVersion, newVersion)
+		canUpgrade, err := CanUpgradeVersion(currentVersion, newVersion)
 		if err != nil {
 			logrus.Debugf("failed to compare version %s with current version %s: %v", v.Name, currentVersion, err)
 			continue
@@ -173,6 +172,7 @@ func (s *versionSyncer) syncNewVersions(resp CheckUpgradeResponse, currentVersio
 		if !canUpgrade {
 			continue
 		}
+
 		foundVersion, err := s.versionCache.Get(newVersion.Name)
 		if err != nil && apierrors.IsNotFound(err) {
 			if _, err = s.versionClient.Create(newVersion); err != nil {
@@ -191,10 +191,10 @@ func (s *versionSyncer) syncNewVersions(resp CheckUpgradeResponse, currentVersio
 		}
 	}
 
-	return s.cleanupVersions(cVersion)
+	return s.cleanupVersions(currentVersion)
 }
 
-func canUpgrade(currentVersion *gversion.Version, newVersion *mgmtv1.Version) (bool, error) {
+func CanUpgradeVersion(currentVersion *gversion.Version, newVersion *mgmtv1.Version) (bool, error) {
 	nVersion, err := gversion.NewSemver(newVersion.Name)
 	if err != nil {
 		return false, err
