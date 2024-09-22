@@ -11,7 +11,7 @@ import (
 
 const chatTypeName = "chat"
 
-func RegisterSchema(mgmt *config.Management, server *server.Server) error {
+func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
 	schemas := server.BaseSchemas
 	schemas.InternalSchemas.TypeName(chatTypeName, Chat{})
 	// import the struct EjectCdRomActionInput to the schema, then the action could use it as input,
@@ -23,7 +23,7 @@ func RegisterSchema(mgmt *config.Management, server *server.Server) error {
 		schema.CollectionMethods = []string{http.MethodGet, http.MethodPost}
 		schema.ResourceMethods = []string{http.MethodGet, http.MethodPut, http.MethodDelete}
 		schema.Store = &Store{
-			handler: NewHandler(mgmt),
+			handler: NewHandler(scaled.Management),
 		}
 	})
 	return nil

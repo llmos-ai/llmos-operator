@@ -32,12 +32,12 @@ type SearchInput struct {
 	Name string `json:"name"`
 }
 
-func RegisterSchema(mgmt *config.Management, server *server.Server) error {
-	users := mgmt.MgmtFactory.Management().V1().User()
+func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
+	users := scaled.MgmtFactory.Management().V1().User()
 	h := Handler{
 		userClient: users,
 		userCache:  users.Cache(),
-		middleware: auth.NewMiddleware(mgmt),
+		middleware: auth.NewMiddleware(scaled),
 	}
 
 	server.BaseSchemas.MustImportAndCustomize(SetIsActiveInput{}, nil)

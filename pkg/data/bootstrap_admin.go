@@ -42,7 +42,7 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 
 	for _, user := range users.Items {
 		if user.Status.IsAdmin {
-			logrus.Info("Default admin already exist, skip creating")
+			logrus.Debugf("Default admin %s already exist, skip creating", user.Spec.Username)
 			return nil
 		}
 	}

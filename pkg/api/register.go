@@ -11,7 +11,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
-type registerSchema func(mgmt *config.Management, server *server.Server) error
+type registerSchema func(scaled *config.Scaled, server *server.Server) error
 
 var registers = []registerSchema{
 	chat.RegisterSchema,
@@ -19,15 +19,16 @@ var registers = []registerSchema{
 	token.RegisterSchema,
 }
 
-func registerSchemas(mgmt *config.Management, server *server.Server, registers ...registerSchema) error {
+func registerSchemas(scaled *config.Scaled, server *server.Server, registers ...registerSchema) error {
 	for _, register := range registers {
-		if err := register(mgmt, server); err != nil {
+		if err := register(scaled, server); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func Register(_ context.Context, mgmt *config.Management, server *server.Server) error {
-	return registerSchemas(mgmt, server, registers...)
+func Register(ctx context.Context, server *server.Server) error {
+	scaled := config.ScaledWithContext(ctx)
+	return registerSchemas(scaled, server, registers...)
 }
