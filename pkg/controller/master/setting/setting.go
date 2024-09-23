@@ -15,7 +15,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
-const settingOnChange = "llmos-setting-on-change"
+const settingOnChange = "setting.onChange"
 
 type syncerFunc func(*mgmtv1.Setting) error
 
@@ -46,6 +46,7 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 
 	syncers = map[string]syncerFunc{
 		settings.DatabaseUrlSettingName: h.setDBUrl,
+		settings.LogLevelSettingName:    h.setLogLevel,
 	}
 
 	setting.OnChange(ctx, settingOnChange, h.settingOnChang)
