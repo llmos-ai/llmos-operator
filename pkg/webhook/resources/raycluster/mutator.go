@@ -52,7 +52,7 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 		gcsEnabled = true
 	}
 	// patch head group spec
-	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled, m.releaseName))
+	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled))
 
 	// patch worker group specs
 	if cluster.Spec.WorkerGroupSpecs != nil && len(cluster.Spec.WorkerGroupSpecs) > 0 {
@@ -89,7 +89,7 @@ func (m *mutator) Update(_ *admission.Request, oldObj runtime.Object, newObj run
 		gcsEnabled = true
 	}
 
-	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled, m.releaseName))
+	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled))
 	if cluster.Spec.WorkerGroupSpecs != nil && len(cluster.Spec.WorkerGroupSpecs) > 0 {
 		patchOps = append(patchOps, patchWorkerGroupSpecs(cluster))
 	}
@@ -97,14 +97,14 @@ func (m *mutator) Update(_ *admission.Request, oldObj runtime.Object, newObj run
 	return patchOps, nil
 }
 
-func patchHeadGroupSpec(cluster *rayv1.RayCluster, gcsEnabled bool, releaseName string) admission.PatchOp {
+func patchHeadGroupSpec(cluster *rayv1.RayCluster, gcsEnabled bool) admission.PatchOp {
 	headGroupSpec := cluster.Spec.HeadGroupSpec
 	headGroupSpec.RayStartParams = patchHeadGroupStartParams(cluster, gcsEnabled)
 	headGroupSpec.Template.Spec.Containers[0].Ports = patchHeadGroupPorts(cluster)
 	headGroupSpec.Template.Spec.Containers[0].Resources.Limits = patchResourceLimits(headGroupSpec.Template)
 	headGroupSpec.Template.Spec.Containers[0].Lifecycle = patchContainerLifecycle(headGroupSpec.Template)
 	if gcsEnabled {
-		headGroupSpec.Template.Spec.Containers[0].Env = getHeadGroupEnvPath(cluster, releaseName)
+		headGroupSpec.Template.Spec.Containers[0].Env = getHeadGroupEnvPath(cluster)
 	}
 
 	return admission.PatchOp{
@@ -189,9 +189,9 @@ func patchResourceLimits(spec corev1.PodTemplateSpec) corev1.ResourceList {
 	return newLimits
 }
 
-func getHeadGroupEnvPath(cluster *rayv1.RayCluster, releaseName string) []corev1.EnvVar {
+func getHeadGroupEnvPath(cluster *rayv1.RayCluster) []corev1.EnvVar {
 	headGroupEnv := cluster.Spec.HeadGroupSpec.Template.Spec.Containers[0].Env
-	redisEnvConfig := clusterctl.GetHeadNodeRedisEnvConfig(releaseName, cluster.Namespace)
+	redisEnvConfig := clusterctl.GetHeadNodeRedisEnvConfig(cluster.Namespace)
 	if len(headGroupEnv) == 0 {
 		headGroupEnv = redisEnvConfig
 	} else {

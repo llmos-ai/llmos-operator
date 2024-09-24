@@ -47,6 +47,10 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.operator.apiserver.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.operator.apiserver.readinessProbe | nindent 12 }}
       {{- with .Values.operator.apiserver.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

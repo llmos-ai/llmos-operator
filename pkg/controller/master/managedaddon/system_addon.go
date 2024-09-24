@@ -23,7 +23,8 @@ var systemAddonTemplates = []string{
 	"gpu-operator.yaml",
 	"kuberay-operator.yaml",
 	"rook-ceph.yaml",
-	"llmos-operator-redis.yaml",
+	"llmos-redis.yaml",
+	"system-upgrade-controller.yaml",
 }
 
 func (h *handler) registerSystemAddons(_ context.Context) error {

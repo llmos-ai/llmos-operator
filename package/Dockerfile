@@ -24,11 +24,11 @@ ARG VERSION
 ARG DATE
 ENV LLMOS_SERVER_VERSION ${VERSION}
 ENV LLMOS_BUILD_DATE ${DATE}
-RUN mkdir -p /usr/share/llmos-ai/llmos-operator && \
-    cd /usr/share/llmos-ai/llmos-operator && \
+RUN mkdir -p /usr/share/llmos/llmos-operator && \
+    cd /usr/share/llmos/llmos-operator && \
     curl -sL https://releases.1block.ai/dashboard/${LLMOS_UI_VERSION}.tar.gz | tar xvzf - --strip-components=2 && \
-    mkdir -p /usr/share/llmos-ai/llmos-operator/api-ui && \
-    cd /usr/share/llmos-ai/llmos-operator/api-ui && \
+    mkdir -p /usr/share/llmos/llmos-operator/api-ui && \
+    cd /usr/share/llmos/llmos-operator/api-ui && \
     curl -sL https://releases.1block.ai/api-ui/${LLMOS_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
     cd /var/lib/llmos/llmos-operator
 

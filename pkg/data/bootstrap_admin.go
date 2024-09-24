@@ -41,7 +41,7 @@ func BootstrapDefaultAdmin(mgmt *config.Management) error {
 	}
 
 	for _, user := range users.Items {
-		if user.Status.IsAdmin {
+		if hasAdminUser(user) {
 			logrus.Debugf("Default admin %s already exist, skip creating", user.Spec.Username)
 			return nil
 		}
@@ -125,4 +125,16 @@ func constructRoleTemplateBinding(user *mgmtv1.User) *mgmtv1.RoleTemplateBinding
 			},
 		},
 	}
+}
+
+func hasAdminUser(user mgmtv1.User) bool {
+	if user.Status.IsAdmin {
+		return true
+	}
+
+	if user.Labels != nil && user.Labels[constant.DefaultAdminLabelKey] == defaultAdminLabelValue {
+		return true
+	}
+
+	return false
 }

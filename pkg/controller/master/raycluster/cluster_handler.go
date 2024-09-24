@@ -17,11 +17,13 @@ const (
 	kubeRayControllerSyncCluster = "rayCluster.syncCluster"
 	kubeRayControllerOnDelete    = "rayCluster.onDelete"
 	kubeRayControllerCreatePVC   = "rayCluster.createPVCFromAnnotation"
+
+	defaultRedisName = "llmos-redis"
 )
 
 // handler reconcile the user's clusterRole and clusterRoleBinding
 type handler struct {
-	releaseName  string
+	//releaseName  string
 	rayClusters  ctlkuberayv1.RayClusterController
 	services     ctlcorev1.ServiceClient
 	serviceCache ctlcorev1.ServiceCache
@@ -40,7 +42,7 @@ func Register(ctx context.Context, mgmt *config.Management, opts config.Options)
 	configmaps := mgmt.CoreFactory.Core().V1().ConfigMap()
 
 	h := &handler{
-		releaseName:  opts.ReleaseName,
+		//releaseName:  opts.ReleaseName,
 		rayClusters:  clusters,
 		services:     services,
 		serviceCache: services.Cache(),
@@ -59,11 +61,11 @@ func Register(ctx context.Context, mgmt *config.Management, opts config.Options)
 
 func (h *handler) OnChanged(_ string, cluster *rayv1.RayCluster) (*rayv1.RayCluster, error) {
 	if cluster == nil || cluster.DeletionTimestamp != nil {
-		return cluster, nil
+		return nil, nil
 	}
 
 	// sync GCS Redis secret to the cluster namespace
-	return nil, h.syncGCSRedisSecretToNamespace(h.releaseName, cluster)
+	return nil, h.syncGCSRedisSecretToNamespace(cluster)
 }
 
 func (h *handler) OnDelete(_ string, cluster *rayv1.RayCluster) (*rayv1.RayCluster, error) {
