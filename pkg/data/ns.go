@@ -12,17 +12,24 @@ import (
 var defaultNSs = []string{
 	constant.PublicNamespaceName,
 	constant.CephSystemNamespaceName,
+	constant.SUCNamespace,
 }
 
 func addDefaultNamespaces(apply apply.Apply) error {
 	// add default system & public namespaces
 	var nss = make([]runtime.Object, 0)
 	for _, ns := range defaultNSs {
-		nss = append(nss, &v1.Namespace{
+		newNs := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: ns,
 			},
-		})
+		}
+		if ns == constant.SUCNamespace {
+			newNs.Labels = map[string]string{
+				constant.LabelEnforcePss: "privileged",
+			}
+		}
+		nss = append(nss, newNs)
 	}
 
 	return apply.

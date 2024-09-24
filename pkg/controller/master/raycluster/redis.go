@@ -12,12 +12,12 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
-func (h *handler) syncGCSRedisSecretToNamespace(releaseName string, rayCluster *rayv1.RayCluster) error {
+func (h *handler) syncGCSRedisSecretToNamespace(rayCluster *rayv1.RayCluster) error {
 	// get redis secret for GCS config
 	// if the secret is not ready, reconcile it
-	redisSecret, err := h.secretsCache.Get(constant.SystemNamespaceName, fmt.Sprintf("%s-redis", releaseName))
+	redisSecret, err := h.secretsCache.Get(constant.SystemNamespaceName, defaultRedisName)
 	if err != nil {
-		return fmt.Errorf("failed to get system dedis redisSecret: %v", err)
+		return fmt.Errorf("failed to get system default redisSecret: %v", err)
 	}
 
 	// we only need to create 1 synced redis secret in the related namespace
@@ -47,8 +47,8 @@ func (h *handler) syncGCSRedisSecretToNamespace(releaseName string, rayCluster *
 	return nil
 }
 
-func GetGCSRedisSVCDomain(releaseName string) string {
-	return fmt.Sprintf("redis://%s-redis-master.%s.svc.cluster.local:6379", releaseName, constant.SystemNamespaceName)
+func GetGCSRedisSVCDomain() string {
+	return fmt.Sprintf("redis://%s-master.%s.svc.cluster.local:6379", defaultRedisName, constant.SystemNamespaceName)
 }
 
 func GetNameSpacedGCSSecretName(namespace string) string {
@@ -67,11 +67,11 @@ func GetSyncedSecret(redisSecret *corev1.Secret, cluster *rayv1.RayCluster) *cor
 	}
 }
 
-func GetHeadNodeRedisEnvConfig(releaseName, namespace string) []corev1.EnvVar {
+func GetHeadNodeRedisEnvConfig(namespace string) []corev1.EnvVar {
 	return []corev1.EnvVar{
 		{
 			Name:  "RAY_REDIS_ADDRESS",
-			Value: GetGCSRedisSVCDomain(releaseName),
+			Value: GetGCSRedisSVCDomain(),
 		},
 		{
 			Name: "REDIS_PASSWORD",

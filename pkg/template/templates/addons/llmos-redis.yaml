@@ -1,7 +1,7 @@
 apiVersion: management.llmos.ai/v1
 kind: ManagedAddon
 metadata:
-  name: llmos-operator-redis
+  name: llmos-redis
   namespace: llmos-system
   labels:
     llmos.ai/system-addon: "true"

@@ -120,8 +120,8 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	goreleaser release --snapshot --clean $(VERBOSE)
 
 .PHONY: package-operator
-package-operator: docker-manifest docker-manifest-webhook ## Package multi-arch images for llmos-operator and webhook
-	@echo Build & pushed llmos-operator && webhook images
+package-operator: operator-manifest webhook-manifest ## Package multi-arch images for llmos-operator and webhook
+	@echo "Build & pushed llmos-operator && llmos-operator-webhook manifest"
 
 .PHONY: build-installer
 build-installer: ## Build installer artifacts (i.e., operator charts & index.yaml)
@@ -168,14 +168,12 @@ package-upgrade: ## Package multi-arch upgrade manifest
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
-.PHONY: docker-manifest
-#docker-manifest: build-local ## Build & push multi-arch docker image
-docker-manifest: ## Build & push multi-arch operator image
+.PHONY: operator-manifest
+operator-manifest: ## Build & push operator manifest image
 	./scripts/manifest-images llmos-operator
 
-.PHONY: docker-manifest-webhook
-#docker-manifest: build-local ## Build & push multi-arch docker image
-docker-manifest-webhook: ## Build & push multi-arch webhook image
+.PHONY: webhook-manifest
+webhook-manifest: ## Build & push webhook manifest image
 	./scripts/manifest-images llmos-operator-webhook
 
 .PHONY: ci
@@ -204,8 +202,8 @@ uninstall-crds: ## Uninstall CRDs from your k8s cluster.
 helm-dep: ## update operator dependency charts.
 	$(HELM) dep update deploy/charts/llmos-operator
 
-.PHONY: helm-system-dep
-helm-system-dep: ## update system-charts dependencies.
+.PHONY: helm-dep-system-charts
+helm-dep-system-charts: ## update system-charts dependencies.
 	$(HELM) dep update deploy/charts/system-charts
 
 ifndef ignore-not-found

@@ -1,6 +1,6 @@
 apiVersion: v2
-name: system-charts
-description: This is just a placeholder chart that contains a list of system charts required by the llmos-operator.
+name: system-upgrade-controller
+description: System upgrade controller chart helps to upgrading your nodes.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -21,41 +21,7 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.1.0"
-dependencies:
-  - name: kuberay-operator
-    version: "1.1.1"
-    repository: "https://ray-project.github.io/kuberay-helm"
-    tags:
-      - ml-framework
-      - ray.io
-  - name: gpu-operator
-    version: "v24.6.0"
-    repository: "https://helm.ngc.nvidia.com/nvidia"
-    tags:
-      - gpu-operator
-      - nvidia
-  - name: rook-ceph
-    version: v1.14.9
-    repository: https://charts.rook.io/release
-    tags:
-      - rook
-      - ceph
-  - name: rook-ceph-cluster
-    version: v1.14.9
-    repository: https://charts.rook.io/release
-    tags:
-      - rook
-      - ceph-cluster
-  - name: redis
-    version: 19.6.4
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled
-    tags:
-      - redis
-  - name: system-upgrade-controller
-    version: 0.1.0
-    repository: file://dependency_charts/system-upgrade-controller
-    condition: suc.enabled
-    tags:
-      - system-upgrade
+appVersion: "v0.13.4"
+
+sources:
+  - https://github.com/rancher/system-upgrade-controller

@@ -91,6 +91,18 @@ operator:
 
     affinity: {}
 
+    # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    livenessProbe:
+      httpGet:
+        path: /v1-cluster/readyz
+        port: https
+        scheme: HTTPS
+    readinessProbe:
+      httpGet:
+        path: /v1-cluster/readyz
+        port: https
+        scheme: HTTPS
+
   webhook:
     replicaCount: 1
     image:
@@ -98,6 +110,9 @@ operator:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: "main-head"
+
+    podSecurityContext: {}
+    securityContext: {}
 
     service:
       type: ClusterIP
@@ -132,11 +147,12 @@ operator:
 
     affinity: {}
 
-suc:
-  enabled: true
-  image:
-    repository: "rancher/system-upgrade-controller:v0.13.4"
-    pullPolicy: IfNotPresent
+    livenessProbe:
+      tcpSocket:
+        port: 8444
+    readinessProbe:
+      tcpSocket:
+        port: 8444
 
 systemChartsRepo:
   enabled: true
@@ -144,6 +160,11 @@ systemChartsRepo:
     repository: ghcr.io/llmos-ai/system-charts-repo
     tag: "main-head"
     pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    httpPort: 80
+
   resources:
     requests:
       cpu: 20m
@@ -151,3 +172,18 @@ systemChartsRepo:
     limits:
       cpu: 200m
       memory: 250Mi
+  # Additional volumes on the output Deployment definition.
+  volumes: []
+  # Additional volumeMounts on the output Deployment definition.
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
+  affinity: {}

@@ -11,15 +11,8 @@ spec:
       {{- include "llmos-operator.webhookSelectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.operator.apiserver.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "llmos-operator.webhookLabels" . | nindent 8 }}
-        {{- with .Values.operator.apiserver.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -27,11 +20,11 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "llmos-operator.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.operator.apiserver.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.operator.webhook.podSecurityContext | nindent 8 }}
       containers:
         - name: webhook
           securityContext:
-            {{- toYaml .Values.operator.apiserver.securityContext | nindent 12 }}
+            {{- toYaml .Values.operator.webhook.securityContext | nindent 12 }}
           image: "{{ .Values.operator.webhook.image.repository }}:{{ .Values.operator.webhook.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.operator.webhook.image.pullPolicy }}
           ports:
@@ -47,6 +40,10 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.operator.webhook.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.operator.webhook.readinessProbe | nindent 12 }}
       {{- with .Values.operator.webhook.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

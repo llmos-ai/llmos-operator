@@ -14,5 +14,8 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 19.6.4
-digest: sha256:a5aee06bdecbaf221dd49aa462442e74eb807da91447954e5db0a438ba64159e
-generated: "2024-08-06T09:52:30.486777+08:00"
+- name: system-upgrade-controller
+  repository: file://dependency_charts/system-upgrade-controller
+  version: 0.1.0
+digest: sha256:5b9108bfbcc732a776fa8c225b3d133e43e2f61bfa55cf434540630d4c192392
+generated: "2024-09-24T13:22:34.505328+08:00"

@@ -46,16 +46,24 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Webhook labels
 */}}
 {{- define "llmos-operator.webhookLabels" -}}
-{{ include "llmos-operator.labels" . }}
-app.llmos.ai/webhook: "true"
+helm.sh/chart: {{ include "llmos-operator.chart" . }}
+{{ include "llmos-operator.webhookSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 System charts labels
 */}}
 {{- define "llmos-operator.systemChartsLabels" -}}
-{{ include "llmos-operator.labels" . }}
-app.llmos.ai/system-charts-repo: "true"
+helm.sh/chart: {{ include "llmos-operator.chart" . }}
+{{ include "llmos-operator.systemChartsSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
@@ -70,16 +78,16 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Webhook selector labels
 */}}
 {{- define "llmos-operator.webhookSelectorLabels" -}}
-{{ include "llmos-operator.selectorLabels" . }}
-app.llmos.ai/webhook: "true"
+app.kubernetes.io/name: {{ include "llmos-operator.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}-webhook
 {{- end }}
 
 {{/*
 System charts selector labels
 */}}
 {{- define "llmos-operator.systemChartsSelectorLabels" -}}
-{{ include "llmos-operator.selectorLabels" . }}
-app.llmos.ai/system-charts-repo: "true"
+app.kubernetes.io/name: {{ include "llmos-operator.name" . }}
+app.kubernetes.io/instance: system-charts-repo
 {{- end }}
 
 {{/*

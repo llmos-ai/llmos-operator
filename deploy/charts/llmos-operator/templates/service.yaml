@@ -37,7 +37,7 @@ spec:
       targetPort: webhook
       protocol: TCP
       name: webhook
-    - port: {{ .Values.operator.apiserver.service.profilePort }}
+    - port: {{ .Values.operator.webhook.service.profilePort }}
       targetPort: profile
       protocol: TCP
       name: profile
