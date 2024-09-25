@@ -119,8 +119,8 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	EXPORT_ENV=true source ./scripts/version && \
 	goreleaser release --snapshot --clean $(VERBOSE)
 
-.PHONY: package-operator
-package-operator: operator-manifest webhook-manifest ## Package multi-arch images for llmos-operator and webhook
+.PHONY: push-manifests
+push-manifests: operator-manifest webhook-manifest ## Push llmos-operator and webhook manifest image
 	@echo "Build & pushed llmos-operator && llmos-operator-webhook manifest"
 
 .PHONY: build-installer

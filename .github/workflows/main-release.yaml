@@ -16,7 +16,7 @@ permissions:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
-  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY || 'docker.io/llmos' }}
+  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY || 'docker.io/llmosai' }}
   S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
 
 jobs:
@@ -74,10 +74,10 @@ jobs:
         AWS_DEFAULT_REGION: 'us-east-1'
     - name: package node-upgrade Image
       run: make package-upgrade
-    - name: Push Latest(main) Docker Images
+    - name: Push Latest(main) ghcr Images
       run: |
         . ./scripts/version
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-operator:${VERSION})
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${{ env.REGISTRY }}/llmos-operator:${VERSION})
         for i in ${IMAGES}; do
           docker push $i
         done
@@ -85,10 +85,21 @@ jobs:
         docker manifest push ${{ env.REGISTRY }}/llmos-operator:${TAG}
         docker manifest create ${{ env.REGISTRY }}/llmos-operator:${VERSION} ${IMAGES}
         docker manifest push ${{ env.REGISTRY }}/llmos-operator:${VERSION}
-    - name: Push Latest(main) Webhook Images
+    - name: Push Latest(main) Docker Images
       run: |
         . ./scripts/version
-        WEBHOOK_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-operator-webhook:${VERSION})
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${DOCKER_REGISTRY#'docker.io/'}/llmos-operator:${VERSION})
+        for i in ${IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator:${TAG} ${IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator:${TAG}
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator:${VERSION} ${IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator:${VERSION}
+    - name: Push Latest(main) Webhook ghcr Images
+      run: |
+        . ./scripts/version
+        WEBHOOK_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION})
         for i in ${WEBHOOK_IMAGES}; do
           docker push $i
         done
@@ -96,6 +107,17 @@ jobs:
         docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${TAG}
         docker manifest create ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION} ${WEBHOOK_IMAGES}
         docker manifest push ${{ env.REGISTRY }}/llmos-operator-webhook:${VERSION}
+    - name: Push Latest(main) Webhook Docker Images
+      run: |
+        . ./scripts/version
+        WEBHOOK_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${DOCKER_REGISTRY#'docker.io/'}/llmos-operator-webhook:${VERSION})
+        for i in ${WEBHOOK_IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${TAG} ${WEBHOOK_IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${TAG}
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${VERSION} ${WEBHOOK_IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${VERSION}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure

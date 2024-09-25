@@ -81,8 +81,10 @@ package-system-charts-repo:
     EXPOSE 80
     CMD ["nginx", "-g", "daemon off;"]
     SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${TAG} --push ${REGISTRY}/system-charts-repo:${TAG}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-charts-repo:${TAG} --push ${DOCKER_REGISTRY}/system-charts-repo:${TAG}
     IF [ "$VERSION" != "$TAG" ]
     SAVE IMAGE --cache-from ${REGISTRY}/system-charts-repo:${VERSION} --push ${REGISTRY}/system-charts-repo:${VERSION}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-charts-repo:${VERSION} --push ${DOCKER_REGISTRY}/system-charts-repo:${VERSION}
     END
 
 build-upgrade:
@@ -125,6 +127,8 @@ package-upgrade:
     COPY package/upgrade-node.sh /bin/upgrade-node.sh
     ENTRYPOINT ["/bin/upgrade-node.sh"]
     SAVE IMAGE --cache-from ${REGISTRY}/node-upgrade:${TAG} --push ${REGISTRY}/node-upgrade:${TAG}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/node-upgrade:${TAG} --push ${DOCKER_REGISTRY}/node-upgrade:${TAG}
     IF [ "$VERSION" != "$TAG" ]
     SAVE IMAGE --cache-from ${REGISTRY}/node-upgrade:${VERSION} --push ${REGISTRY}/node-upgrade:${VERSION}
+    SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/node-upgrade:${VERSION} --push ${DOCKER_REGISTRY}/node-upgrade:${VERSION}
     END

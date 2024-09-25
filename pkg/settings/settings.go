@@ -34,7 +34,7 @@ var (
 	DefaultNotebookImages = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
 	UpgradeCheckEnabled   = NewSetting(UpgradeCheckEnabledName, "true")
 	UpgradeCheckUrl       = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
-	LLMOSDefaultRegistry  = NewSetting(LLMOSDefaultRegistryName, "docker.io/llmos")
+	LLMOSDefaultRegistry  = NewSetting(LLMOSDefaultRegistryName, "docker.io/llmosai")
 	LogLevel              = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
 )
 
