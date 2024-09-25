@@ -2,6 +2,7 @@ version: 2
 
 env:
   - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ end }}
+  - DOCKER_REGISTRY={{ if index .Env "DOCKER_REGISTRY"  }}{{ .Env.DOCKER_REGISTRY }}{{ end }}
   - BUILDER={{ if index .Env "BUILDER"  }}{{ .Env.BUILDER }}{{ else }}default{{ end }}
   - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ end }}
   - COMMIT={{ if index .Env "COMMIT"  }}{{ .Env.COMMIT }}{{ end }}
@@ -54,6 +55,7 @@ dockers:
     dockerfile: package/Dockerfile
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -76,6 +78,7 @@ dockers:
     dockerfile: package/Dockerfile
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -98,6 +101,7 @@ dockers:
     dockerfile: package/Dockerfile-webhook
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -120,6 +124,7 @@ dockers:
     dockerfile: package/Dockerfile-webhook
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -143,9 +148,19 @@ docker_manifests:
       - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
   - use: docker
+    name_template: "{{ .Env.DOCKER_REGISTRY }}/llmos-operator:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator:{{ .Env.VERSION }}-arm64"
+  - use: docker
     name_template: "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}"
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
+  - use: docker
+    name_template: "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
 
 dist: dist/cli

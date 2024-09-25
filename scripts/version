@@ -43,7 +43,7 @@ fi
 # image registry repo & tag
 TAG=${TAG:-${VERSION}}
 REGISTRY=${REGISTRY:-ghcr.io/llmos-ai}
-DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmos}
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmosai}
 REPO=llmos-operator
 
 if echo "$TAG" | grep -q dirty || [[ -z $GIT_TAG ]];  then
@@ -71,7 +71,7 @@ CHART_VERSION="$(echo "${CHART_VERSION}" | sed -E 's/^v//' | sed -e 's/^\(.\{55\
 # Chart Repo - Target Repo for releases.
 case $CHART_VERSION in
     *-rc*) # All rc tags
-        CHART_REPO="latest" ;;
+        CHART_REPO="rc" ;;
     +([0-9]).+([0-9]).+([0-9])) # All release tags
         CHART_REPO="latest" ;;
     *) # Anything else - Future use
@@ -101,6 +101,7 @@ echo "CHART_REPO: $CHART_REPO"
 echo "CHART_VERSION: $CHART_VERSION"
 echo "APP_VERSION: $APP_VERSION"
 echo "DIRNAME: $(dirname $0)"
-echo "REPO: $REGISTRY/$REPO"
+echo "GHCR_REPO: $REGISTRY/$REPO"
+echo "DOCKER_REPO: $DOCKER_REGISTRY/$REPO"
 echo "COMMIT: $COMMIT"
 echo "BRANCH: $COMMIT_BRANCH"
