@@ -2,8 +2,6 @@ package modelservice
 
 import (
 	"context"
-	"reflect"
-	"strings"
 
 	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -12,22 +10,17 @@ import (
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
 )
 
 const (
-	modelServiceOnChange = "modelService.onChange"
-	modelServiceWatchSs  = "modelService.watchStatefulSets"
-
-	msKindName     = "ModelService"
-	typeName       = "model-service"
-	vllmEngineName = "vllm"
+	modelServiceOnChange  = "modelService.onChange"
+	msStatefulSetOnChange = "modelService.statefulSetOnChange"
+	msSyncStatusByPod     = "modelService.syncStatusByPod"
 )
 
 type handler struct {
@@ -62,9 +55,16 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		Pods:              pod,
 		PodCache:          pod.Cache(),
 	}
-
 	modelService.OnChange(ctx, modelServiceOnChange, h.OnChange)
-	relatedresource.Watch(ctx, modelServiceWatchSs, h.ReconcileModelServiceByStatefulSet, modelService, statefulSet)
+
+	ssHandler := &statefulSetHandler{
+		statefulSetCache:  statefulSet.Cache(),
+		modelService:      modelService,
+		modelServiceCache: modelService.Cache(),
+		podCache:          pod.Cache(),
+	}
+	statefulSet.OnChange(ctx, msStatefulSetOnChange, ssHandler.OnChange)
+	relatedresource.Watch(ctx, msSyncStatusByPod, ssHandler.syncServiceStatusByPod, statefulSet, pod)
 	return nil
 }
 
@@ -73,23 +73,18 @@ func (h *handler) OnChange(_ string, ms *mlv1.ModelService) (*mlv1.ModelService,
 		return nil, nil
 	}
 
+	var err error
 	// reconcile model service statefulSet
-	ss, err := h.reconcileModelStatefulSet(ms)
-	if err != nil {
+	if _, err = h.reconcileModelStatefulSet(ms); err != nil {
 		return ms, err
 	}
 
 	// reconcile model service svc
-	svc, err := h.reconcileModelService(ms)
-	if err != nil {
+	if _, err = h.reconcileModelService(ms); err != nil {
 		return ms, err
 	}
 
-	if err = h.createModelServiceGUI(ms, svc); err != nil {
-		return ms, err
-	}
-
-	return ms, h.updateModelServiceStatus(ms, ss)
+	return ms, nil
 }
 
 // reconcileModelStatefulSet reconciles the statefulSet of the model
@@ -131,51 +126,4 @@ func (h *handler) reconcileModelService(ms *mlv1.ModelService) (*corev1.Service,
 	}
 
 	return foundSvc, nil
-}
-
-func (h *handler) updateModelServiceStatus(ms *mlv1.ModelService, ss *v1.StatefulSet) error {
-	if ss == nil {
-		logrus.Debugf("statefulSet of model %s not found, skip updating status", ms.Name)
-		return nil
-	}
-
-	podName := getPodName(ss.Name)
-	pod, err := h.PodCache.Get(ss.Namespace, podName)
-	if err != nil && errors.IsNotFound(err) {
-		logrus.Debugf("model serivce pod %s not found, skip updating status", podName)
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	status := constructModelStatus(ss, pod)
-	logrus.Debugf("updating status of model %s, status: %v", ms.Name, status)
-	if !reflect.DeepEqual(ms.Status, status) {
-		msCpy := ms.DeepCopy()
-		msCpy.Status = status
-		if _, err = h.ModelServices.UpdateStatus(msCpy); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ReconcileModelServiceByStatefulSet reconciles the owner modelService by statefulSet
-func (h *handler) ReconcileModelServiceByStatefulSet(_, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
-	if ss, ok := obj.(*v1.StatefulSet); ok {
-		for k, v := range ss.GetLabels() {
-			if strings.Contains(k, constant.LabelModelServiceName) {
-				logrus.Debugf("reconcile model service: %s/%s", ss.Namespace, v)
-				return []relatedresource.Key{
-					{
-						Name:      v,
-						Namespace: ss.Namespace,
-					},
-				}, nil
-			}
-		}
-	}
-
-	return nil, nil
 }
