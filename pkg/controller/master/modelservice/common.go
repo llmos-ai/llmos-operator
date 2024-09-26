@@ -18,8 +18,14 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
 )
 
+const (
+	msPrefix       = "modelservice"
+	typeName       = "model-service"
+	vllmEngineName = "vllm"
+)
+
 func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
-	labels := getModelServiceLabels(ms)
+	selector := GetModelServiceSelector(ms)
 	replicas := ms.Spec.Replicas
 	if metav1.HasAnnotation(ms.ObjectMeta, constant.AnnotationResourceStopped) {
 		replicas = 0
@@ -39,12 +45,10 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		},
 		Spec: v1.StatefulSetSpec{
 			Replicas: ptr.To(replicas),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
-			},
+			Selector: selector,
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      labels,
+					Labels:      selector.MatchLabels,
 					Annotations: map[string]string{},
 				},
 				Spec: *ms.Spec.Template.Spec.DeepCopy(),
@@ -85,7 +89,7 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		}
 	}
 
-	// Copy all the labels to the pod
+	// Copy all the selector to the pod
 	ls := &ss.Spec.Template.ObjectMeta.Labels
 	for k, v := range ms.ObjectMeta.Labels {
 		(*ls)[k] = v
@@ -102,7 +106,7 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 	return ss
 }
 func constructModelSvc(ms *mlv1.ModelService) *corev1.Service {
-	labels := getModelServiceLabels(ms)
+	selector := GetModelServiceSelector(ms)
 
 	svcPorts := make([]corev1.ServicePort, 0)
 	for _, port := range ms.Spec.Template.Spec.Containers[0].Ports {
@@ -123,9 +127,10 @@ func constructModelSvc(ms *mlv1.ModelService) *corev1.Service {
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(ms, ms.GroupVersionKind()),
 			},
+			Labels: selector.MatchLabels,
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: labels,
+			Selector: selector.MatchLabels,
 			Type:     ms.Spec.ServiceType,
 			Ports:    svcPorts,
 		},
@@ -203,20 +208,32 @@ func constructVllmArgs(ms *mlv1.ModelService, args []string) []string {
 	return args
 }
 
-func getModelServiceLabels(ms *mlv1.ModelService) map[string]string {
-	return map[string]string{
-		constant.LabelLLMOSMLType:      typeName,
-		constant.LabelModelServiceName: ms.Name,
+func GetModelServiceSelector(ms *mlv1.ModelService) *metav1.LabelSelector {
+	if ms.Spec.Selector != nil {
+		selector := ms.Spec.Selector.DeepCopy()
+		if selector.MatchLabels == nil {
+			selector.MatchLabels = make(map[string]string)
+		}
+		selector.MatchLabels[constant.LabelModelServiceName] = ms.Name
+		selector.MatchLabels[constant.LabelLLMOSMLType] = typeName
+		return selector
+	}
+	return &metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			constant.LabelLLMOSMLType:      typeName,
+			constant.LabelModelServiceName: ms.Name,
+		},
 	}
 }
 
 func getFormattedMSName(name string, appendix string) string {
+	name = strings.ReplaceAll(name, ".", "-")
 	if appendix == "" {
-		return fmt.Sprintf("modelservice-%s", name)
+		return fmt.Sprintf("%s-%s", msPrefix, name)
 	}
-	return fmt.Sprintf("modelservice-%s-%s", name, appendix)
+	return fmt.Sprintf("%s-%s-%s", msPrefix, name, appendix)
 }
 
-func getPodName(statefulSetName string) string {
+func getDefaultPodName(statefulSetName string) string {
 	return fmt.Sprintf("%s-0", statefulSetName)
 }

@@ -36,6 +36,11 @@ type ModelServiceSpec struct {
 	// +kubebuilder:validation:Required
 	Replicas int32 `json:"replicas"`
 
+	// selector is a label query over pods that should match the replica count.
+	// It must match the pod template's labels.
+	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+	Selector *metav1.LabelSelector `json:"selector,omitempty"`
+
 	// +kubebuilder:default:=ClusterIP
 	ServiceType corev1.ServiceType `json:"serviceType,omitempty"`
 
