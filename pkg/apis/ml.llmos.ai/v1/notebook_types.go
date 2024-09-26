@@ -24,9 +24,19 @@ type Notebook struct {
 
 // NotebookSpec defines the desired state of Dataset
 type NotebookSpec struct {
-	// Template describes the notebooks that will be created.
-	Template             NotebookTemplateSpec           `json:"template,omitempty"`
-	ServiceType          corev1.ServiceType             `json:"serviceType,omitempty"`
+	// +optional, template describes the notebooks that will be created.
+	Template NotebookTemplateSpec `json:"template,omitempty"`
+
+	// selector is a label query over pods that should match the replica count.
+	// It must match the pod template's labels.
+	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+	Selector *metav1.LabelSelector `json:"selector,omitempty"`
+
+	// +optional, serviceType is the type of service that will be created.
+	// +kubebuilder:default:=ClusterIP
+	ServiceType corev1.ServiceType `json:"serviceType,omitempty"`
+
+	// +optional, list of PersistentVolumeClaims that will be created.
 	VolumeClaimTemplates []corev1.PersistentVolumeClaim `json:"volumeClaimTemplates,omitempty"`
 }
 

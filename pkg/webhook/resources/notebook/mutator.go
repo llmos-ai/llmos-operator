@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/notebook"
 )
 
 type mutator struct {
@@ -23,6 +24,9 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 	notebook := newObj.(*mlv1.Notebook)
 
 	patches := make([]admission.PatchOp, 0)
+
+	// Patch selector
+	patches = append(patches, patchSelector(notebook))
 
 	rs := notebook.Spec.Template.Spec.Containers[0].Resources
 	if rs.Requests != nil && rs.Limits == nil {
@@ -44,6 +48,11 @@ func (m *mutator) Update(_ *admission.Request, _ runtime.Object, newObj runtime.
 		patches = append(patches, op)
 	}
 
+	if notebook.Spec.Selector == nil {
+		// Patch selector only when is not set
+		patches = append(patches, patchSelector(notebook))
+	}
+
 	return patches, nil
 }
 
@@ -52,6 +61,14 @@ func patchResourceLimit(rs corev1.ResourceRequirements) admission.PatchOp {
 		Op:    admission.PatchOpReplace,
 		Path:  "/spec/template/spec/containers/0/resources/limits",
 		Value: rs.Requests,
+	}
+}
+
+func patchSelector(nb *mlv1.Notebook) admission.PatchOp {
+	return admission.PatchOp{
+		Op:    admission.PatchOpReplace,
+		Path:  "/spec/selector",
+		Value: notebook.GetNotebookSelector(nb),
 	}
 }
 
