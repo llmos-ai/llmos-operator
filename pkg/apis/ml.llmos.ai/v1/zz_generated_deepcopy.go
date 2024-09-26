@@ -359,6 +359,11 @@ func (in *NotebookList) DeepCopyObject() runtime.Object {
 func (in *NotebookSpec) DeepCopyInto(out *NotebookSpec) {
 	*out = *in
 	in.Template.DeepCopyInto(&out.Template)
+	if in.Selector != nil {
+		in, out := &in.Selector, &out.Selector
+		*out = new(metav1.LabelSelector)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.VolumeClaimTemplates != nil {
 		in, out := &in.VolumeClaimTemplates, &out.VolumeClaimTemplates
 		*out = make([]corev1.PersistentVolumeClaim, len(*in))

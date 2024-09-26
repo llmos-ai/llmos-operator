@@ -23,7 +23,7 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 		replicas = 0
 	}
 
-	labels := getNotebookPodLabels(notebook)
+	selector := GetNotebookSelector(notebook)
 	ss := &v1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      getFormattedNotebookName(notebook),
@@ -31,16 +31,16 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(notebook, notebook.GroupVersionKind()),
 			},
-			Labels: labels,
+			Labels: selector.MatchLabels,
 		},
 		Spec: v1.StatefulSetSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
+				MatchLabels: selector.MatchLabels,
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      labels,
+					Labels:      selector.MatchLabels,
 					Annotations: map[string]string{},
 				},
 				Spec: *notebook.Spec.Template.Spec.DeepCopy(),
@@ -86,6 +86,7 @@ func getNotebookService(notebook *mlv1.Notebook) *corev1.Service {
 		svcType = notebook.Spec.ServiceType
 	}
 
+	selector := GetNotebookSelector(notebook)
 	// Define the desired Service object
 	port := DefaultContainerPort
 	containerPorts := notebook.Spec.Template.Spec.Containers[0].Ports
@@ -100,10 +101,11 @@ func getNotebookService(notebook *mlv1.Notebook) *corev1.Service {
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(notebook, notebook.GroupVersionKind()),
 			},
+			Labels: selector.MatchLabels,
 		},
 		Spec: corev1.ServiceSpec{
 			Type:     svcType,
-			Selector: getNotebookPodLabels(notebook),
+			Selector: selector.MatchLabels,
 			Ports: []corev1.ServicePort{
 				{
 					Name:       "http",
@@ -153,10 +155,21 @@ func getNotebookStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.NotebookStatus 
 	return status
 }
 
-func getNotebookPodLabels(notebook *mlv1.Notebook) map[string]string {
-	return map[string]string{
-		constant.LabelLLMOSMLAppName: strings.ToLower(notebook.Kind),
-		constant.LabelNotebookName:   notebook.Name,
+func GetNotebookSelector(notebook *mlv1.Notebook) *metav1.LabelSelector {
+	if notebook.Spec.Selector != nil {
+		selector := notebook.Spec.Selector.DeepCopy()
+		if selector.MatchLabels == nil {
+			selector.MatchLabels = make(map[string]string)
+		}
+		selector.MatchLabels[constant.LabelLLMOSMLAppName] = strings.ToLower(notebook.Kind)
+		selector.MatchLabels[constant.LabelNotebookName] = notebook.Name
+		return selector
+	}
+	return &metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			constant.LabelLLMOSMLAppName: strings.ToLower(notebook.Kind),
+			constant.LabelNotebookName:   notebook.Name,
+		},
 	}
 }
 
