@@ -149,7 +149,7 @@ func (h *handler) reconcileNamespacedRoles(rtb *mgmtv1.RoleTemplateBinding, gr *
 			return err
 		}
 
-		if !reflect.DeepEqual(role.Rules, foundRole.Rules) {
+		if foundRole != nil && !reflect.DeepEqual(role.Rules, foundRole.Rules) {
 			logrus.Debugf("updating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
 			toUpdate := foundRole.DeepCopy()
 			toUpdate.Rules = role.Rules
@@ -187,7 +187,7 @@ func (h *handler) reconcileRoleTemplateRoles(rtb *mgmtv1.RoleTemplateBinding, rt
 		return err
 	}
 
-	if !reflect.DeepEqual(role.Rules, foundRole.Rules) {
+	if foundRole != nil && !reflect.DeepEqual(role.Rules, foundRole.Rules) {
 		logrus.Debugf("updating role %s:%s of roleTemplateBinding %s", role.Name, role.Namespace, rtb.Name)
 		toUpdate := foundRole.DeepCopy()
 		toUpdate.Rules = role.Rules

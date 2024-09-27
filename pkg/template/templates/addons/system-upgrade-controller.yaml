@@ -6,7 +6,7 @@ metadata:
   labels:
     llmos.ai/system-addon: "true"
   annotations:
-    field.llmos.ai/description: "System-upgrade-controller helps to manage LLMOS nodes upgrade using Plans."
+    field.llmos.ai/description: "System-upgrade-controller helps to manage LLMOS nodes upgrade using custom plans."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: system-upgrade-controller

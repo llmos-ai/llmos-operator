@@ -89,7 +89,7 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		}
 	}
 
-	// Copy all the selector to the pod
+	// Copy all the labels to the pod
 	ls := &ss.Spec.Template.ObjectMeta.Labels
 	for k, v := range ms.ObjectMeta.Labels {
 		(*ls)[k] = v

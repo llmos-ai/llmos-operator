@@ -124,6 +124,7 @@ func constructDefaultGlobalRole() []runtime.Object {
 					},
 					Resources: []string{
 						"pods",
+						"nodes",
 					},
 					Verbs: []string{
 						"*",
