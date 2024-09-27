@@ -17,6 +17,7 @@ checksum:
 
 release:
   draft: true
+  prerelease: true
 
 builds:
   - id: "llmos-operator"
