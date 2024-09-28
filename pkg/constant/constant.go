@@ -23,6 +23,7 @@ const (
 	KubeMasterNodeLabelKey       = KubeNodeRoleLabelPrefix + "master"
 	KubeControlPlaneNodeLabelKey = KubeNodeRoleLabelPrefix + "control-plane"
 	KubeEtcdNodeLabelKey         = KubeNodeRoleLabelPrefix + "etcd"
+	KubeWorkerNodeLabelKey       = KubeNodeRoleLabelPrefix + "worker"
 
 	LabelEnforcePss = "pod-security.kubernetes.io/enforce"
 	LabelAppName    = "app.kubernetes.io/name"

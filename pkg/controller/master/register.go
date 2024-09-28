@@ -11,6 +11,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelfile"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/namespace"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/node"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/raycluster"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/roletemplate"
@@ -38,6 +39,7 @@ var registerFuncs = []registerFunc{
 	roletemplate.Register,
 	roletemplatebinding.Register,
 	namespace.Register,
+	node.Register,
 	//storage.Register,
 }
 
