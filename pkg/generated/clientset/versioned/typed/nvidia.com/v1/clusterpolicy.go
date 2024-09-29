@@ -21,7 +21,7 @@ import (
 	"context"
 	"time"
 
-	v1 "github.com/NVIDIA/gpu-operator/api/v1"
+	v1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"

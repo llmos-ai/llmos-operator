@@ -18,7 +18,7 @@ limitations under the License.
 package scheme
 
 import (
-	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"

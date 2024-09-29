@@ -10,7 +10,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: gpu-operator
-  version: v24.6.0
+  version: v24.6.2
   enabled: true
   valuesContent: |-
     driver:

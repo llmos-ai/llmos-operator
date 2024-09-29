@@ -6,7 +6,7 @@ import (
 
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
-	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	controllergen "github.com/rancher/wrangler/v3/pkg/controller-gen"

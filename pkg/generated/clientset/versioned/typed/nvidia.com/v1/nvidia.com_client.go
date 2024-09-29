@@ -20,7 +20,7 @@ package v1
 import (
 	"net/http"
 
-	v1 "github.com/NVIDIA/gpu-operator/api/v1"
+	v1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
