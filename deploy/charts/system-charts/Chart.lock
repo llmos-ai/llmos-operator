@@ -4,7 +4,7 @@ dependencies:
   version: 1.2.1
 - name: gpu-operator
   repository: https://helm.ngc.nvidia.com/nvidia
-  version: v24.6.0
+  version: v24.6.2
 - name: rook-ceph
   repository: https://charts.rook.io/release
   version: v1.14.9
@@ -17,5 +17,5 @@ dependencies:
 - name: system-upgrade-controller
   repository: file://dependency_charts/system-upgrade-controller
   version: 0.1.0
-digest: sha256:95282a37382cfda5c1f28015ec45d9d910303e9d0d9355ce5406fb0c00b15996
-generated: "2024-09-29T11:12:50.645085+08:00"
+digest: sha256:69d7af89df12fcf75e07729e5e9088817bf49373f5443f41026e64e8deffa7c7
+generated: "2024-09-29T11:41:40.77133+08:00"

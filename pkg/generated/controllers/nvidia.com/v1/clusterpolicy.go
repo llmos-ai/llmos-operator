@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	v1 "github.com/NVIDIA/gpu-operator/api/v1"
+	v1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	"github.com/rancher/wrangler/v3/pkg/apply"
 	"github.com/rancher/wrangler/v3/pkg/condition"
 	"github.com/rancher/wrangler/v3/pkg/generic"

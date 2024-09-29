@@ -30,7 +30,7 @@ dependencies:
       - ml-framework
       - ray.io
   - name: gpu-operator
-    version: "v24.6.0"
+    version: "v24.6.2"
     repository: "https://helm.ngc.nvidia.com/nvidia"
     tags:
       - gpu-operator

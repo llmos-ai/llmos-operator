@@ -18,7 +18,7 @@ limitations under the License.
 package v1
 
 import (
-	v1 "github.com/NVIDIA/gpu-operator/api/v1"
+	v1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	"github.com/rancher/lasso/pkg/controller"
 	"github.com/rancher/wrangler/v3/pkg/generic"
 	"github.com/rancher/wrangler/v3/pkg/schemes"

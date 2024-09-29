@@ -1,7 +1,7 @@
 package config
 
 import (
-	nvidiav1 "github.com/NVIDIA/gpu-operator/api/v1"
+	nvidiav1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	"github.com/rancher/wrangler/v3/pkg/schemes"
 	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
