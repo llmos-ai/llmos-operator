@@ -1,7 +1,7 @@
 dependencies:
 - name: kuberay-operator
   repository: https://ray-project.github.io/kuberay-helm
-  version: 1.1.1
+  version: 1.2.1
 - name: gpu-operator
   repository: https://helm.ngc.nvidia.com/nvidia
   version: v24.6.0
@@ -17,5 +17,5 @@ dependencies:
 - name: system-upgrade-controller
   repository: file://dependency_charts/system-upgrade-controller
   version: 0.1.0
-digest: sha256:5b9108bfbcc732a776fa8c225b3d133e43e2f61bfa55cf434540630d4c192392
-generated: "2024-09-24T13:22:34.505328+08:00"
+digest: sha256:95282a37382cfda5c1f28015ec45d9d910303e9d0d9355ce5406fb0c00b15996
+generated: "2024-09-29T11:12:50.645085+08:00"
