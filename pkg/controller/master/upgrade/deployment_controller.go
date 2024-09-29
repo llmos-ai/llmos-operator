@@ -40,7 +40,7 @@ func (h *deploymentHandler) watchDeployment(_ string, deployment *appsv1.Deploym
 	// 1. deployment is not ready
 	// 2. deployment is not an upgrade repo and not an operator manifest
 	if !DeploymentIsReady(deployment) || (component == "" && appName != h.releaseName) {
-		return deployment, nil
+		return nil, nil
 	}
 
 	upgrade, err := h.getLatestUpgrade(upgradeName)
@@ -57,7 +57,7 @@ func (h *deploymentHandler) watchDeployment(_ string, deployment *appsv1.Deploym
 
 	// sync upgrade repo
 	if component == upgradeRepoName {
-		if err := h.syncUpgradeRepo(deployment, upgrade); err != nil {
+		if err := h.syncUpgradeRepoStatus(deployment, upgrade); err != nil {
 			return deployment, err
 		}
 	}
@@ -70,15 +70,9 @@ func (h *deploymentHandler) watchDeployment(_ string, deployment *appsv1.Deploym
 	return deployment, nil
 }
 
-func (h *deploymentHandler) syncUpgradeRepo(deployment *appsv1.Deployment, upgrade *mgmtv1.Upgrade) error {
-	upgradeName := deployment.Labels[llmosUpgradeNameLabel]
-	if upgradeName == "" {
-		logrus.Warnf("Skip upgrade repo sync for deployment %s/%s: no upgrade name label",
-			deployment.Namespace, deployment.Name)
-		return nil
-	}
-
-	msg := fmt.Sprintf("upgrade repo %s(%s) is ready", upgradeName, upgrade.Spec.Version)
+func (h *deploymentHandler) syncUpgradeRepoStatus(deployment *appsv1.Deployment, upgrade *mgmtv1.Upgrade) error {
+	logrus.Debugf("syncing upgrade repo status %v, for upgrade %s", deployment.Status.Conditions, upgrade.Name)
+	msg := fmt.Sprintf("upgrade repo %s(%s) is ready", upgradeRepoName, upgrade.Spec.Version)
 	if _, err := h.updateReadyCond(upgrade, mgmtv1.UpgradeChartsRepoReady, msg); err != nil {
 		return err
 	}
@@ -87,8 +81,13 @@ func (h *deploymentHandler) syncUpgradeRepo(deployment *appsv1.Deployment, upgra
 }
 
 func (h *deploymentHandler) syncManifestUpgrade(deployment *appsv1.Deployment, upgrade *mgmtv1.Upgrade) error {
+	// Do not sync if manifest upgrade is not initialized by the upgrade controller
+	if mgmtv1.ManifestUpgradeComplete.GetStatus(upgrade) == "" {
+		return nil
+	}
 	selector := labels.SelectorFromSet(map[string]string{
-		constant.LabelAppName: h.releaseName,
+		constant.LabelAppName:    h.releaseName,
+		constant.LabelAppVersion: upgrade.Spec.Version,
 	})
 
 	manifestDeployments, err := h.deploymentCache.List(constant.SystemNamespaceName, selector)
@@ -114,7 +113,7 @@ func (h *deploymentHandler) syncManifestUpgrade(deployment *appsv1.Deployment, u
 }
 
 func DeploymentIsReady(deployment *appsv1.Deployment) bool {
-	return deployment.Status.ReadyReplicas == *deployment.Spec.Replicas
+	return deployment.Status.ReadyReplicas == deployment.Status.Replicas
 }
 
 func isLatestChartVersion(chartVersion, upgradeVersion string) bool {

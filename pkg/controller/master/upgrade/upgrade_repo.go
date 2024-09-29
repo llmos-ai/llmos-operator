@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	portName = "http"
+	portName        = "http"
+	defaultRepoPort = 80
 )
 
 func (h *upgradeHandler) reconcileUpgradeSystemChartsRepo(upgrade *mgmtv1.Upgrade) (*mgmtv1.Upgrade, error) {
@@ -64,7 +65,7 @@ func (h *upgradeHandler) reconcileUpgradeSystemChartsRepo(upgrade *mgmtv1.Upgrad
 }
 
 func (h *upgradeHandler) reconcileRepoSvc(upgrade *mgmtv1.Upgrade) error {
-	svc := constructSystemChartsRepoService(upgrade)
+	svc := constructUpgradeRepoService(upgrade)
 	_, err := h.svcCache.Get(svc.Namespace, svc.Name)
 	if err != nil && apierror.IsNotFound(err) {
 		if _, err = h.svcClient.Create(svc); err != nil {
@@ -109,9 +110,26 @@ func constructUpgradeRepoDeployment(upgrade *mgmtv1.Upgrade) *v1.Deployment {
 							Image: formatRepoImage(upgrade.Spec.Registry, systemChartsImageName, upgrade.Spec.Version),
 							Ports: []corev1.ContainerPort{
 								{
-									ContainerPort: 80,
+									ContainerPort: defaultRepoPort,
 									Name:          portName,
 									Protocol:      corev1.ProtocolTCP,
+								},
+							},
+							LivenessProbe: &corev1.Probe{
+								ProbeHandler: corev1.ProbeHandler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/",
+										Port: intstr.FromInt32(defaultRepoPort),
+									},
+								},
+								PeriodSeconds: 30,
+							},
+							ReadinessProbe: &corev1.Probe{
+								ProbeHandler: corev1.ProbeHandler{
+									HTTPGet: &corev1.HTTPGetAction{
+										Path: "/",
+										Port: intstr.FromInt32(defaultRepoPort),
+									},
 								},
 							},
 						},
@@ -123,7 +141,7 @@ func constructUpgradeRepoDeployment(upgrade *mgmtv1.Upgrade) *v1.Deployment {
 	}
 }
 
-func constructSystemChartsRepoService(upgrade *mgmtv1.Upgrade) *corev1.Service {
+func constructUpgradeRepoService(upgrade *mgmtv1.Upgrade) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      upgradeRepoName,
@@ -136,7 +154,7 @@ func constructSystemChartsRepoService(upgrade *mgmtv1.Upgrade) *corev1.Service {
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{
 				{
-					Port:     80,
+					Port:     defaultRepoPort,
 					Protocol: corev1.ProtocolTCP,
 					TargetPort: intstr.IntOrString{
 						Type:   intstr.String,

@@ -32,8 +32,11 @@ func (v *validator) validateCanUpgradeVersion(upgrade *mgmtv1.Upgrade) (bool, er
 			upgrade.Spec.Version, err))
 	}
 
-	logrus.Debugf("Current version: %s, new version: %+v", currentVersion, newVersion)
-	return upgrade2.CanUpgradeVersion(currentVersion, newVersion)
+	ok, err := upgrade2.CanUpgradeVersion(currentVersion, newVersion)
+	logrus.Infof("Validating can upgrade from version %s to version %+v, result:%t",
+		currentVersion.Original(), newVersion.Name, ok)
+
+	return ok, err
 }
 
 func (v *validator) checkUpgradeResources() error {

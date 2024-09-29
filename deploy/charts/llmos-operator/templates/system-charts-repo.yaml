@@ -30,6 +30,10 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.systemChartsRepo.resources | nindent 12 }}
+          livenessProbe:
+              {{- toYaml .Values.systemChartsRepo.livenessProbe | nindent 12 }}
+          readinessProbe:
+              {{- toYaml .Values.systemChartsRepo.readinessProbe | nindent 12 }}
       {{- with .Values.systemChartsRepo.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}

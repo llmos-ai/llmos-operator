@@ -97,6 +97,7 @@ operator:
         path: /v1-cluster/readyz
         port: https
         scheme: HTTPS
+      periodSeconds: 30
     readinessProbe:
       httpGet:
         path: /v1-cluster/readyz
@@ -148,11 +149,16 @@ operator:
     affinity: {}
 
     livenessProbe:
-      tcpSocket:
-        port: 8444
+      httpGet:
+        path: /healthz
+        port: webhook
+        scheme: HTTPS
+      periodSeconds: 30
     readinessProbe:
-      tcpSocket:
-        port: 8444
+      httpGet:
+        path: /healthz
+        port: webhook
+        scheme: HTTPS
 
 systemChartsRepo:
   enabled: true
@@ -187,3 +193,13 @@ systemChartsRepo:
       key: node-role.kubernetes.io/control-plane
       operator: Exists
   affinity: {}
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    periodSeconds: 30
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
