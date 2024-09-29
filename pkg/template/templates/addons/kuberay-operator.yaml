@@ -10,12 +10,12 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: kuberay-operator
-  version: 1.1.1
+  version: 1.2.1
   enabled: true
   valuesContent: |-
     image:
       repository: quay.io/kuberay/operator
-      tag: v1.1.1
+      tag: v1.2.1
       pullPolicy: IfNotPresent
     batchScheduler:
       enabled: false

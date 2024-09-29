@@ -2,7 +2,9 @@
 System-Charts is a collection of Helm Charts that used by the LLMOS system services.
 
 ## Update Dependency charts
-Run `make helm-dep-system-charts` to update system-charts dependencies if you have changed the version or modified the dependency charts.
+- Run `make helm-dep-system-charts` to update system-charts dependencies if you have changed the version or modified the dependency charts.
+- Update the dependency [CRDs](../llmos-crd/templates) of the related system-charts, this is used by the llmos-operator to bootstrap API server correctly with listing/watching those CRDs.
+- Bump the [go.mod](https://github.com/llmos-ai/llmos-operator/blob/main/go.mod) dependency version & regenerate the controller types & code via `make generate` if applicable.
 
 ## Build & Package Charts
 - Run `make build-system-charts` to build the system-charts locally.
