@@ -1,0 +1,14 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: snapshot-controller
+  namespace: kube-system
+  labels:
+    llmos.ai/system-addon: "true"
+  annotations:
+    field.llmos.ai/description: "Snapshot Controller is required for CSI snapshotting to work and is not specific to any CSI driver."
+spec:
+  repo: http://system-charts-repo.llmos-system.svc
+  chart: snapshot-controller
+  version: 0.1.0
+  enabled: true

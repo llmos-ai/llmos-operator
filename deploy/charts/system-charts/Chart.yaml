@@ -36,13 +36,13 @@ dependencies:
       - gpu-operator
       - nvidia
   - name: rook-ceph
-    version: v1.14.9
+    version: v1.15.2
     repository: https://charts.rook.io/release
     tags:
       - rook
       - ceph
   - name: rook-ceph-cluster
-    version: v1.14.9
+    version: v1.15.2
     repository: https://charts.rook.io/release
     tags:
       - rook
@@ -59,3 +59,8 @@ dependencies:
     condition: suc.enabled
     tags:
       - system-upgrade
+  - name: snapshot-controller
+    version: 0.1.0
+    repository: file://dependency_charts/snapshot-controller
+    tags:
+      - csi-snapshotter
