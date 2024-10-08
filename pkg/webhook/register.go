@@ -10,6 +10,7 @@ import (
 
 	wconfig "github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/helmchart"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/raycluster"
@@ -24,6 +25,7 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		notebook.NewValidator(),
 		upgrade.NewValidator(mgmt),
 		helmchart.NewValidator(),
+		managedaddon.NewValidator(),
 	}
 
 	mutators = []admission.Mutator{

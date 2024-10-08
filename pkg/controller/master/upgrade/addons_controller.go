@@ -29,7 +29,6 @@ func (h *addonHandler) onAddonChange(_ string, addon *mgmtv1.ManagedAddon) (*mgm
 	if systemAddon == "" || version == "" {
 		return addon, nil
 	}
-	logrus.Debugf("check labels for addon %s, %s, %s", addon.Name, systemAddon, version)
 
 	upgrade, err := h.getLatestUpgrade("")
 	if err != nil || upgrade == nil {

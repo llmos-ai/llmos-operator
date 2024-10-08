@@ -2,7 +2,7 @@ apiVersion: management.llmos.ai/v1
 kind: ManagedAddon
 metadata:
   name: rook-ceph
-  namespace: llmos-system
+  namespace: storage-system
   labels:
     llmos.ai/system-addon: "true"
   annotations:
@@ -10,15 +10,21 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: rook-ceph
-  version: 1.14.9
+  version: 1.15.3
   enabled: true
-  valuesContent: |-
+  defaultValuesContent: |-
     image:
       repository: rook/ceph
-      tag: v1.14.9
       pullPolicy: IfNotPresent
     crds:
       enabled: true
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Exists
     csi:
       # -- Enable Ceph CSI RBD driver
       enableRbdDriver: true
@@ -26,3 +32,4 @@ spec:
       enableCephfsDriver: true
       # -- Disable the CSI driver.
       disableCsiDriver: "false"
+      provisionerReplicas: 1 # default to 1

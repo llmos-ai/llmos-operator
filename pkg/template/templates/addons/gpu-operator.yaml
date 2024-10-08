@@ -12,7 +12,7 @@ spec:
   chart: gpu-operator
   version: v24.6.2
   enabled: true
-  valuesContent: |-
+  defaultValuesContent: |-
     driver:
       enabled: false
     toolkit:

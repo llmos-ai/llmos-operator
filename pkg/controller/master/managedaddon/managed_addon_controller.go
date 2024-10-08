@@ -16,6 +16,7 @@ import (
 	ctlhelmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io/v1"
 	ctlmanagementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 const (
@@ -24,6 +25,7 @@ const (
 	addonHelmChartOnDelete = "managedAddon.helmChartOnDelete"
 
 	defaultWaitTime = 5 * time.Second
+	strTrue         = "true"
 )
 
 type handler struct {
@@ -155,6 +157,12 @@ func (h *handler) enableAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedA
 
 func (h *handler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, error) {
 	logrus.Debugf("creating new helm chart %s for addon %s", getChartFullName(addon), addon.Name)
+	labels := addon.Labels
+	labels[constant.ManagedAddonLabel] = strTrue
+	valuesContent, err := mergeDefaultValuesContent(addon.Spec.DefaultValuesContent, addon.Spec.ValuesContent)
+	if err != nil {
+		return nil, err
+	}
 	return h.helmCharts.Create(&helmv1.HelmChart{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      addon.Name,
@@ -167,16 +175,15 @@ func (h *handler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart
 					UID:        addon.UID,
 				},
 			},
-			Labels: map[string]string{
-				constant.ManagedAddonLabel: "true",
-			},
+			Labels: labels,
 		},
 		Spec: helmv1.HelmChartSpec{
 			TargetNamespace: addon.Namespace,
 			Chart:           addon.Spec.Chart,
 			Repo:            addon.Spec.Repo,
 			Version:         addon.Spec.Version,
-			ValuesContent:   addon.Spec.ValuesContent,
+			ValuesContent:   valuesContent,
+			FailurePolicy:   addon.Spec.FailurePolicy,
 		},
 	})
 }
@@ -199,6 +206,14 @@ func (h *handler) reconcileAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.Manag
 	chartCpy.Spec.Repo = addon.Spec.Repo
 	chartCpy.Spec.Chart = addon.Spec.Chart
 
+	if len(addon.Spec.DefaultValuesContent) > 0 {
+		valuesContent, err := mergeDefaultValuesContent(addon.Spec.DefaultValuesContent, addon.Spec.ValuesContent)
+		if err != nil {
+			return h.setAddonCondStatus(addon, mgmtv1.AddonStateError, "", err)
+		}
+		chartCpy.Spec.ValuesContent = valuesContent
+	}
+
 	if !reflect.DeepEqual(chartCpy.Spec, chart.Spec) {
 		logrus.Debugf("updating helm chart %s spec for addon %s", fullName, addon.Name)
 		if _, err = h.helmCharts.Update(chartCpy); err != nil {
@@ -212,4 +227,16 @@ func (h *handler) reconcileAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.Manag
 
 func getChartFullName(addon *mgmtv1.ManagedAddon) string {
 	return fmt.Sprintf("%s-%s", addon.Namespace, addon.Name)
+}
+
+func mergeDefaultValuesContent(defaultValuesContent, valuesContent string) (string, error) {
+	if len(valuesContent) == 0 && len(defaultValuesContent) != 0 {
+		return defaultValuesContent, nil
+	}
+
+	if len(defaultValuesContent) == 0 {
+		return valuesContent, nil
+	}
+
+	return utils.MergeYAML(defaultValuesContent, valuesContent)
 }

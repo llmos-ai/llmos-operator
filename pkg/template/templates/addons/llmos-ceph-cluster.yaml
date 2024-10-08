@@ -1,0 +1,253 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: llmos-ceph-cluster
+  namespace: storage-system
+  labels:
+    llmos.ai/system-addon: "true"
+    llmos.ai/system-addon-allow-edit: "true"
+  annotations:
+    field.llmos.ai/description: "Built-in LLMOS ceph cluster, providing block and file system storage."
+spec:
+  repo: http://system-charts-repo.llmos-system.svc
+  chart: rook-ceph-cluster
+  version: v1.15.3
+  enabled: false
+  failurePolicy: manual
+  defaultValuesContent: |-
+    # -- Namespace of the main rook operator
+    operatorNamespace: storage-system
+
+    # -- The metadata.name of the CephCluster CR
+    clusterName: llmos-ceph
+
+    # -- Cluster ceph.conf override
+    configOverride:
+    # configOverride: |
+    #   [global]
+    #   mon_allow_pool_delete = true
+    #   osd_pool_default_size = 3
+    #   osd_pool_default_min_size = 2
+
+    # Installs a debugging toolbox deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
+    toolbox:
+      enabled: true
+      resources:
+        limits:
+          memory: "1Gi"
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+
+    cephClusterSpec:
+      cephVersion:
+        image: quay.io/ceph/ceph:v18.2.4
+
+      # The path on the host where configuration files will be persisted. Must be specified.
+      # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
+      dataDirHostPath: /var/lib/llmos/rook
+
+      mon:
+        count: 3 # default to 2 on cluster-init
+        allowMultiplePerNode: false
+
+      mgr:
+        count: 2 # default to 1 on cluster-init
+        allowMultiplePerNode: false
+
+      # enable the ceph dashboard for viewing cluster status
+      dashboard:
+        enabled: false
+        ssl: true
+
+      # enable the crash collector for ceph daemon crash collection
+      crashCollector:
+        disable: false
+        # Uncomment daysToRetain to prune ceph crash entries older than the
+        # specified number of days.
+        # daysToRetain: 30
+
+      # enable log collector, daemons will log on files and rotate
+      logCollector:
+        enabled: true
+        periodicity: daily # one of: hourly, daily, weekly, monthly
+        maxLogSize: 500M # SUFFIX may be 'M' or 'G'. Must be at least 1M.
+
+      # To control where various services will be scheduled by kubernetes, use the placement configuration sections below.
+      # The example under 'all' would have all services scheduled on kubernetes nodes labeled with 'role=storage-node' and
+      # tolerate taints with a key of 'storage-node'.
+      placement:
+        all:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              preference:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - storage
+          tolerations:
+          - key: CriticalAddonsOnly
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/master
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/control-plane
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/storage
+            operator: Exists
+
+      resources:
+        mgr:
+          limits:
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        mon:
+          limits:
+            memory: "2Gi"
+          requests:
+            cpu: "1000m"
+            memory: "1Gi"
+        osd:
+          limits:
+            memory: "4Gi"
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+        prepareosd:
+          # limits: It is not recommended to set limits on the OSD prepare job
+          #         since it's a one-time burst for memory that must be allowed to
+          #         complete without an OOM kill.  Note however that if a k8s
+          #         limitRange guardrail is defined external to Rook, the lack of
+          #         a limit here may result in a sync failure, in which case a
+          #         limit should be added.  1200Mi may suffice for up to 15Ti
+          #         OSDs ; for larger devices 2Gi may be required.
+          #         cf. https://github.com/rook/rook/pull/11103
+          requests:
+            cpu: "500m"
+            memory: "50Mi"
+        mgr-sidecar:
+          limits:
+            memory: "100Mi"
+          requests:
+            cpu: "100m"
+            memory: "40Mi"
+        crashcollector:
+          limits:
+            memory: "60Mi"
+          requests:
+            cpu: "100m"
+            memory: "60Mi"
+        logcollector:
+          limits:
+            memory: "1Gi"
+          requests:
+            cpu: "100m"
+            memory: "100Mi"
+        cleanup:
+          limits:
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "100Mi"
+        exporter:
+          limits:
+            memory: "128Mi"
+          requests:
+            cpu: "50m"
+            memory: "50Mi"
+
+      # priority classes to apply to ceph resources
+      priorityClassNames:
+        mon: system-node-critical
+        osd: system-node-critical
+        mgr: system-cluster-critical
+
+      storage: # cluster level storage configuration and selection
+        useAllNodes: true
+        useAllDevices: true
+
+    # -- A list of CephBlockPool configurations to deploy
+    # @default -- See [below](#ceph-block-pools)
+    cephBlockPools:
+      - name: llmos-ceph-blockpool
+        spec:
+          failureDomain: host
+          replicated:
+            size: 3
+          parameters:
+            min_size: "1" # default to 1 on cluster init
+        storageClass:
+          enabled: true
+          name: llmos-ceph-block
+          isDefault: true
+          reclaimPolicy: Delete
+          allowVolumeExpansion: true
+          volumeBindingMode: "Immediate"
+          parameters:
+            # RBD image format. Defaults to "2".
+            imageFormat: "2"
+            imageFeatures: layering
+
+            # These secrets contain Ceph admin credentials.
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: storage-system
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: storage-system
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+            csi.storage.k8s.io/node-stage-secret-namespace: storage-system
+            # Specify the filesystem type of the volume. If not specified, csi-provisioner
+            # will set default as `ext4`. Note that `xfs` is not recommended due to potential deadlock
+            # in hyperconverged settings where the volume is mounted on the same node as the osds.
+            csi.storage.k8s.io/fstype: ext4
+
+    # -- A list of CephFileSystem configurations to deploy
+    # @default -- See [below](#ceph-file-systems)
+    cephFileSystems:
+      - name: llmos-ceph-filesystem
+        # see https://github.com/rook/rook/blob/v1.15.3/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
+        spec:
+          metadataPool:
+            replicated:
+              size: 3
+          dataPools:
+            - failureDomain: host
+              replicated:
+                size: 3
+              name: data0
+          metadataServer:
+            activeCount: 1
+            activeStandby: true
+            resources:
+              limits:
+                memory: "4Gi"
+              requests:
+                cpu: "500m"
+                memory: "1024Mi"
+            priorityClassName: system-cluster-critical
+        storageClass:
+          enabled: true
+          isDefault: false
+          name: llmos-ceph-filesystem
+          # (Optional) specify a data pool to use, must be the name of one of the data pools above, 'data0' by default
+          pool: data0
+          reclaimPolicy: Delete
+          allowVolumeExpansion: true
+          volumeBindingMode: "Immediate"
+          parameters:
+            # The secrets contain Ceph admin credentials.
+            csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/provisioner-secret-namespace: storage-system
+            csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+            csi.storage.k8s.io/controller-expand-secret-namespace: storage-system
+            csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+            csi.storage.k8s.io/node-stage-secret-namespace: storage-system
+            csi.storage.k8s.io/fstype: ext4
+    # disable object store deployment by default
+    cephObjectStores: []
+

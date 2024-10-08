@@ -9,13 +9,16 @@ const (
 	MLPrefix    = "ml.llmos.ai"
 	MgmtPrefix  = "management.llmos.ai"
 
-	SystemNamespaceName     = "llmos-system"
-	CephSystemNamespaceName = "ceph-system"
-	PublicNamespaceName     = "llmos-public"
-	SUCNamespace            = "system-upgrade"
-	CephClusterName         = "llmos-ceph"
-	AdminRole               = "cluster-admin"
-	NvidiaGPUKey            = "nvidia.com/gpu"
+	SystemNamespaceName        = "llmos-system"
+	StorageSystemNamespaceName = "storage-system"
+	PublicNamespaceName        = "llmos-public"
+	SUCNamespace               = "system-upgrade"
+	CephClusterName            = "llmos-ceph"
+	AdminRole                  = "cluster-admin"
+	NvidiaGPUKey               = "nvidia.com/gpu"
+
+	LLMOSCrdChartName      = "llmos-crd"
+	LLMOSOperatorChartName = "llmos-operator"
 
 	TimeLayout = time.RFC3339
 
@@ -29,11 +32,12 @@ const (
 	LabelAppName    = "app.kubernetes.io/name"
 	LabelAppVersion = "app.kubernetes.io/version"
 
-	LLMOSVersionLabel       = LLMOSPrefix + "/version"
-	LLMOSServerVersionLabel = LLMOSPrefix + "/server-version"
-	LLMOSManagedLabel       = LLMOSPrefix + "/managed"
-	ManagedAddonLabel       = LLMOSPrefix + "/managed-addon"
-	SystemAddonLabel        = LLMOSPrefix + "/system-addon"
+	LLMOSVersionLabel         = LLMOSPrefix + "/version"
+	LLMOSServerVersionLabel   = LLMOSPrefix + "/server-version"
+	LLMOSManagedLabel         = LLMOSPrefix + "/managed"
+	ManagedAddonLabel         = LLMOSPrefix + "/managed-addon"
+	SystemAddonLabel          = LLMOSPrefix + "/system-addon"
+	SystemAddonAllowEditLabel = LLMOSPrefix + "/system-addon-allow-edit"
 
 	SettingPreConfiguredValueAnno = LLMOSPrefix + "/previous-configured-value"
 	SecretNameRefAnno             = LLMOSPrefix + "/secret-name"

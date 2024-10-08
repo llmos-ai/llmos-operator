@@ -46,6 +46,7 @@ metadata:
   namespace: llmos-system
 spec:
   chart: https://%{KUBERNETES_API}%/static/charts/llmos-crd-$LLMOS_OPERATOR_VERSION.tgz
+  failurePolicy: manual
   valuesContent: |-
     $LLMOS_CRD_VALUES
 EOF

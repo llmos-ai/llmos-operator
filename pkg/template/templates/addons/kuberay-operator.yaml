@@ -12,10 +12,9 @@ spec:
   chart: kuberay-operator
   version: 1.2.1
   enabled: true
-  valuesContent: |-
+  defaultValuesContent: |-
     image:
       repository: quay.io/kuberay/operator
-      tag: v1.2.1
       pullPolicy: IfNotPresent
     batchScheduler:
       enabled: false

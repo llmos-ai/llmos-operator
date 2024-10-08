@@ -54,8 +54,12 @@ spec:
             properties:
               chart:
                 type: string
+              defaultValuesContent:
+                type: string
               enabled:
                 type: boolean
+              failurePolicy:
+                type: string
               repo:
                 type: string
               valuesContent:

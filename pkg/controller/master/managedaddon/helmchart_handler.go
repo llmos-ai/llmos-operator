@@ -18,7 +18,7 @@ func (h *handler) addonHelmChartOnDelete(_ string, chart *helmv1.HelmChart) (*he
 	}
 
 	// only need to handle helm chart owned by managed addon
-	if chart.Labels == nil || len(chart.OwnerReferences) == 0 || chart.Labels[constant.ManagedAddonLabel] != "true" {
+	if chart.Labels == nil || len(chart.OwnerReferences) == 0 || chart.Labels[constant.ManagedAddonLabel] != strTrue {
 		return nil, nil
 	}
 
