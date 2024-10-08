@@ -7,10 +7,10 @@ dependencies:
   version: v24.6.2
 - name: rook-ceph
   repository: https://charts.rook.io/release
-  version: v1.15.2
+  version: v1.15.3
 - name: rook-ceph-cluster
   repository: https://charts.rook.io/release
-  version: v1.15.2
+  version: v1.15.3
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 19.6.4
@@ -20,5 +20,5 @@ dependencies:
 - name: snapshot-controller
   repository: file://dependency_charts/snapshot-controller
   version: 0.1.0
-digest: sha256:4022de51fc20ee11ed68634469575daf56ea38a3ec632beab576ea269edcc1d8
-generated: "2024-09-30T16:48:43.714406+08:00"
+digest: sha256:44ecc8d2d258ea40c6763ec82fcaad57cb73dcf23ba6e3c9512003e8892bda3e
+generated: "2024-10-11T09:59:53.099904+08:00"

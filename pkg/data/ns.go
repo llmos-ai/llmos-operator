@@ -11,7 +11,7 @@ import (
 
 var defaultNSs = []string{
 	constant.PublicNamespaceName,
-	constant.CephSystemNamespaceName,
+	constant.StorageSystemNamespaceName,
 	constant.SUCNamespace,
 }
 

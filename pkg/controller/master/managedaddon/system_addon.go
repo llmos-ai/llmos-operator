@@ -16,32 +16,30 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 	"github.com/llmos-ai/llmos-operator/pkg/template"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
-
-// systemAddonTemplates are defined in the pkg/templates/addons
-var systemAddonTemplates = []string{
-	"gpu-operator.yaml",
-	"kuberay-operator.yaml",
-	"rook-ceph.yaml",
-	"llmos-redis.yaml",
-	"system-upgrade-controller.yaml",
-}
 
 func (h *handler) registerSystemAddons(_ context.Context) error {
 	serverVersion := settings.ServerVersion.Get()
+
+	systemAddonTemplates, err := template.GetAllFilenames()
+	if err != nil {
+		return fmt.Errorf("failed to get all addon templates: %w", err)
+	}
+
 	for _, fileName := range systemAddonTemplates {
-		template, err := template.Render(template.AddonTemplate, fileName, nil)
+		templateFile, err := template.Render(template.AddonTemplate, fileName, nil)
 		if err != nil {
 			return fmt.Errorf("failed to render template: %w", err)
 		}
 
-		if len(template.Bytes()) == 0 {
+		if len(templateFile.Bytes()) == 0 {
 			logrus.Warnf("template is empty: %s", fileName)
 			continue
 		}
 
 		addonTemplate := &mgmtv1.ManagedAddon{}
-		err = yaml.NewYAMLOrJSONDecoder(bytes.NewReader(template.Bytes()), 1024).Decode(addonTemplate)
+		err = yaml.NewYAMLOrJSONDecoder(bytes.NewReader(templateFile.Bytes()), 1024).Decode(addonTemplate)
 		if err != nil {
 			return fmt.Errorf("failed to decode %s, error: %s", fileName, err.Error())
 		}
@@ -54,8 +52,7 @@ func (h *handler) registerSystemAddons(_ context.Context) error {
 			addonTemplate.Labels = make(map[string]string)
 		}
 		addonTemplate.Labels[constant.LLMOSServerVersionLabel] = serverVersion
-
-		if _, err = h.createOrUpdateAddon(addonTemplate, serverVersion); err != nil {
+		if _, err = h.reconcileManagedAddon(addonTemplate, serverVersion); err != nil {
 			return err
 		}
 	}
@@ -63,8 +60,8 @@ func (h *handler) registerSystemAddons(_ context.Context) error {
 	return nil
 }
 
-func (h *handler) createOrUpdateAddon(addonTemplate *mgmtv1.ManagedAddon,
-	serverVersion string) (*mgmtv1.ManagedAddon, error) {
+func (h *handler) reconcileManagedAddon(addonTemplate *mgmtv1.ManagedAddon, serverVersion string) (
+	*mgmtv1.ManagedAddon, error) {
 	addon, err := h.managedAddon.Get(addonTemplate.Namespace, addonTemplate.Name, metav1.GetOptions{})
 	if err != nil && apierrors.IsNotFound(err) {
 		return h.managedAddons.Create(addonTemplate)
@@ -73,15 +70,33 @@ func (h *handler) createOrUpdateAddon(addonTemplate *mgmtv1.ManagedAddon,
 			addonTemplate.Namespace, addonTemplate.Name, err.Error())
 	}
 
-	logrus.Tracef("addon %s/%s already exists, %+v", addon.Namespace, addon.Name, addon)
-	if !reflect.DeepEqual(addon.Spec, addonTemplate.Spec) ||
-		addon.Labels[constant.LLMOSServerVersionLabel] != serverVersion {
-		addonCpy := addon.DeepCopy()
-		addonCpy.Spec = addonTemplate.Spec
-		addonCpy.Labels[constant.LLMOSServerVersionLabel] = serverVersion
-		logrus.Debugf("addon %s/%s spec is not equal, update it", addonCpy.Name, addonCpy.Namespace)
-		return h.managedAddons.Update(addonCpy)
+	// Skip updating addon if it is being deleted
+	if addon == nil || addon.DeletionTimestamp != nil {
+		return addonTemplate, nil
 	}
 
-	return nil, nil
+	toUpdate := addon.DeepCopy()
+	toUpdate.Spec.Version = addonTemplate.Spec.Version
+	toUpdate.Spec.Chart = addonTemplate.Spec.Chart
+	toUpdate.Spec.Repo = addonTemplate.Spec.Repo
+	toUpdate.Spec.DefaultValuesContent = addonTemplate.Spec.DefaultValuesContent
+	toUpdate.Spec.FailurePolicy = addonTemplate.Spec.FailurePolicy
+
+	// Merge labels and annotations
+	if toUpdate.Labels == nil {
+		toUpdate.Labels = make(map[string]string)
+	}
+	if toUpdate.Annotations == nil {
+		toUpdate.Annotations = make(map[string]string)
+	}
+	toUpdate.Labels = utils.MergeMapString(toUpdate.Labels, addonTemplate.Labels)
+	toUpdate.Annotations = utils.MergeMapString(toUpdate.Annotations, addonTemplate.Annotations)
+	toUpdate.Labels[constant.LLMOSServerVersionLabel] = serverVersion
+
+	if !reflect.DeepEqual(addon, toUpdate) {
+		logrus.Debugf("system addon %s/%s has changed, updating it", addon.Name, addon.Namespace)
+		return h.managedAddons.Update(toUpdate)
+	}
+
+	return toUpdate, nil
 }

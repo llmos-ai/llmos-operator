@@ -40,7 +40,6 @@ var registerFuncs = []registerFunc{
 	roletemplatebinding.Register,
 	namespace.Register,
 	node.Register,
-	//storage.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management, opts config.Options) error {

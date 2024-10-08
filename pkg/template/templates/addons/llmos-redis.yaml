@@ -12,16 +12,14 @@ spec:
   chart: redis
   version: 19.6.4
   enabled: true
-  valuesContent: |-
+  defaultValuesContent: |-
     image:
       repository: bitnami/redis
-      tag: 7.2.5-debian-12-r4
       pullPolicy: IfNotPresent
     ## @param architecture Redis&reg; architecture. Allowed values: `standalone` or `replication`
     ##
     architecture: replication
     master:
-      # default to 1, will auto-scale up to 1 by the operator when storage is ready
       count: 1
       persistence:
         enabled: true
@@ -30,7 +28,7 @@ spec:
           - ReadWriteOnce
         size: 5Gi
     replica:
-      replicaCount: 0 # default to 0, will auto-scale up to 3 by the operator when storage is ready
+      replicaCount: 0 # default to 0, scale up manually to 3 when the system storage is enabled
       persistence:
         enabled: true
         storageClass: ""

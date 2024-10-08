@@ -27,8 +27,8 @@ import (
 )
 
 const (
-	llmosCrdChartName      = "llmos-crd"
-	llmosOperatorChartName = "llmos-operator"
+	llmosCrdChartName      = constant.LLMOSCrdChartName
+	llmosOperatorChartName = constant.LLMOSOperatorChartName
 
 	msgWaitingForAddons   = "Waiting for managed addons to be validated"
 	msgWaitingForManifest = "Waiting for HelmChart [%s] upgrade job to be complete"

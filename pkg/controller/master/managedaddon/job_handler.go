@@ -31,7 +31,6 @@ func (h *handler) OnAddonJobChange(_ string, job *batchv1.Job) (*batchv1.Job, er
 }
 
 func (h *handler) syncJobStatusToAddon(job *batchv1.Job, name string) error {
-	logrus.Debugf("syncing job %s status to addon %s", job.Name, name)
 	addon, err := h.managedAddonCache.Get(job.Namespace, name)
 	if err != nil && !errors.IsNotFound(err) {
 		return fmt.Errorf("failed to get addon %s/%s: %w", job.Namespace, name, err)

@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 	"unicode"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
@@ -43,4 +46,60 @@ func GetImageAndTag(image string) (string, string) {
 		return "", ""
 	}
 	return parts[0], parts[1]
+}
+
+func MergeMapString(current, overwrite map[string]string) map[string]string {
+	for k, v := range overwrite {
+		current[k] = v
+	}
+	return current
+}
+
+// mergeMaps recursively merges two maps. Values from map2 will overwrite those in map1 if they exist.
+func mergeMaps(map1, map2 map[string]interface{}) map[string]interface{} {
+	for k, v2 := range map2 {
+		if v1, exists := map1[k]; exists {
+			// If both values are maps, merge them recursively
+			map1SubMap, ok1 := v1.(map[string]interface{})
+			map2SubMap, ok2 := v2.(map[string]interface{})
+			if ok1 && ok2 {
+				map1[k] = mergeMaps(map1SubMap, map2SubMap)
+			} else {
+				// Overwrite the value in map1 with the value from map2
+				map1[k] = v2
+			}
+		} else {
+			// If the key doesn't exist in map1, just add it
+			map1[k] = v2
+		}
+	}
+	return map1
+}
+
+// MergeYAML takes two YAML strings, merges them, and returns the resulting YAML string.
+func MergeYAML(originYaml, overwriteYaml string) (string, error) {
+	// Parse the first YAML string into a map
+	var map1 map[string]interface{}
+	err := yaml.Unmarshal([]byte(originYaml), &map1)
+	if err != nil {
+		return "", fmt.Errorf("error unmarshalling orignal YAML : %v", err)
+	}
+
+	// Parse the second YAML string into a map
+	var map2 map[string]interface{}
+	err = yaml.Unmarshal([]byte(overwriteYaml), &map2)
+	if err != nil {
+		return "", fmt.Errorf("error unmarshalling overwrite YAML : %v", err)
+	}
+
+	// Merge the maps
+	mergedMap := mergeMaps(map1, map2)
+
+	// Convert the merged map back into a YAML string
+	mergedYAML, err := yaml.Marshal(mergedMap)
+	if err != nil {
+		return "", fmt.Errorf("error marshalling merged YAML: %v", err)
+	}
+
+	return string(mergedYAML), nil
 }
