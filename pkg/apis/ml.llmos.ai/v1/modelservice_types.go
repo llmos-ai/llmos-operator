@@ -25,7 +25,7 @@ type ModelService struct {
 	Status ModelServiceStatus `json:"status,omitempty"`
 }
 
-// ModelServiceSpec defines the desired state of ModelFile
+// ModelServiceSpec defines the desired state of ModelService
 type ModelServiceSpec struct {
 	// +kubebuilder:validation:Required
 	ModelName string `json:"model"`
@@ -66,7 +66,7 @@ type ModelServiceTemplateSpec struct {
 	Spec corev1.PodSpec `json:"spec,omitempty"`
 }
 
-// ModelServiceStatus defines the observed state of ModelFile
+// ModelServiceStatus defines the observed state of ModelService
 type ModelServiceStatus struct {
 	Conditions []common.Condition `json:"conditions,omitempty"`
 	// ReadyReplicas is the number of Pods created by the controller that have a Ready Condition

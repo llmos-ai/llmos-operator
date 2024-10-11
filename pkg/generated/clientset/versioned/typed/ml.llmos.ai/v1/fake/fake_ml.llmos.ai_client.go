@@ -27,10 +27,6 @@ type FakeMlV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeMlV1) ModelFiles() v1.ModelFileInterface {
-	return &FakeModelFiles{c}
-}
-
 func (c *FakeMlV1) ModelServices(namespace string) v1.ModelServiceInterface {
 	return &FakeModelServices{c, namespace}
 }

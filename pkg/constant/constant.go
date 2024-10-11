@@ -50,22 +50,10 @@ const (
 	DBAdminPasswordKey       = "pg-admin-password"
 	DBReplicationPasswordKey = "pg-replica-password"
 
-	ModelOriginModelAnnotation    = LLMOSPrefix + "/original-model"
-	ModelFileSkipDeleteAnnotation = LLMOSPrefix + "/model-file-skip-delete"
-
 	AnnotationResourceStopped          = LLMOSPrefix + "/resource-stopped"
 	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volume-claim-templates"
 	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8s-provider"
 	AnnotationSkipWebhook              = LLMOSPrefix + "/skip-webhook"
-
-	AnnotationAddRookCephRbac           = LLMOSPrefix + "/add-ceph-cluster-rbac"
-	AnnotationAddedRookCephRbac         = LLMOSPrefix + "/added-ceph-cluster-rbac"
-	AnnotationAddRookCephBlockStorage   = LLMOSPrefix + "/add-ceph-cluster-block-storage"
-	AnnotationAddedRookCephBlockStorage = LLMOSPrefix + "/added-ceph-cluster-block-storage"
-	AnnotationAddRookCephFilesystem     = LLMOSPrefix + "/add-ceph-cluster-filesystem"
-	AnnotationAddedRookCephFilesystem   = LLMOSPrefix + "/added-ceph-cluster-filesystem"
-	AnnotationAddCephToolbox            = LLMOSPrefix + "/add-ceph-toolbox"
-	AnnotationAddedCephToolbox          = LLMOSPrefix + "/added-ceph-toolbox"
 
 	/*
 		KubeRay related constant

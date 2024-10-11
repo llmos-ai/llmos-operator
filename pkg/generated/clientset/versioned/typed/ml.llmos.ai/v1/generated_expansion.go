@@ -17,8 +17,6 @@ limitations under the License.
 
 package v1
 
-type ModelFileExpansion interface{}
-
 type ModelServiceExpansion interface{}
 
 type NotebookExpansion interface{}
