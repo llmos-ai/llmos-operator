@@ -25,23 +25,6 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ModelFileList is a list of ModelFile resources
-type ModelFileList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ModelFile `json:"items"`
-}
-
-func NewModelFile(namespace, name string, obj ModelFile) *ModelFile {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ModelFile").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // ModelServiceList is a list of ModelService resources
 type ModelServiceList struct {
 	metav1.TypeMeta `json:",inline"`

@@ -8,7 +8,6 @@ import (
 
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/globalrole"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/managedaddon"
-	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelfile"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/node"
@@ -28,7 +27,6 @@ type registerFunc func(context.Context, *config.Management, config.Options) erro
 var registerFuncs = []registerFunc{
 	upgrade.Register,
 	setting.Register,
-	modelfile.Register,
 	user.Register,
 	notebook.Register,
 	raycluster.Register,

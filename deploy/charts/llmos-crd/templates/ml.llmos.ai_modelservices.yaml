@@ -50,7 +50,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ModelServiceSpec defines the desired state of ModelFile
+            description: ModelServiceSpec defines the desired state of ModelService
             properties:
               accelerators:
                 additionalProperties:
@@ -8513,7 +8513,7 @@ spec:
             - replicas
             type: object
           status:
-            description: ModelServiceStatus defines the observed state of ModelFile
+            description: ModelServiceStatus defines the observed state of ModelService
             properties:
               conditions:
                 items:

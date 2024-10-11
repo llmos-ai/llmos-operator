@@ -27,7 +27,6 @@ import (
 )
 
 var (
-	ModelFileResourceName    = "modelfiles"
 	ModelServiceResourceName = "modelservices"
 	NotebookResourceName     = "notebooks"
 )
@@ -53,8 +52,6 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&ModelFile{},
-		&ModelFileList{},
 		&ModelService{},
 		&ModelServiceList{},
 		&Notebook{},
