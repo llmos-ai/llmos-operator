@@ -2,6 +2,7 @@ package notebook
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -15,6 +16,10 @@ import (
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
+)
+
+const (
+	DefaultFSGroup = int64(100)
 )
 
 func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
@@ -63,7 +68,8 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 		}
 	}
 
-	container := ss.Spec.Template.Spec.Containers[0]
+	podSpec := &ss.Spec.Template.Spec
+	container := &podSpec.Containers[0]
 	container.Name = notebook.Name
 	if container.WorkingDir == "" {
 		container.WorkingDir = "/home/jovyan"
@@ -75,6 +81,15 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 				Name:          "notebook-port",
 				Protocol:      "TCP",
 			},
+		}
+	}
+
+	if value, exists := os.LookupEnv("ADD_FSGROUP"); !exists || value == "true" {
+		if podSpec.SecurityContext == nil {
+			fsGroup := DefaultFSGroup
+			podSpec.SecurityContext = &corev1.PodSecurityContext{
+				FSGroup: &fsGroup,
+			}
 		}
 	}
 
