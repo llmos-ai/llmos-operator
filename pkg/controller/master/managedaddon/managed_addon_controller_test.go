@@ -39,7 +39,7 @@ configOverride:
 cephClusterSpec:
   cephVersion:
     image: quay.io/ceph/ceph:v18.2.4
-  dataDirHostPath: /var/lib/llmos/rook
+  dataDirHostPath: /var/lib/llmos/rook-ceph
   mon:
     count: 3
     allowMultiplePerNode: false
