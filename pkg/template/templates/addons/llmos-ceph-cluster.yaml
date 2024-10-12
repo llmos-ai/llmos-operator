@@ -52,7 +52,7 @@ spec:
         allowMultiplePerNode: false
 
       mgr:
-        count: 2 # default to 1 on cluster-init
+        count: 1 # default to 1 on cluster-init
         allowMultiplePerNode: false
 
       # enable the ceph dashboard for viewing cluster status
@@ -111,14 +111,14 @@ spec:
           limits:
             memory: "2Gi"
           requests:
-            cpu: "1000m"
-            memory: "1Gi"
+            cpu: "500m"
+            memory: "512Mi"
         osd:
           limits:
             memory: "4Gi"
           requests:
-            cpu: "1000m"
-            memory: "2Gi"
+            cpu: "500m"
+            memory: "1Gi"
         prepareosd:
           # limits: It is not recommended to set limits on the OSD prepare job
           #         since it's a one-time burst for memory that must be allowed to
@@ -129,19 +129,19 @@ spec:
           #         OSDs ; for larger devices 2Gi may be required.
           #         cf. https://github.com/rook/rook/pull/11103
           requests:
-            cpu: "500m"
+            cpu: "100m"
             memory: "50Mi"
         mgr-sidecar:
           limits:
             memory: "100Mi"
           requests:
-            cpu: "100m"
+            cpu: "50m"
             memory: "40Mi"
         crashcollector:
           limits:
             memory: "60Mi"
           requests:
-            cpu: "100m"
+            cpu: "50m"
             memory: "60Mi"
         logcollector:
           limits:
@@ -153,7 +153,7 @@ spec:
           limits:
             memory: "1Gi"
           requests:
-            cpu: "500m"
+            cpu: "250m"
             memory: "100Mi"
         exporter:
           limits:

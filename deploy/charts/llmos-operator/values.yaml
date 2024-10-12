@@ -23,6 +23,10 @@ nameOverride: ""
 fullnameOverride: ""
 depNameOverride: &depNameOverride "llmos"
 
+priorityClassNames:
+  operator: system-node-critical
+  webhook: system-node-critical
+
 operator:
   apiserver:
     replicaCount: 1
