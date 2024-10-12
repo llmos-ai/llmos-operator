@@ -45,7 +45,7 @@ spec:
 
       # The path on the host where configuration files will be persisted. Must be specified.
       # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
-      dataDirHostPath: /var/lib/llmos/rook
+      dataDirHostPath: /var/lib/llmos/rook-ceph
 
       mon:
         count: 3 # default to 2 on cluster-init
