@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	NamePrefix     = "notebook-"
 	DefaultFSGroup = int64(100)
 )
 
@@ -189,7 +190,7 @@ func GetNotebookSelector(notebook *mlv1.Notebook) *metav1.LabelSelector {
 }
 
 func getFormattedNotebookName(notebook *mlv1.Notebook) string {
-	return fmt.Sprintf("notebook-%s", notebook.Name)
+	return fmt.Sprintf("%s%s", NamePrefix, notebook.Name)
 }
 
 func getNotebookPodName(statefulSetName string) string {
