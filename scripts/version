@@ -31,6 +31,7 @@ COMMIT_DATE=$(git --no-pager log -1 --format='%ct')
 COMMIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -E 's/[^a-zA-Z0-9]+/-/g')
 GIT_TAG=${GIT_TAG:-$(git tag -l --contains HEAD | head -n 1)}
 LAST_TAG=${GIT_TAG:-'v0.0.0'}
+UI_VERSION=${UI_VERSION:-latest}
 
 if [[ -n "$VERSION" ]]; then
     echo "Use existing env version: $VERSION"
@@ -59,6 +60,7 @@ fi
 
 if [[ -z "${DIRTY}" && -n "${GIT_TAG}" ]]; then
     CHART_VERSION="${GIT_TAG}"
+    UI_VERSION="${GIT_TAG}" # Only set UI version when is a new tag release
 elif [[ "$DIRTY" ]]; then
     CHART_VERSION="${LAST_TAG}${DIRTY}.${COMMIT}"
 else
@@ -83,6 +85,7 @@ if [ "$EXPORT_ENV" = true ]; then
     export VERSION=$VERSION
     export COMMIT=$COMMIT
     export TAG=$TAG
+    export UI_VERSION=$UI_VERSION
 
     # export earthly args
     export EARTHLY_BUILD_ARGS="REGISTRY=${REGISTRY},DOCKER_REGISTRY=${DOCKER_REGISTRY},
@@ -100,6 +103,7 @@ echo "GIT_TAG: $GIT_TAG"
 echo "CHART_REPO: $CHART_REPO"
 echo "CHART_VERSION: $CHART_VERSION"
 echo "APP_VERSION: $APP_VERSION"
+echo "UI_VERSION: $UI_VERSION"
 echo "DIRNAME: $(dirname $0)"
 echo "GHCR_REPO: $REGISTRY/$REPO"
 echo "DOCKER_REPO: $DOCKER_REGISTRY/$REPO"

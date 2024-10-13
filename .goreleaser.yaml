@@ -6,6 +6,7 @@ env:
   - BUILDER={{ if index .Env "BUILDER"  }}{{ .Env.BUILDER }}{{ else }}default{{ end }}
   - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ end }}
   - COMMIT={{ if index .Env "COMMIT"  }}{{ .Env.COMMIT }}{{ end }}
+  - UI_VERSION={{ if index .Env "UI_VERSION"  }}{{ .Env.UI_VERSION }}{{ end }}
 
 snapshot:
   # https://goreleaser.com/customization/snapshots/
@@ -61,6 +62,7 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -84,6 +86,7 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -107,6 +110,7 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -130,6 +134,7 @@ dockers:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
