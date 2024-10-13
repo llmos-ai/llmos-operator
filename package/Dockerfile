@@ -16,7 +16,8 @@ RUN ARCH=$(uname -m); \
     chmod +x dumb-init && \
     mv dumb-init /usr/bin/dumb-init
 
-ENV LLMOS_UI_VERSION latest
+ARG LLMOS_UI_VERSION
+ENV LLMOS_UI_VERSION ${LLMOS_UI_VERSION:-latest}
 # also update the api-ui-version in pkg/settings/settings.go when updating the version here.
 ENV LLMOS_API_UI_VERSION 1.1.11
 
