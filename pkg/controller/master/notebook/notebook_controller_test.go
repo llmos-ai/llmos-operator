@@ -100,12 +100,10 @@ func TestHandler_OnNotebookChanged(t *testing.T) {
 		}
 
 		h := &Handler{
-			notebooks:        fakeclients.NotebookClient(fakeClient.MlV1().Notebooks),
 			statefulSets:     fakeclients.StatefulSetClient(k8sClient.AppsV1().StatefulSets),
 			statefulSetCache: fakeclients.StatefulSetCache(k8sClient.AppsV1().StatefulSets),
 			services:         fakeclients.ServiceClient(k8sClient.CoreV1().Services),
 			serviceCache:     fakeclients.ServiceCache(k8sClient.CoreV1().Services),
-			podCache:         fakeclients.PodCache(k8sClient.CoreV1().Pods),
 		}
 		var actual output
 		actual.Notebook, actual.err = h.OnChanged(tc.given.key, tc.given.Notebook)
