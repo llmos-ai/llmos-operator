@@ -158,6 +158,9 @@ func (h *handler) enableAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedA
 func (h *handler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, error) {
 	logrus.Debugf("creating new helm chart %s for addon %s", getChartFullName(addon), addon.Name)
 	labels := addon.Labels
+	if labels == nil {
+		labels = make(map[string]string)
+	}
 	labels[constant.ManagedAddonLabel] = strTrue
 	valuesContent, err := mergeDefaultValuesContent(addon.Spec.DefaultValuesContent, addon.Spec.ValuesContent)
 	if err != nil {
