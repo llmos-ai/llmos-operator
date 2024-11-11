@@ -57,7 +57,6 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/k3s-io/helm-controller v0.16.3
-	github.com/ollama/ollama v0.1.38
 	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
 	github.com/onsi/ginkgo/v2 v2.20.0
 	github.com/onsi/gomega v1.34.1
