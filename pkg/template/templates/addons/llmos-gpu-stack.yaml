@@ -1,0 +1,94 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: llmos-gpu-stack
+  namespace: llmos-system
+  labels:
+    llmos.ai/system-addon: "true"
+    llmos.ai/system-addon-allow-edit: "true"
+  annotations:
+    field.llmos.ai/description: "llmos-gpu-stack provides vGPU and Multi-accelerator support for the LLMOS."
+spec:
+  repo: http://system-charts-repo.llmos-system.svc
+  chart: llmos-gpu-stack
+  version: 0.1.0-rc2
+  enabled: true
+  defaultValuesContent: |-
+    gpuStack:
+      deviceManager:
+        replicas: 1
+        image:
+          repository: ghcr.io/llmos-ai/llmos-gpu-stack
+          pullPolicy: Always
+        service:
+          type: ClusterIP
+          port: 8080
+          profilePort: 6060
+        resources:
+          requests:
+            cpu: 200m
+            memory: 450Mi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        tolerations:
+          - key: CriticalAddonsOnly
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/master
+            operator: Exists
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/control-plane
+            operator: Exists
+    crds:
+      enabled: true
+    gpuOperator:
+      enabled: true
+    gpu-operator:
+      driver:
+        enabled: false
+      devicePlugin:
+        enabled: false
+      dcgmExporter:
+        enabled: true
+        serviceMonitor:
+          enabled: false
+      toolkit:
+        env:
+          - name: CONTAINERD_CONFIG
+            value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+          - name: CONTAINERD_SOCKET
+            value: /run/k3s/containerd/containerd.sock
+          - name: CONTAINERD_RUNTIME_CLASS
+            value: nvidia
+          - name: CONTAINERD_SET_AS_DEFAULT
+            value: "true"
+    hami:
+      enabled: true
+      scheduler:
+        nodeLabelSelector:
+          llmos.ai/gpu-node: "true"
+        defaultSchedulerPolicy:
+          nodeSchedulerPolicy: binpack
+          gpuSchedulerPolicy: spread
+        kubeScheduler:
+          enabled: true
+          image: k8s.gcr.io/kube-scheduler
+          imageTag: "v1.30.5"
+          imagePullPolicy: IfNotPresent
+      devicePlugin:
+        runtimeClassName: "nvidia"
+        nvidianodeSelector:
+          gpustack.llmos.ai/gpu-node: "true"
+    volcano:
+      enabled: false
+      custom:
+        metrics_enable: false
+        admission_enable: true
+        admission_replicas: 1
+        controller_enable: true
+        controller_replicas: 1
+        scheduler_enable: true
+        scheduler_replicas: 1
+        leader_elect_enable: false
+        enabled_admissions: "/jobs/mutate,/jobs/validate,/podgroups/mutate,/pods/validate,/pods/mutate,/queues/mutate,/queues/validate"

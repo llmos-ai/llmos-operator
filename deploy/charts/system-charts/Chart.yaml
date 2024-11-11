@@ -29,12 +29,12 @@ dependencies:
     tags:
       - ml-framework
       - ray.io
-  - name: gpu-operator
-    version: "v24.6.2"
-    repository: "https://helm.ngc.nvidia.com/nvidia"
+  - name: llmos-gpu-stack
+    version: "0.1.0-rc2"
+    repository: "https://llmos-gpu-stack-charts.1block.ai"
     tags:
       - gpu-operator
-      - nvidia
+      - llmos-gpu-stack
   - name: rook-ceph
     version: v1.15.3
     repository: https://charts.rook.io/release
