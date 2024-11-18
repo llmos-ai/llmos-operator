@@ -13,7 +13,7 @@ import (
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Model",type="string",JSONPath=`.spec.model`
 // +kubebuilder:printcolumn:name="Ready",type="integer",JSONPath=".status.readyReplicas"
-// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.state"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // ModelService is a deployment for the LLM Model

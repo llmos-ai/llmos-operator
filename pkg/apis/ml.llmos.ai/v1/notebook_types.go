@@ -11,7 +11,11 @@ import (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:shortName=nb,scope=Namespaced
-// +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=`.metadata.creationTimestamp`
+// +kubebuilder:printcolumn:name="Type",type="string",JSONPath=`.metadata.labels['ml.llmos.ai\/notebook-type']`
+// +kubebuilder:printcolumn:name="Cpu",type="string",JSONPath=`.spec.template.spec.containers[0].resources.limits.cpu`
+// +kubebuilder:printcolumn:name="Memory",type="string",JSONPath=`.spec.template.spec.containers[0].resources.limits.memory`
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=`.status.state`
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=`.metadata.creationTimestamp`
 
 // Notebook is the Schema for the notebooks API
 type Notebook struct {
