@@ -22,7 +22,7 @@ spec:
       name: Ready
       type: integer
     - jsonPath: .status.state
-      name: State
+      name: Status
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
