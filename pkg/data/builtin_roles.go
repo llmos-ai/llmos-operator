@@ -21,13 +21,13 @@ const (
 
 func BootstrapGlobalRoles(mgmt *config.Management) error {
 	globalRoles := constructDefaultGlobalRole()
-	err := mgmt.Apply.WithDynamicLookup().WithSetID("apply-admin-init-password").ApplyObjects(globalRoles...)
+	err := mgmt.Apply.WithDynamicLookup().WithSetID("apply-default-global-role-templates").ApplyObjects(globalRoles...)
 	if err != nil {
 		return fmt.Errorf("failed to apply built-in GlobalRoles: %v", err)
 	}
 
 	roleTemplates := constructDefaultNsRoleTemplates()
-	err = mgmt.Apply.WithDynamicLookup().WithSetID("apply-admin-init-password").ApplyObjects(roleTemplates...)
+	err = mgmt.Apply.WithDynamicLookup().WithSetID("apply-default-ns-role-templates").ApplyObjects(roleTemplates...)
 	if err != nil {
 		return fmt.Errorf("failed to apply built-in RoleTempaltes: %v", err)
 	}
@@ -83,7 +83,6 @@ func constructDefaultGlobalRole() []runtime.Object {
 						"",
 					},
 					Resources: []string{
-						"nodes",
 						"persistentvolumes",
 					},
 					Verbs: []string{
@@ -124,7 +123,6 @@ func constructDefaultGlobalRole() []runtime.Object {
 					},
 					Resources: []string{
 						"pods",
-						"nodes",
 					},
 					Verbs: []string{
 						"*",
