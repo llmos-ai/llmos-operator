@@ -6,6 +6,7 @@ metadata:
   labels:
     llmos.ai/system-addon: "true"
     llmos.ai/system-addon-allow-edit: "true"
+    llmos.ai/cluster-tools: "true"
   annotations:
     field.llmos.ai/description: "Built-in LLMOS ceph cluster, providing block and file system storage."
 spec:

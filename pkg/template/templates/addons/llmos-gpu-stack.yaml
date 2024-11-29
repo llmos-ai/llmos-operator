@@ -6,6 +6,7 @@ metadata:
   labels:
     llmos.ai/system-addon: "true"
     llmos.ai/system-addon-allow-edit: "true"
+    llmos.ai/cluster-tools: "true"
   annotations:
     field.llmos.ai/description: "llmos-gpu-stack provides vGPU and Multi-accelerator support for the LLMOS."
 spec:
@@ -26,11 +27,11 @@ spec:
           profilePort: 6060
         resources:
           requests:
-            cpu: 200m
-            memory: 450Mi
+            cpu: 100m
+            memory: 200Mi
           limits:
-            cpu: 1
-            memory: 2Gi
+            cpu: 500m
+            memory: 1Gi
         tolerations:
           - key: CriticalAddonsOnly
             operator: Exists
@@ -77,18 +78,7 @@ spec:
           imageTag: "v1.30.5"
           imagePullPolicy: IfNotPresent
       devicePlugin:
+        deviceSplitCount: 10
         runtimeClassName: "nvidia"
         nvidianodeSelector:
           gpustack.llmos.ai/gpu-node: "true"
-    volcano:
-      enabled: false
-      custom:
-        metrics_enable: false
-        admission_enable: true
-        admission_replicas: 1
-        controller_enable: true
-        controller_replicas: 1
-        scheduler_enable: true
-        scheduler_replicas: 1
-        leader_elect_enable: false
-        enabled_admissions: "/jobs/mutate,/jobs/validate,/podgroups/mutate,/pods/validate,/pods/mutate,/queues/mutate,/queues/validate"
