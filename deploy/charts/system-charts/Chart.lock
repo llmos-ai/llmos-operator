@@ -20,5 +20,8 @@ dependencies:
 - name: snapshot-controller
   repository: file://dependency_charts/snapshot-controller
   version: 0.1.0
-digest: sha256:dcb2c938254fe691b36aa9edbec11244e70f2bc6da4acf50b5db541e7bcf23f8
-generated: "2024-11-11T13:40:00.413801+08:00"
+- name: llmos-monitoring
+  repository: https://llmos-charts.1block.ai
+  version: 0.1.0-up66.1.1
+digest: sha256:e048d96d504eab072be201bde2708622c6c47e3937c0f0ff1e50b307148923e0
+generated: "2024-11-27T14:32:17.372741+08:00"

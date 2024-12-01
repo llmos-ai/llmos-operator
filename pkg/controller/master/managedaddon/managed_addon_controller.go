@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"slices"
 	"time"
 
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
@@ -16,6 +17,7 @@ import (
 	ctlhelmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io/v1"
 	ctlmanagementv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
@@ -28,6 +30,11 @@ const (
 	strTrue         = "true"
 )
 
+var settingSyncedAddons = []string{
+	"llmos-monitoring",
+	"llmos-gpu-stack",
+}
+
 type handler struct {
 	managedAddon      ctlmanagementv1.ManagedAddonController
 	managedAddons     ctlmanagementv1.ManagedAddonClient
@@ -36,12 +43,14 @@ type handler struct {
 	helmChartCache    ctlhelmv1.HelmChartCache
 	jobs              ctlbatchv1.JobClient
 	jobCache          ctlbatchv1.JobCache
+	settings          ctlmanagementv1.SettingController
 }
 
 func Register(ctx context.Context, mgmt *config.Management, _ config.Options) error {
 	addon := mgmt.MgmtFactory.Management().V1().ManagedAddon()
 	helm := mgmt.HelmFactory.Helm().V1().HelmChart()
 	job := mgmt.BatchFactory.Batch().V1().Job()
+	settings := mgmt.MgmtFactory.Management().V1().Setting()
 	h := &handler{
 		managedAddon:      addon,
 		managedAddons:     addon,
@@ -50,6 +59,7 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		helmChartCache:    helm.Cache(),
 		jobs:              job,
 		jobCache:          job.Cache(),
+		settings:          settings,
 	}
 
 	addon.OnChange(ctx, addOnChange, h.OnChange)
@@ -62,6 +72,11 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 func (h *handler) OnChange(_ string, addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	if addon == nil || addon.DeletionTimestamp != nil {
 		return addon, nil
+	}
+
+	// Ensure that the addon is synced with the managedAddonConfigs setting
+	if found := slices.Contains(settingSyncedAddons, addon.Name); found {
+		h.settings.Enqueue(settings.ManagedAddonConfigsName)
 	}
 
 	// process addon if it is disabled

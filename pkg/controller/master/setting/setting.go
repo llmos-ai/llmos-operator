@@ -22,31 +22,35 @@ type syncerFunc func(*mgmtv1.Setting) error
 var syncers = map[string]syncerFunc{}
 
 type handler struct {
-	ctx          context.Context
-	settings     ctlmgmtv1.SettingClient
-	settingCache ctlmgmtv1.SettingCache
-	secrets      v1.SecretClient
-	secretCache  v1.SecretCache
-	mgmt         *config.Management
-	fallback     map[string]string
+	ctx               context.Context
+	settings          ctlmgmtv1.SettingClient
+	settingCache      ctlmgmtv1.SettingCache
+	secrets           v1.SecretClient
+	secretCache       v1.SecretCache
+	managedAddonCache ctlmgmtv1.ManagedAddonCache
+	mgmt              *config.Management
+	fallback          map[string]string
 }
 
 func Register(ctx context.Context, mgmt *config.Management, _ config.Options) error {
 	setting := mgmt.MgmtFactory.Management().V1().Setting()
 	secret := mgmt.CoreFactory.Core().V1().Secret()
+	addon := mgmt.MgmtFactory.Management().V1().ManagedAddon()
 	h := &handler{
-		ctx:          ctx,
-		mgmt:         mgmt,
-		settings:     setting,
-		settingCache: setting.Cache(),
-		secrets:      secret,
-		secretCache:  secret.Cache(),
-		fallback:     map[string]string{},
+		ctx:               ctx,
+		mgmt:              mgmt,
+		settings:          setting,
+		settingCache:      setting.Cache(),
+		secrets:           secret,
+		secretCache:       secret.Cache(),
+		managedAddonCache: addon.Cache(),
+		fallback:          map[string]string{},
 	}
 
 	syncers = map[string]syncerFunc{
-		settings.DatabaseUrlSettingName: h.setDBUrl,
-		settings.LogLevelSettingName:    h.setLogLevel,
+		settings.DatabaseUrlSettingName:  h.setDBUrl,
+		settings.LogLevelSettingName:     h.setLogLevel,
+		settings.ManagedAddonConfigsName: h.setManagedAddonConfigs,
 	}
 
 	setting.OnChange(ctx, settingOnChange, h.settingOnChang)

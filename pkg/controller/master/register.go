@@ -9,6 +9,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/globalrole"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelservice"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/monitoring"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/node"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/notebook"
@@ -38,6 +39,7 @@ var registerFuncs = []registerFunc{
 	roletemplatebinding.Register,
 	namespace.Register,
 	node.Register,
+	monitoring.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management, opts config.Options) error {
