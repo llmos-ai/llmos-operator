@@ -36,6 +36,7 @@ var (
 	UpgradeCheckUrl       = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
 	LLMOSDefaultRegistry  = NewSetting(LLMOSDefaultRegistryName, "docker.io/llmosai")
 	LogLevel              = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
+	ManagedAddonConfigs   = NewSetting(ManagedAddonConfigsName, "")
 )
 
 const (
@@ -50,6 +51,7 @@ const (
 	UpgradeCheckUrlName              = "upgrade-check-url"
 	LLMOSDefaultRegistryName         = "llmos-default-registry"
 	LogLevelSettingName              = "log-level"
+	ManagedAddonConfigsName          = "managed-addon-configs"
 )
 
 func init() {

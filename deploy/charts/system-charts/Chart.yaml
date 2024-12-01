@@ -64,3 +64,8 @@ dependencies:
     repository: file://dependency_charts/snapshot-controller
     tags:
       - csi-snapshotter
+  - name: llmos-monitoring
+    version: 0.1.0-up66.1.1
+    repository: "https://llmos-charts.1block.ai"
+    tags:
+      - llmos-monitoring

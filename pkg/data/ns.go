@@ -13,6 +13,7 @@ var defaultNSs = []string{
 	constant.PublicNamespaceName,
 	constant.StorageSystemNamespaceName,
 	constant.SUCNamespace,
+	constant.MonitoringNamespace,
 }
 
 func addDefaultNamespaces(apply apply.Apply) error {

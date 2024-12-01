@@ -1,0 +1,103 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: llmos-monitoring
+  namespace: llmos-monitoring-system
+  labels:
+    llmos.ai/system-addon: "true"
+    llmos.ai/system-addon-allow-edit: "true"
+    llmos.ai/cluster-tools: "true"
+  annotations:
+    field.llmos.ai/description: "LLMOS monitoring provides an easy-to-use solution for cluster and GPU metrics 
+    collection, complete with Grafana dashboards, Prometheus rules, and more for seamless end-to-end monitoring 
+    using the Prometheus Operator."
+spec:
+  repo: http://system-charts-repo.llmos-system.svc
+  chart: llmos-monitoring
+  version: 0.1.0-up66.1.1
+  enabled: false
+  defaultValuesContent: |-
+    nameOverride: "llmos-monitoring"
+    namespaceOverride: "llmos-monitoring-system"
+    crds:
+      enabled: true
+    global:
+      k8s:
+        provider: "k3s"
+      llmos:
+        systemDefaultRegistry: ""
+        clusterId: "local"
+        dashboardsNamespace: &dashboardsNamespace "llmos-dashboards"
+        systemNamespace: "llmos-system"
+      rbac:
+        create: true
+        createAggregateClusterRoles: false
+        pspEnabled: false
+        userRoles:
+          create: true
+          aggregateToDefaultRoles: true
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        useExistingSecret: false
+        volumes: []
+      resources:
+        limits:
+          memory: 500Mi
+          cpu: 1000m
+        requests:
+          memory: 100Mi
+          cpu: 100m
+    grafana:
+      enabled: true
+      resources:
+        limits:
+          memory: 200Mi
+          cpu: 200m
+        requests:
+          memory: 100Mi
+          cpu: 100m
+    prometheusOperator:
+      enabled: true
+    prometheus:
+      enabled: true
+      prometheusSpec:
+        enableAdminAPI: false
+        ignoreNamespaceSelectors: false
+        scrapeInterval: "30s"
+        evaluationInterval: "30s"
+        retention: 10d
+        retentionSize: "50GiB"
+        resources:
+          limits:
+            memory: 3000Mi
+            cpu: 1000m
+          requests:
+            memory: 750Mi
+            cpu: 750m
+        storageSpec: {}
+
+    kubeApiServer:
+      enabled: true
+    kubelet:
+      enabled: true
+    kubeControllerManager:
+      enabled: false
+    coreDns:
+      enabled: true
+    kubeEtcd:
+      enabled: true
+    kubeScheduler:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeStateMetrics:
+      enabled: true
+    nodeExporter:
+      enabled: true
+    dcgmExporter:
+      enabled: true
+    modelServiceExporter:
+      enabled: true
+    rayExporter:
+      enabled: true

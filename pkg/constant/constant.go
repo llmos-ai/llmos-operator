@@ -16,10 +16,13 @@ const (
 	CephClusterName            = "llmos-ceph"
 	AdminRole                  = "cluster-admin"
 	NvidiaGPUKey               = "nvidia.com/gpu"
+	KubeSystemNamespaceName    = "kube-system"
+	MonitoringNamespace        = "llmos-monitoring-system"
 
 	LLMOSCrdChartName      = "llmos-crd"
 	LLMOSOperatorChartName = "llmos-operator"
 
+	TrueStr    = "true"
 	TimeLayout = time.RFC3339
 
 	KubeNodeRoleLabelPrefix      = "node-role.kubernetes.io/"
