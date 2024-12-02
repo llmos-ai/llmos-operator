@@ -2,7 +2,7 @@ apiVersion: management.llmos.ai/v1
 kind: ManagedAddon
 metadata:
   name: llmos-redis
-  namespace: llmos-system
+  namespace: llmos-db-system
   labels:
     llmos.ai/system-addon: "true"
   annotations:
@@ -10,7 +10,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: redis
-  version: 19.6.4
+  version: 20.3.0
   enabled: true
   defaultValuesContent: |-
     image:

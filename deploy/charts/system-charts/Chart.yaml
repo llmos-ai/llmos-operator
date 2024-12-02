@@ -48,7 +48,7 @@ dependencies:
       - rook
       - ceph-cluster
   - name: redis
-    version: 19.6.4
+    version: 20.3.0
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
     tags:

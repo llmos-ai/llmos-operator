@@ -23,7 +23,6 @@ const (
 
 // handler reconcile the user's clusterRole and clusterRoleBinding
 type handler struct {
-	//releaseName  string
 	rayClusters  ctlkuberayv1.RayClusterController
 	services     ctlcorev1.ServiceClient
 	serviceCache ctlcorev1.ServiceCache
@@ -42,7 +41,6 @@ func Register(ctx context.Context, mgmt *config.Management, opts config.Options)
 	configmaps := mgmt.CoreFactory.Core().V1().ConfigMap()
 
 	h := &handler{
-		//releaseName:  opts.ReleaseName,
 		rayClusters:  clusters,
 		services:     services,
 		serviceCache: services.Cache(),
@@ -73,7 +71,7 @@ func (h *handler) OnDelete(_ string, cluster *rayv1.RayCluster) (*rayv1.RayClust
 		return nil, nil
 	}
 
-	logrus.Debugf("on delete ray cluster: %s/%s", cluster.Name, cluster.Namespace)
+	logrus.Debugf("Remove ray cluster: %s/%s", cluster.Name, cluster.Namespace)
 	// wait for the redis clean up job finished first since it will mount all volumes and configmaps to it
 	for _, f := range cluster.Finalizers {
 		if f == constant.RayRedisCleanUpFinalizer {
