@@ -15,7 +15,7 @@ import (
 func (h *handler) syncGCSRedisSecretToNamespace(rayCluster *rayv1.RayCluster) error {
 	// get redis secret for GCS config
 	// if the secret is not ready, reconcile it
-	redisSecret, err := h.secretsCache.Get(constant.SystemNamespaceName, defaultRedisName)
+	redisSecret, err := h.secretsCache.Get(constant.LLMOSDBNamespaceName, defaultRedisName)
 	if err != nil {
 		return fmt.Errorf("failed to get system default redisSecret: %v", err)
 	}
@@ -48,7 +48,7 @@ func (h *handler) syncGCSRedisSecretToNamespace(rayCluster *rayv1.RayCluster) er
 }
 
 func GetGCSRedisSVCDomain() string {
-	return fmt.Sprintf("redis://%s-master.%s.svc.cluster.local:6379", defaultRedisName, constant.SystemNamespaceName)
+	return fmt.Sprintf("redis://%s-master.%s.svc.cluster.local:6379", defaultRedisName, constant.LLMOSDBNamespaceName)
 }
 
 func GetNameSpacedGCSSecretName(namespace string) string {

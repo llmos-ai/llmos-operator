@@ -9,6 +9,8 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
+const LLMOSMonitoringName = "llmos-monitoring"
+
 func isManagementNode(node *corev1.Node) bool {
 	if node.Labels[constant.KubeEtcdNodeLabelKey] == constant.TrueStr ||
 		node.Labels[constant.KubeMasterNodeLabelKey] == constant.TrueStr ||
@@ -29,7 +31,13 @@ func isMonitoringEnabled() bool {
 		return false
 	}
 
-	return addonConfigs.LLMOSMonitoring.Enabled
+	for _, addonConfig := range addonConfigs.AddonConfigs {
+		if addonConfig.Name == LLMOSMonitoringName {
+			return addonConfig.Enabled
+		}
+	}
+
+	return false
 }
 
 // constructEtcdEndpointsSubset constructs the endpoint subset for the etcd monitoring service

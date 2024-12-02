@@ -13,7 +13,7 @@ dependencies:
   version: v1.15.3
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 19.6.4
+  version: 20.3.0
 - name: system-upgrade-controller
   repository: file://dependency_charts/system-upgrade-controller
   version: 0.1.0
@@ -23,5 +23,5 @@ dependencies:
 - name: llmos-monitoring
   repository: https://llmos-charts.1block.ai
   version: 0.1.0-up66.1.1
-digest: sha256:e048d96d504eab072be201bde2708622c6c47e3937c0f0ff1e50b307148923e0
-generated: "2024-11-27T14:32:17.372741+08:00"
+digest: sha256:522c22859d013a907790501586251911bee16c75cfe01333f0b17049dd4cda9f
+generated: "2024-12-02T10:26:42.159974+08:00"
