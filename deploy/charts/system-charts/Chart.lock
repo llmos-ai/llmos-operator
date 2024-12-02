@@ -22,6 +22,6 @@ dependencies:
   version: 0.1.0
 - name: llmos-monitoring
   repository: https://llmos-charts.1block.ai
-  version: 0.1.0-up66.1.1
-digest: sha256:522c22859d013a907790501586251911bee16c75cfe01333f0b17049dd4cda9f
-generated: "2024-12-02T10:26:42.159974+08:00"
+  version: 0.1.1-up66.1.1
+digest: sha256:1bfa939197fc4473a17fb0163e61aaab0729c3276cbe3da0aaf8d7f2ec78d7b5
+generated: "2024-12-02T12:03:43.433492+08:00"

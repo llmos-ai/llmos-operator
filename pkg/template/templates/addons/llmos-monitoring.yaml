@@ -14,7 +14,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-monitoring
-  version: 0.1.0-up66.1.1
+  version: 0.1.1-up66.1.1
   enabled: false
   defaultValuesContent: |-
     nameOverride: "llmos-monitoring"
