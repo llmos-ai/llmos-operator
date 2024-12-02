@@ -30,13 +30,15 @@ var (
 	// LocalLLMServerURL specify local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
 	LocalLLMServerURL = NewSetting(LocalLLMServerURLSettingName, "")
 	// DatabaseURL set local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos
-	DatabaseURL           = NewSetting(DatabaseUrlSettingName, "")
-	DefaultNotebookImages = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
-	UpgradeCheckEnabled   = NewSetting(UpgradeCheckEnabledName, "true")
-	UpgradeCheckUrl       = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
-	LLMOSDefaultRegistry  = NewSetting(LLMOSDefaultRegistryName, "docker.io/llmosai")
-	LogLevel              = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
-	ManagedAddonConfigs   = NewSetting(ManagedAddonConfigsName, "")
+	DatabaseURL              = NewSetting(DatabaseUrlSettingName, "")
+	DefaultNotebookImages    = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
+	UpgradeCheckEnabled      = NewSetting(UpgradeCheckEnabledName, "true")
+	UpgradeCheckUrl          = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
+	LLMOSDefaultRegistry     = NewSetting(LLMOSDefaultRegistryName, "docker.io/llmosai")
+	LogLevel                 = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
+	ManagedAddonConfigs      = NewSetting(ManagedAddonConfigsName, "")
+	ModelServiceDefaultImage = NewSetting(ModelServiceDefaultImageName, "vllm/vllm-openai:v0.6.4.post1")
+	RayClusterDefaultVersion = NewSetting(RayClusterDefaultVersionName, "2.35.0")
 )
 
 const (
@@ -52,6 +54,8 @@ const (
 	LLMOSDefaultRegistryName         = "llmos-default-registry"
 	LogLevelSettingName              = "log-level"
 	ManagedAddonConfigsName          = "managed-addon-configs"
+	ModelServiceDefaultImageName     = "model-service-default-image"
+	RayClusterDefaultVersionName     = "ray-cluster-default-version"
 )
 
 func init() {
