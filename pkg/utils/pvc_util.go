@@ -17,11 +17,11 @@ type PVCHandler struct {
 	pvcCache ctlcorev1.PersistentVolumeClaimCache
 }
 
-func NewPVCHandler(pvcs ctlcorev1.PersistentVolumeClaimClient,
-	pvcCache ctlcorev1.PersistentVolumeClaimCache) *PVCHandler {
+func NewPVCHandler(pvcs ctlcorev1.PersistentVolumeClaimController,
+) *PVCHandler {
 	return &PVCHandler{
 		pvcs:     pvcs,
-		pvcCache: pvcCache,
+		pvcCache: pvcs.Cache(),
 	}
 }
 
@@ -105,6 +105,17 @@ func (h *PVCHandler) CreatePVCByVolume(pvcs []mlv1.Volume, namespace string, own
 		toUpdate.Spec.Resources.Requests = volume.Spec.Resources.Requests
 		if !reflect.DeepEqual(toUpdate, pvc) {
 			if _, err = h.pvcs.Update(toUpdate); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (h *PVCHandler) DeletePVCs(namespace string, pvcs []string) error {
+	for _, pvc := range pvcs {
+		if err := h.pvcs.Delete(namespace, pvc, nil); err != nil {
+			if !apierrors.IsNotFound(err) {
 				return err
 			}
 		}

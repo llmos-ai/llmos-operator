@@ -2,6 +2,7 @@ package modelservice
 
 import (
 	"context"
+	"strings"
 
 	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -12,13 +13,16 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
 )
 
 const (
 	modelServiceOnChange  = "modelService.onChange"
+	modelServiceOnDelete  = "modelService.onDelete"
 	msStatefulSetOnChange = "modelService.statefulSetOnChange"
 	msSyncStatusByPod     = "modelService.syncStatusByPod"
 )
@@ -34,6 +38,7 @@ type handler struct {
 	ServiceCache      ctlcorev1.ServiceCache
 	Pods              ctlcorev1.PodClient
 	PodCache          ctlcorev1.PodCache
+	pvcHandler        *utils.PVCHandler
 }
 
 func Register(ctx context.Context, mgmt *config.Management, _ config.Options) error {
@@ -42,6 +47,7 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 	deployment := mgmt.AppsFactory.Apps().V1().Deployment()
 	service := mgmt.CoreFactory.Core().V1().Service()
 	pod := mgmt.CoreFactory.Core().V1().Pod()
+	pvcs := mgmt.CoreFactory.Core().V1().PersistentVolumeClaim()
 
 	h := &handler{
 		ModelServices:     modelService,
@@ -54,8 +60,10 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		ServiceCache:      service.Cache(),
 		Pods:              pod,
 		PodCache:          pod.Cache(),
+		pvcHandler:        utils.NewPVCHandler(pvcs),
 	}
 	modelService.OnChange(ctx, modelServiceOnChange, h.OnChange)
+	modelService.OnRemove(ctx, modelServiceOnDelete, h.OnDelete)
 
 	ssHandler := &statefulSetHandler{
 		statefulSetCache:  statefulSet.Cache(),
@@ -72,7 +80,6 @@ func (h *handler) OnChange(_ string, ms *mlv1.ModelService) (*mlv1.ModelService,
 	if ms == nil || ms.DeletionTimestamp != nil {
 		return nil, nil
 	}
-
 	var err error
 	// reconcile model service statefulSet
 	if _, err = h.reconcileModelStatefulSet(ms); err != nil {
@@ -82,6 +89,17 @@ func (h *handler) OnChange(_ string, ms *mlv1.ModelService) (*mlv1.ModelService,
 	// reconcile model service svc
 	if _, err = h.reconcileModelService(ms); err != nil {
 		return ms, err
+	}
+
+	// TODO: only handle pvcs clean up on delete
+	// NOTE: this is a workaround to clean up pvcs on delete while update reconcile is called simultaneously
+	strVolumes := ms.Annotations[constant.AnnotationOnDeleteVolumes]
+	if strVolumes != "" {
+		volumes := strings.Split(strVolumes, ",")
+		logrus.Debugf("cleaning up pvcs %s on modelservice %s/%s", volumes, ms.Namespace, ms.Name)
+		if err := h.pvcHandler.DeletePVCs(ms.Namespace, volumes); err != nil {
+			return ms, err
+		}
 	}
 
 	return ms, nil
@@ -126,4 +144,21 @@ func (h *handler) reconcileModelService(ms *mlv1.ModelService) (*corev1.Service,
 	}
 
 	return foundSvc, nil
+}
+
+func (h *handler) OnDelete(_ string, ms *mlv1.ModelService) (*mlv1.ModelService, error) {
+	if ms == nil || ms.DeletionTimestamp == nil {
+		return nil, nil
+	}
+
+	// Clean up on-delete pvcs if specified
+	strVolumes := ms.Annotations[constant.AnnotationOnDeleteVolumes]
+	if strVolumes != "" {
+		volumes := strings.Split(strVolumes, ",")
+		logrus.Debugf("cleaning up pvcs %s on modelservice %s/%s", volumes, ms.Namespace, ms.Name)
+		if err := h.pvcHandler.DeletePVCs(ms.Namespace, volumes); err != nil {
+			return ms, err
+		}
+	}
+	return ms, nil
 }
