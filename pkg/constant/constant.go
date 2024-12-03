@@ -57,6 +57,7 @@ const (
 	AnnotationVolumeClaimTemplates     = LLMOSPrefix + "/volume-claim-templates"
 	AnnotationClusterPolicyProviderKey = LLMOSPrefix + "/k8s-provider"
 	AnnotationSkipWebhook              = LLMOSPrefix + "/skip-webhook"
+	AnnotationOnDeleteVolumes          = LLMOSPrefix + "/on-delete-volumes"
 
 	/*
 		KubeRay related constant

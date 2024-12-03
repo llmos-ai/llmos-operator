@@ -2,6 +2,7 @@ package notebook
 
 import (
 	"context"
+	"strings"
 
 	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -11,7 +12,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
 )
 
@@ -28,10 +31,12 @@ type Handler struct {
 	statefulSetCache ctlappsv1.StatefulSetCache
 	services         ctlcorev1.ServiceClient
 	serviceCache     ctlcorev1.ServiceCache
+	pvcHandler       *utils.PVCHandler
 }
 
 const (
-	notebookControllerOnChange    = "notebook.onChange"
+	notebookOnChange              = "notebook.onChange"
+	notebookOnDelete              = "notebook.onDelete"
 	notebookStatefulSetOnChange   = "notebook.statefulSetOnChange"
 	notebookControllerWatchSsPods = "notebook.statefulSetWatchPods"
 )
@@ -41,14 +46,17 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 	ss := mgmt.AppsFactory.Apps().V1().StatefulSet()
 	services := mgmt.CoreFactory.Core().V1().Service()
 	pods := mgmt.CoreFactory.Core().V1().Pod()
+	pvcs := mgmt.CoreFactory.Core().V1().PersistentVolumeClaim()
 
 	h := Handler{
 		statefulSets:     ss,
 		statefulSetCache: ss.Cache(),
 		services:         services,
 		serviceCache:     services.Cache(),
+		pvcHandler:       utils.NewPVCHandler(pvcs),
 	}
-	notebooks.OnChange(ctx, notebookControllerOnChange, h.OnChanged)
+	notebooks.OnChange(ctx, notebookOnChange, h.OnChanged)
+	notebooks.OnRemove(ctx, notebookOnDelete, h.OnDelete)
 
 	ssHandler := &statefulSetHandler{
 		statefulSetCache: ss.Cache(),
@@ -75,6 +83,16 @@ func (h *Handler) OnChanged(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, 
 	// reconcile notebook service
 	if err := h.reconcileNotebookService(notebook); err != nil {
 		return notebook, err
+	}
+
+	// TODO: only handle pvcs clean up on delete
+	// NOTE: this is a workaround to clean up pvcs on delete while update reconcile is called simultaneously
+	strVolumes := notebook.Annotations[constant.AnnotationOnDeleteVolumes]
+	if strVolumes != "" {
+		volumes := strings.Split(strVolumes, ",")
+		if err := h.pvcHandler.DeletePVCs(notebook.Namespace, volumes); err != nil {
+			return notebook, err
+		}
 	}
 
 	return notebook, nil
@@ -121,4 +139,21 @@ func (h *Handler) reconcileNotebookService(notebook *mlv1.Notebook) error {
 	}
 
 	return nil
+}
+
+func (h *Handler) OnDelete(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, error) {
+	if notebook == nil || notebook.DeletionTimestamp == nil {
+		return nil, nil
+	}
+
+	// Clean up on-delete pvcs if specified
+	strVolumes := notebook.Annotations[constant.AnnotationOnDeleteVolumes]
+	if strVolumes != "" {
+		volumes := strings.Split(strVolumes, ",")
+		logrus.Debugf("cleaning up pvcs %s on notebook %s/%s", volumes, notebook.Namespace, notebook.Name)
+		if err := h.pvcHandler.DeletePVCs(notebook.Namespace, volumes); err != nil {
+			return notebook, err
+		}
+	}
+	return notebook, nil
 }
