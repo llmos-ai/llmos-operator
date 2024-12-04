@@ -74,9 +74,6 @@ spec:
           gpuSchedulerPolicy: spread
         kubeScheduler:
           enabled: true
-          image: k8s.gcr.io/kube-scheduler
-          imageTag: "v1.30.5"
-          imagePullPolicy: IfNotPresent
       devicePlugin:
         deviceSplitCount: 10
         runtimeClassName: "nvidia"

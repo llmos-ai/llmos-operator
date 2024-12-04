@@ -12,7 +12,7 @@ type Image struct {
 	Default        bool   `json:"default,omitempty"`
 }
 
-const defaultImgVersion = "latest"
+const defaultImgVersion = "v0.1.0"
 
 // SetDefaultNotebookImages set default notebook images
 // resources please refer to: https://www.kubeflow.org/docs/components/notebooks/container-images/
@@ -55,6 +55,10 @@ func setDefaultNotebookImages() string {
 			{
 				ContainerImage: "oneblockai/jupyter-tensorflow-cuda-full:" + defaultImgVersion,
 				Description:    "JupyterLab + PyTorch + CUDA + Common Packages",
+			},
+			{
+				ContainerImage: "oneblockai/jupyter-pipeline:" + defaultImgVersion,
+				Description:    "JupyterLab + Elyra Pipeline",
 			},
 		},
 		"code-server": {
