@@ -14,6 +14,7 @@ const (
 	LLMOSDBNamespaceName         = "llmos-db-system"
 	PublicNamespaceName          = "llmos-public"
 	LLMOSMonitoringNamespaceName = "llmos-monitoring-system"
+	LLMOSGPUStackNamespaceName   = "llmos-gpu-stack-system"
 	SUCNamespace                 = "system-upgrade"
 	AdminRole                    = "cluster-admin"
 	NvidiaGPUKey                 = "nvidia.com/gpu"

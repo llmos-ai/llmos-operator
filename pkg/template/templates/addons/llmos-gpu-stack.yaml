@@ -2,17 +2,17 @@ apiVersion: management.llmos.ai/v1
 kind: ManagedAddon
 metadata:
   name: llmos-gpu-stack
-  namespace: llmos-system
+  namespace: llmos-gpu-stack-system
   labels:
     llmos.ai/system-addon: "true"
     llmos.ai/system-addon-allow-edit: "true"
     llmos.ai/cluster-tools: "true"
   annotations:
-    field.llmos.ai/description: "llmos-gpu-stack provides vGPU and Multi-accelerator support for the LLMOS."
+    field.llmos.ai/description: "LMOS GPU Stack provides support for virtual GPUs (vGPU) and multi-accelerators, enhancing the utilization and flexibility of GPU resources."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-gpu-stack
-  version: 0.1.0-rc3
+  version: 0.1.0-rc4
   enabled: true
   defaultValuesContent: |-
     gpuStack:
@@ -64,18 +64,52 @@ spec:
             value: nvidia
           - name: CONTAINERD_SET_AS_DEFAULT
             value: "true"
-    hami:
+    volcano:
       enabled: true
-      scheduler:
-        nodeLabelSelector:
-          llmos.ai/gpu-node: "true"
-        defaultSchedulerPolicy:
-          nodeSchedulerPolicy: binpack
-          gpuSchedulerPolicy: spread
-        kubeScheduler:
-          enabled: true
-      devicePlugin:
-        deviceSplitCount: 10
-        runtimeClassName: "nvidia"
-        nvidianodeSelector:
-          gpustack.llmos.ai/gpu-node: "true"
+      basic:
+        image_pull_policy: IfNotPresent
+        image_tag_version: "v1.10.0"
+      custom:
+        scheduler_config_override: |
+          actions: "enqueue, allocate, backfill"
+          tiers:
+          - plugins:
+            - name: priority
+            - name: gang
+              enablePreemptable: false
+            - name: conformance
+          - plugins:
+            - name: overcommit
+            - name: drf
+              enablePreemptable: false
+            - name: deviceshare
+              arguments:
+                deviceshare.VGPUEnable: true  # enable vgpu
+            - name: predicates
+            - name: proportion
+            - name: nodeorder
+            - name: binpack
+        admission_resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+        scheduler_resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        controller_resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+    devicePlugin:
+      enabled: true
+      image:
+        repository: projecthami/volcano-vgpu-device-plugin
+        tag: "v1.9.4"
+        pullPolicy: IfNotPresent
+      runtimeClassName: "nvidia"
+      nodeSelector:
+        gpustack.llmos.ai/gpu-node: "true"
+      splitCount: 10
+      metrics:
+        enabled: false
