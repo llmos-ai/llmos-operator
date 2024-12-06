@@ -14,6 +14,7 @@ var defaultNSs = []string{
 	constant.StorageSystemNamespaceName,
 	constant.SUCNamespace,
 	constant.LLMOSMonitoringNamespaceName,
+	constant.LLMOSGPUStackNamespaceName,
 	constant.LLMOSDBNamespaceName,
 }
 
