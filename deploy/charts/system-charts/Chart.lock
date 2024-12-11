@@ -4,7 +4,7 @@ dependencies:
   version: 1.2.1
 - name: llmos-gpu-stack
   repository: https://llmos-gpu-stack-charts.1block.ai
-  version: 0.1.0-rc4
+  version: 0.1.0-rc5
 - name: rook-ceph
   repository: https://charts.rook.io/release
   version: v1.15.3
@@ -23,5 +23,5 @@ dependencies:
 - name: llmos-monitoring
   repository: https://llmos-charts.1block.ai
   version: 0.1.1-up66.1.1
-digest: sha256:b1edd7190bcee2ebfd5ac6c5c8589557be11b581d43d2ac235b49fd0dc04deed
-generated: "2024-12-06T15:58:18.077072+08:00"
+digest: sha256:dbf8a118c96bc6e5fa8235f711a293329b33d1e837d564c08a8f3f42078ec438
+generated: "2024-12-11T16:35:41.28817+08:00"
