@@ -62,6 +62,7 @@ package-installer:
     COPY +build-installer/dist/llmos-charts/*.tgz /
     COPY +build-installer/dist/run.sh /run.sh
     SAVE IMAGE --cache-from ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG} --push ${DOCKER_REGISTRY}/system-installer-llmos-operator:${TAG}
+    SAVE IMAGE --cache-from ${REGISTRY}/system-installer-llmos-operator:${TAG} --push ${REGISTRY}/system-installer-llmos-operator:${TAG}
 
 build-system-charts:
     FROM nginx:alpine$ALPINE
