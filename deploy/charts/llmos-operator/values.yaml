@@ -14,7 +14,6 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-  imagePullPolicy: IfNotPresent
   ## @param global.storageClass Global StorageClass for Persistent Volume(s)
   ##
   storageClass: ""
@@ -31,7 +30,8 @@ operator:
   apiserver:
     replicaCount: 1
     image:
-      repository: ghcr.io/llmos-ai/llmos-operator
+      registry: ghcr.io
+      repository: llmos-ai/llmos-operator
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: "main-head"
@@ -111,7 +111,8 @@ operator:
   webhook:
     replicaCount: 1
     image:
-      repository: ghcr.io/llmos-ai/llmos-operator-webhook
+      registry: ghcr.io
+      repository: llmos-ai/llmos-operator-webhook
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: "main-head"
@@ -167,7 +168,8 @@ operator:
 systemChartsRepo:
   enabled: true
   image:
-    repository: ghcr.io/llmos-ai/system-charts-repo
+    registry: ghcr.io
+    repository: llmos-ai/system-charts-repo
     tag: "main-head"
     pullPolicy: Always
 

@@ -5,21 +5,21 @@ metadata:
   namespace: llmos-gpu-stack-system
   labels:
     llmos.ai/system-addon: "true"
-    llmos.ai/system-addon-allow-edit: "true"
     llmos.ai/cluster-tools: "true"
   annotations:
     field.llmos.ai/description: "LMOS GPU Stack provides support for virtual GPUs (vGPU) and multi-accelerators, enhancing the utilization and flexibility of GPU resources."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-gpu-stack
-  version: 0.1.0-rc5
+  version: 0.1.0-rc7
   enabled: true
   defaultValuesContent: |-
     gpuStack:
       deviceManager:
         replicas: 1
         image:
-          repository: ghcr.io/llmos-ai/llmos-gpu-stack
+          registry: "ghcr.io"
+          repository: llmos-ai/llmos-gpu-stack
         service:
           type: ClusterIP
           port: 8080
@@ -66,6 +66,10 @@ spec:
     volcano:
       enabled: true
       basic:
+        image_registry: "ghcr.io"
+        controller_image_name: "llmos-ai/mirrored-volcanosh-vc-controller-manager"
+        scheduler_image_name: "llmos-ai/mirrored-volcanosh-vc-scheduler"
+        admission_image_name: "llmos-ai/mirrored-volcanosh-vc-webhook-manager"
         image_pull_policy: IfNotPresent
         image_tag_version: "v1.10.0"
       custom:
@@ -103,7 +107,8 @@ spec:
     devicePlugin:
       enabled: true
       image:
-        repository: projecthami/volcano-vgpu-device-plugin
+        registry: ghcr.io
+        repository: llmos-ai/projecthami-volcano-vgpu-device-plugin
         tag: "v1.9.4"
         pullPolicy: IfNotPresent
       runtimeClassName: "nvidia"

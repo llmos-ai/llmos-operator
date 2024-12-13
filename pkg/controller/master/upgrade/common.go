@@ -23,7 +23,7 @@ const (
 	upgradeRepoName       = "upgrade-repo"
 	upgradeServiceAccount = "system-upgrade"
 	systemChartsImageName = "system-charts-repo"
-	nodeUpgradeImageName  = "node-upgrade"
+	nodeUpgradeImageName  = "llmos-ai/node-upgrade"
 
 	serverComponent = "server"
 	agentComponent  = "agent"
@@ -166,7 +166,7 @@ func formatRepoImage(registry, repo, tag string) string {
 	if registry != "" {
 		return fmt.Sprintf("%s/%s:%s", registry, repo, tag)
 	}
-	return fmt.Sprintf("%s/%s:%s", settings.LLMOSDefaultRegistry.Get(), repo, tag)
+	return fmt.Sprintf("%s/%s:%s", settings.GlobalSystemImageRegistry.Get(), repo, tag)
 }
 
 func getUpgradeSystemChartsRepoUrl() string {

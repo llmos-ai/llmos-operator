@@ -14,7 +14,8 @@ spec:
   enabled: true
   defaultValuesContent: |-
     image:
-      repository: bitnami/redis
+      registry: "ghcr.io"
+      repository: llmos-ai/mirrored-bitnami-redis
       pullPolicy: IfNotPresent
     ## @param architecture Redis&reg; architecture. Allowed values: `standalone` or `replication`
     ##
@@ -41,3 +42,12 @@ spec:
       password: ""
     volumePermissions:
       enabled: true
+      image:
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-bitnami-os-shell
+        pullPolicy: IfNotPresent
+    sysctl:
+      image:
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-bitnami-os-shell
+        pullPolicy: IfNotPresent

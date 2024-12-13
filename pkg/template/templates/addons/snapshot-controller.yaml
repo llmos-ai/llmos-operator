@@ -10,5 +10,5 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: snapshot-controller
-  version: 0.1.0
+  version: 0.1.1
   enabled: true
