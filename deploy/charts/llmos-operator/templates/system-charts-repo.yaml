@@ -1,4 +1,5 @@
 {{- if .Values.systemChartsRepo.enabled -}}
+{{- $registry := .Values.global.imageRegistry | default .Values.systemChartsRepo.image.registry -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +23,7 @@ spec:
       {{- end }}
       containers:
         - name: nginx
-          image: "{{ .Values.systemChartsRepo.image.repository }}:{{ .Values.systemChartsRepo.image.tag }}"
+          image: {{ printf "%s/%s:%s" $registry .Values.systemChartsRepo.image.repository .Values.systemChartsRepo.image.tag }}
           imagePullPolicy: {{ .Values.systemChartsRepo.image.pullPolicy }}
           ports:
             - name: http

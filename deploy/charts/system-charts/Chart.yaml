@@ -30,7 +30,7 @@ dependencies:
       - ml-framework
       - ray.io
   - name: llmos-gpu-stack
-    version: "0.1.0-rc5"
+    version: "0.1.0-rc7"
     repository: "https://llmos-gpu-stack-charts.1block.ai"
     tags:
       - gpu-operator
@@ -54,14 +54,14 @@ dependencies:
     tags:
       - redis
   - name: system-upgrade-controller
-    version: 0.1.0
-    repository: file://dependency_charts/system-upgrade-controller
+    version: 0.1.1
+    repository: "https://llmos-charts.1block.ai"
     condition: suc.enabled
     tags:
       - system-upgrade
   - name: snapshot-controller
-    version: 0.1.0
-    repository: file://dependency_charts/snapshot-controller
+    version: 0.1.1
+    repository: "https://llmos-charts.1block.ai"
     tags:
       - csi-snapshotter
   - name: llmos-monitoring

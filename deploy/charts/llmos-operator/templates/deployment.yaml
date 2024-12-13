@@ -1,3 +1,4 @@
+{{- $registry := .Values.global.imageRegistry | default .Values.operator.apiserver.image.registry -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,7 +34,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.operator.apiserver.securityContext | nindent 12 }}
-          image: "{{ .Values.operator.apiserver.image.repository }}:{{ .Values.operator.apiserver.image.tag | default .Chart.AppVersion }}"
+          image: {{ printf "%s/%s:%s" $registry .Values.operator.apiserver.image.repository .Values.operator.apiserver.image.tag }}
           imagePullPolicy: {{ .Values.operator.apiserver.image.pullPolicy }}
           ports:
             - name: https

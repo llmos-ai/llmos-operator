@@ -1,3 +1,4 @@
+{{- $registry := .Values.global.imageRegistry | default .Values.operator.webhook.image.registry -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,7 +27,7 @@ spec:
         - name: webhook
           securityContext:
             {{- toYaml .Values.operator.webhook.securityContext | nindent 12 }}
-          image: "{{ .Values.operator.webhook.image.repository }}:{{ .Values.operator.webhook.image.tag | default .Chart.AppVersion }}"
+          image: {{ printf "%s/%s:%s" $registry .Values.operator.webhook.image.repository .Values.operator.webhook.image.tag }}
           imagePullPolicy: {{ .Values.operator.webhook.image.pullPolicy }}
           ports:
             - name: webhook

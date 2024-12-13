@@ -14,7 +14,7 @@ spec:
   enabled: true
   defaultValuesContent: |-
     image:
-      repository: rook/ceph
+      repository: ghcr.io/llmos-ai/mirrored-rook-ceph
       pullPolicy: IfNotPresent
     crds:
       enabled: true
@@ -33,3 +33,13 @@ spec:
       # -- Disable the CSI driver.
       disableCsiDriver: "false"
       provisionerReplicas: 1 # default to 1
+      registrar:
+        repository: ghcr.io/llmos-ai/sig-storage-csi-node-driver-registrar
+      provisioner:
+        repository: ghcr.io/llmos-ai/sig-storage-csi-provisioner
+      snapshotter:
+        repository: ghcr.io/llmos-ai/sig-storage-csi-snapshotter
+      attacher:
+        repository: ghcr.io/llmos-ai/sig-storage-csi-attacher
+      resizer:
+        repository: ghcr.io/llmos-ai/sig-storage-csi-resizer

@@ -22,9 +22,10 @@ import (
 )
 
 const (
-	addOnChange            = "managedAddon.onChange"
-	addonJobOnChange       = "managedAddon.JobOnChange"
-	addonHelmChartOnDelete = "managedAddon.helmChartOnDelete"
+	addOnChange                 = "managedAddon.onChange"
+	addonJobOnChange            = "managedAddon.JobOnChange"
+	addonHelmChartOnDelete      = "managedAddon.helmChartOnDelete"
+	addonSystemRegistryOnChange = "managedAddon.systemRegistryOnChange"
 
 	defaultWaitTime = 5 * time.Second
 	strTrue         = "true"
@@ -47,24 +48,32 @@ type handler struct {
 }
 
 func Register(ctx context.Context, mgmt *config.Management, _ config.Options) error {
-	addon := mgmt.MgmtFactory.Management().V1().ManagedAddon()
-	helm := mgmt.HelmFactory.Helm().V1().HelmChart()
-	job := mgmt.BatchFactory.Batch().V1().Job()
+	addons := mgmt.MgmtFactory.Management().V1().ManagedAddon()
+	helmCharts := mgmt.HelmFactory.Helm().V1().HelmChart()
+	jobs := mgmt.BatchFactory.Batch().V1().Job()
 	settings := mgmt.MgmtFactory.Management().V1().Setting()
 	h := &handler{
-		managedAddon:      addon,
-		managedAddons:     addon,
-		managedAddonCache: addon.Cache(),
-		helmCharts:        helm,
-		helmChartCache:    helm.Cache(),
-		jobs:              job,
-		jobCache:          job.Cache(),
+		managedAddon:      addons,
+		managedAddons:     addons,
+		managedAddonCache: addons.Cache(),
+		helmCharts:        helmCharts,
+		helmChartCache:    helmCharts.Cache(),
+		jobs:              jobs,
+		jobCache:          jobs.Cache(),
 		settings:          settings,
 	}
 
-	addon.OnChange(ctx, addOnChange, h.OnChange)
-	job.OnChange(ctx, addonJobOnChange, h.OnAddonJobChange)
-	helm.OnRemove(ctx, addonHelmChartOnDelete, h.addonHelmChartOnDelete)
+	addons.OnChange(ctx, addOnChange, h.OnChange)
+	jobs.OnChange(ctx, addonJobOnChange, h.OnAddonJobChange)
+	helmCharts.OnRemove(ctx, addonHelmChartOnDelete, h.addonHelmChartOnDelete)
+
+	settingHandler := &SettingHandler{
+		settings:     settings,
+		settingCache: settings.Cache(),
+		addons:       addons,
+		addonCache:   addons.Cache(),
+	}
+	settings.OnChange(ctx, addonSystemRegistryOnChange, settingHandler.systemRegistryOnChange)
 
 	return h.registerSystemAddons(ctx)
 }

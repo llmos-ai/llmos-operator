@@ -22,6 +22,23 @@ fi
 cp -rf "${LLMOS_CHARTS_DIR}" "${CHART_DIST_DIR}"
 
 function updateImageConfig() {
+    # Split the string by '/' using IFS
+    IFS='/' read -r part1 part2 <<< "$REGISTRY"
+
+    # Check if there are exactly two parts
+    if [ -n "$part1" ] && [ -n "$part2" ]; then
+      # Save the parts as reusable variables
+      registry="$part1"
+      repository="$part2"
+
+      # Use the variables later in the script
+      echo "REGISTRY: $registry"
+      echo "REPOSITORY: $repository"
+    else
+      echo "Error: registry does not contain exactly two parts separated by '/'."
+      exit 1
+    fi
+
     # Update pullPolicy to IfNotPresent
     # Step 1: Convert YAML to JSON
     chart_path=$1
@@ -30,20 +47,26 @@ function updateImageConfig() {
 
     # Step 2: Use jq to update image config
     jq --arg tag "$TAG" \
-      --arg  registry "$REGISTRY" \
+      --arg registry "$registry" \
+      --arg repository "$repository" \
       'walk(
         if type == "object" then
+          if has("registry") then
+            .registry = $registry
+          else
+            .
+          end |
           if has("pullPolicy") and .pullPolicy == "Always" then
             .pullPolicy = "IfNotPresent"
           else
             .
           end |
-          if has("repository") and .repository == "ghcr.io/llmos-ai/llmos-operator"  then
-            .repository = $registry + "/llmos-operator"
-          elif has("repository") and .repository == "ghcr.io/llmos-ai/llmos-operator-webhook"  then
-            .repository = $registry + "/llmos-operator-webhook"
-          elif has("repository") and .repository == "ghcr.io/llmos-ai/system-charts-repo"  then
-            .repository = $registry + "/system-charts-repo"
+          if has("repository") and .repository == "llmos-ai/llmos-operator"  then
+            .repository = $repository + "/llmos-operator"
+          elif has("repository") and .repository == "llmos-ai/llmos-operator-webhook"  then
+            .repository = $repository + "/llmos-operator-webhook"
+          elif has("repository") and .repository == "llmos-ai/system-charts-repo"  then
+            .repository = $repository + "/system-charts-repo"
           else
             .
           end |

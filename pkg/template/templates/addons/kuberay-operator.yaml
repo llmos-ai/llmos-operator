@@ -14,7 +14,7 @@ spec:
   enabled: true
   defaultValuesContent: |-
     image:
-      repository: quay.io/kuberay/operator
+      repository: ghcr.io/llmos-ai/mirrored-kuberay-operator
       pullPolicy: IfNotPresent
     batchScheduler:
       enabled: false
