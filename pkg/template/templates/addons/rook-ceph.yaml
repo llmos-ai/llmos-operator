@@ -34,12 +34,12 @@ spec:
       disableCsiDriver: "false"
       provisionerReplicas: 1 # default to 1
       registrar:
-        repository: ghcr.io/llmos-ai/sig-storage-csi-node-driver-registrar
+        repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-node-driver-registrar
       provisioner:
-        repository: ghcr.io/llmos-ai/sig-storage-csi-provisioner
+        repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-provisioner
       snapshotter:
-        repository: ghcr.io/llmos-ai/sig-storage-csi-snapshotter
+        repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-snapshotter
       attacher:
-        repository: ghcr.io/llmos-ai/sig-storage-csi-attacher
+        repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-attacher
       resizer:
-        repository: ghcr.io/llmos-ai/sig-storage-csi-resizer
+        repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-resizer
