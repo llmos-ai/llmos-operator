@@ -1,3 +1,4 @@
+//nolint:lll
 package settings
 
 // referred to the code of https://github.com/harvester/harvester/blob/master/pkg/settings/settings.go
@@ -36,7 +37,7 @@ var (
 	UpgradeCheckUrl           = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
 	LogLevel                  = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
 	ManagedAddonConfigs       = NewSetting(ManagedAddonConfigsName, "")
-	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "vllm/vllm-openai:v0.6.4.post1")
+	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "ghcr.io/llmos-ai/mirrored-vllm-vllm-openai:v0.6.4.post1")
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.35.0")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
 )

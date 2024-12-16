@@ -10,7 +10,7 @@ spec:
   template:
     spec:
       containers:
-      - image: oneblockai/jupyter-scipy:latest
+      - image: ghcr.io/oneblock-ai/jupyter-scipy:v0.1.0
         name: nb-jupyter
         resources:
           requests:
