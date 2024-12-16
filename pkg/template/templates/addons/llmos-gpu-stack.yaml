@@ -71,7 +71,6 @@ spec:
         scheduler_image_name: "llmos-ai/mirrored-volcanosh-vc-scheduler"
         admission_image_name: "llmos-ai/mirrored-volcanosh-vc-webhook-manager"
         image_pull_policy: IfNotPresent
-        image_tag_version: "v1.10.0"
       custom:
         scheduler_config_override: |
           actions: "enqueue, allocate, backfill"
@@ -108,9 +107,7 @@ spec:
       enabled: true
       image:
         registry: ghcr.io
-        repository: llmos-ai/projecthami-volcano-vgpu-device-plugin
-        tag: "v1.9.4"
-        pullPolicy: IfNotPresent
+        repository: llmos-ai/mirrored-projecthami-volcano-vgpu-device-plugin
       runtimeClassName: "nvidia"
       nodeSelector:
         gpustack.llmos.ai/gpu-node: "true"

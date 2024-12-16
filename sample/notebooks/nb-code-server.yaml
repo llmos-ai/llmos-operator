@@ -9,7 +9,7 @@ spec:
   template:
     spec:
       containers:
-      - image: oneblockai/codeserver-python:latest
+      - image: ghcr.io/oneblock-ai/codeserver-python:v0.1.0
         name: nb-code-server
         resources:
           requests:
