@@ -2,14 +2,16 @@ package notebook
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/v3/pkg/relatedresource"
 	"github.com/sirupsen/logrus"
-	v1 "k8s.io/api/apps/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
@@ -32,6 +34,8 @@ type Handler struct {
 	services         ctlcorev1.ServiceClient
 	serviceCache     ctlcorev1.ServiceCache
 	pvcHandler       *utils.PVCHandler
+	pods             ctlcorev1.PodClient
+	podCache         ctlcorev1.PodCache
 }
 
 const (
@@ -54,6 +58,8 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		services:         services,
 		serviceCache:     services.Cache(),
 		pvcHandler:       utils.NewPVCHandler(pvcs),
+		pods:             pods,
+		podCache:         pods.Cache(),
 	}
 	notebooks.OnChange(ctx, notebookOnChange, h.OnChanged)
 	notebooks.OnRemove(ctx, notebookOnDelete, h.OnDelete)
@@ -98,7 +104,7 @@ func (h *Handler) OnChanged(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, 
 	return notebook, nil
 }
 
-func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*v1.StatefulSet, error) {
+func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*appsv1.StatefulSet, error) {
 	ss := getNoteBookStatefulSet(notebook)
 	foundSs, err := h.statefulSetCache.Get(ss.Namespace, ss.Name)
 	if err != nil && errors.IsNotFound(err) {
@@ -108,10 +114,19 @@ func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*v1.StatefulSet
 		return nil, err
 	}
 
-	if reconcilehelper.CopyStatefulSetFields(ss, foundSs) {
+	toUpdate, toRedeploy := reconcilehelper.CopyStatefulSetFields(ss, foundSs)
+	if toUpdate {
 		logrus.Debugf("updating notebook statefulset %s/%s", notebook.Namespace, notebook.Name)
-		toUpdate := foundSs.DeepCopy()
-		return h.statefulSets.Update(toUpdate)
+		ssCopy := foundSs.DeepCopy()
+		if ss, err = h.statefulSets.Update(ssCopy); err != nil {
+			return ss, err
+		}
+	}
+
+	if toRedeploy {
+		if err = h.deleteStatefulSetPods(foundSs); err != nil {
+			return foundSs, err
+		}
 	}
 
 	return foundSs, nil
@@ -156,4 +171,27 @@ func (h *Handler) OnDelete(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, e
 		}
 	}
 	return notebook, nil
+}
+
+func (h *Handler) deleteStatefulSetPods(sts *appsv1.StatefulSet) error {
+	selector, err := metav1.LabelSelectorAsSelector(sts.Spec.Selector)
+	if err != nil {
+		return fmt.Errorf("failed to convert LabelSelector: %v", err)
+	}
+
+	// List the pods matching the label selector
+	pods, err := h.podCache.List(sts.Namespace, selector)
+	if err != nil {
+		return fmt.Errorf("failed to list notebook pods: %w", err)
+	}
+
+	// Delete each pod
+	for _, pod := range pods {
+		err = h.pods.Delete(pod.Namespace, pod.Name, &metav1.DeleteOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to delete notebook pod %s: %w", pod.Name, err)
+		}
+	}
+
+	return nil
 }

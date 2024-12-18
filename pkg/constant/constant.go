@@ -42,6 +42,7 @@ const (
 	ManagedAddonLabel         = LLMOSPrefix + "/managed-addon"
 	SystemAddonLabel          = LLMOSPrefix + "/system-addon"
 	SystemAddonAllowEditLabel = LLMOSPrefix + "/system-addon-allow-edit"
+	TimestampAnno             = LLMOSPrefix + "/timestamp"
 
 	SettingPreConfiguredValueAnno = LLMOSPrefix + "/previous-configured-value"
 	SecretNameRefAnno             = LLMOSPrefix + "/secret-name"

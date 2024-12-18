@@ -63,6 +63,12 @@ spec:
                 type: boolean
               model:
                 type: string
+              modelRegistry:
+                enum:
+                - huggingface
+                - modelscope
+                - local
+                type: string
               replicas:
                 format: int32
                 type: integer
@@ -8510,6 +8516,7 @@ spec:
                 type: array
             required:
             - model
+            - modelRegistry
             - replicas
             type: object
           status:

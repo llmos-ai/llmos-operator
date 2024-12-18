@@ -27,6 +27,10 @@ type ModelService struct {
 
 // ModelServiceSpec defines the desired state of ModelService
 type ModelServiceSpec struct {
+	// +kubebuilder:validation:Enum:={"huggingface","modelscope","local"}
+	// +kubebuilder:validation:Required
+	ModelRegistry string `json:"modelRegistry"`
+
 	// +kubebuilder:validation:Required
 	ModelName string `json:"model"`
 
