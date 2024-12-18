@@ -71,7 +71,7 @@ func (h *statefulSetHandler) syncServiceStatusByPod(_, _ string, obj runtime.Obj
 	if pod, ok := obj.(*corev1.Pod); ok {
 		for _, ref := range pod.GetOwnerReferences() {
 			if ref.Kind == "StatefulSet" && strings.Contains(ref.Name, msPrefix) {
-				logrus.Debugf("reconcile model service: %s/%s", pod.Namespace, ref.Name)
+				logrus.Debugf("reconcile modelService: %s/%s", pod.Namespace, ref.Name)
 				return []relatedresource.Key{
 					{
 						Name:      ref.Name,

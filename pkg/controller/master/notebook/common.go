@@ -51,7 +51,7 @@ func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 				},
 				Spec: *notebook.Spec.Template.Spec.DeepCopy(),
 			},
-			VolumeClaimTemplates: notebook.Spec.VolumeClaimTemplates,
+			VolumeClaimTemplates: reconcilehelper.CopyVolumeClaimTemplates(notebook.Spec.VolumeClaimTemplates),
 		},
 	}
 

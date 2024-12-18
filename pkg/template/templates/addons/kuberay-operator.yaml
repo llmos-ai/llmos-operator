@@ -17,7 +17,7 @@ spec:
       repository: ghcr.io/llmos-ai/mirrored-kuberay-operator
       pullPolicy: IfNotPresent
     batchScheduler:
-      enabled: false
+      enabled: true
     serviceAccount:
       create: false
       name: llmos-cluster-admin

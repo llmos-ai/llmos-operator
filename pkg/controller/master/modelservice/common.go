@@ -22,6 +22,7 @@ const (
 	msPrefix       = "modelservice"
 	typeName       = "model-service"
 	vllmEngineName = "vllm"
+	modelScopeName = "modelscope"
 )
 
 func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
@@ -30,6 +31,8 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 	if metav1.HasAnnotation(ms.ObjectMeta, constant.AnnotationResourceStopped) {
 		replicas = 0
 	}
+	podSpec := *ms.Spec.Template.Spec.DeepCopy()
+	podSpec.InitContainers = constructInitContainers(ms, podSpec.Containers[0])
 	ss := &v1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      getFormattedMSName(ms.Name, ""),
@@ -51,15 +54,16 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 					Labels:      selector.MatchLabels,
 					Annotations: map[string]string{},
 				},
-				Spec: *ms.Spec.Template.Spec.DeepCopy(),
+				Spec: podSpec,
 			},
 			UpdateStrategy:       *ms.Spec.UpdateStrategy.DeepCopy(),
-			VolumeClaimTemplates: ms.Spec.VolumeClaimTemplates,
+			VolumeClaimTemplates: reconcilehelper.CopyVolumeClaimTemplates(ms.Spec.VolumeClaimTemplates),
 		},
 	}
 
 	container := &ss.Spec.Template.Spec.Containers[0]
-	container.Args = constructVllmArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+	container.Args = buildArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+	container.Env = buildEnvs(ms, podSpec.Containers[0])
 	containerPort := container.Ports[0].ContainerPort
 
 	if container.LivenessProbe == nil {
@@ -70,21 +74,21 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			PeriodSeconds:    60,
+			PeriodSeconds:    30,
 			FailureThreshold: 3,
 		}
 	}
 
-	if container.StartupProbe == nil {
-		ss.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
+	if container.ReadinessProbe == nil {
+		ss.Spec.Template.Spec.Containers[0].ReadinessProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
 					Path: "/health",
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			InitialDelaySeconds: 30,
-			FailureThreshold:    720,
+			InitialDelaySeconds: 15,
+			FailureThreshold:    5,
 			PeriodSeconds:       10,
 		}
 	}
@@ -149,7 +153,7 @@ func constructModelStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.ModelService
 
 	// Skip updating the status if the pod's status is empty
 	if reflect.DeepEqual(pod.Status, corev1.PodStatus{}) {
-		logrus.Infof("model service pod status is empty, skip updating conditions and state")
+		logrus.Infof("modelService pod status is empty, skip updating conditions and state")
 		return status
 	}
 
@@ -176,7 +180,7 @@ func constructModelStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.ModelService
 	return status
 }
 
-func constructVllmArgs(ms *mlv1.ModelService, args []string) []string {
+func buildArgs(ms *mlv1.ModelService, args []string) []string {
 	if args == nil {
 		args = make([]string, 0)
 	}
@@ -208,6 +212,19 @@ func constructVllmArgs(ms *mlv1.ModelService, args []string) []string {
 	return args
 }
 
+func buildEnvs(ms *mlv1.ModelService, container corev1.Container) []corev1.EnvVar {
+	envs := container.Env
+
+	if ms.Spec.ModelRegistry == modelScopeName {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "VLLM_USE_MODELSCOPE",
+			Value: "True",
+		})
+	}
+
+	return envs
+}
+
 func GetModelServiceSelector(ms *mlv1.ModelService) *metav1.LabelSelector {
 	if ms.Spec.Selector != nil {
 		selector := ms.Spec.Selector.DeepCopy()
@@ -222,6 +239,37 @@ func GetModelServiceSelector(ms *mlv1.ModelService) *metav1.LabelSelector {
 		MatchLabels: map[string]string{
 			constant.LabelLLMOSMLType:      typeName,
 			constant.LabelModelServiceName: ms.Name,
+		},
+	}
+}
+
+func constructInitContainers(ms *mlv1.ModelService, container corev1.Container) []corev1.Container {
+	if ms.Spec.ModelRegistry == "" || ms.Spec.ModelRegistry == "local" {
+		return nil
+	}
+
+	registryCli := "huggingface-cli"
+	if ms.Spec.ModelRegistry == "modelscope" {
+		registryCli = "modelscope"
+	}
+
+	envs := container.Env
+	envs = append(envs, corev1.EnvVar{
+		Name:  "HF_HUB_ENABLE_HF_TRANSFER",
+		Value: "1",
+	})
+
+	return []corev1.Container{
+		{
+			Name:    "download-model",
+			Image:   container.Image,
+			Command: []string{registryCli},
+			Args: []string{
+				"download",
+				ms.Spec.ModelName,
+			},
+			VolumeMounts: container.VolumeMounts,
+			Env:          envs,
 		},
 	}
 }

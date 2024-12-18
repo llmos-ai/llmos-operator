@@ -2,15 +2,18 @@ package modelservice
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	ctlappsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/v3/pkg/relatedresource"
 	"github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
@@ -117,10 +120,19 @@ func (h *handler) reconcileModelStatefulSet(ms *mlv1.ModelService) (*v1.Stateful
 	}
 
 	// Update the object and write the result back if there are any changes
-	if reconcilehelper.CopyStatefulSetFields(ss, foundSs) {
-		logrus.Debugf("updating model serive statefulSet %s/%s", foundSs.Namespace, foundSs.Name)
-		toUpdate := foundSs.DeepCopy()
-		return h.StatefulSets.Update(toUpdate)
+	toUpdate, toRedeploy := reconcilehelper.CopyStatefulSetFields(ss, foundSs)
+	if toUpdate {
+		logrus.Debugf("updating modelSerive statefulSet %s/%s", foundSs.Namespace, foundSs.Name)
+		ssCopy := foundSs.DeepCopy()
+		if ss, err = h.StatefulSets.Update(ssCopy); err != nil {
+			return ss, err
+		}
+	}
+
+	if toRedeploy {
+		if err = h.deleteStatefulSetPods(foundSs); err != nil {
+			return foundSs, err
+		}
 	}
 
 	return foundSs, nil
@@ -161,4 +173,27 @@ func (h *handler) OnDelete(_ string, ms *mlv1.ModelService) (*mlv1.ModelService,
 		}
 	}
 	return ms, nil
+}
+
+func (h *handler) deleteStatefulSetPods(sts *appsv1.StatefulSet) error {
+	selector, err := metav1.LabelSelectorAsSelector(sts.Spec.Selector)
+	if err != nil {
+		return fmt.Errorf("failed to convert LabelSelector: %v", err)
+	}
+
+	// List the pods matching the label selector
+	pods, err := h.PodCache.List(sts.Namespace, selector)
+	if err != nil {
+		return fmt.Errorf("failed to list modelService pods: %w", err)
+	}
+
+	// Delete each pod
+	for _, pod := range pods {
+		err = h.Pods.Delete(pod.Namespace, pod.Name, &metav1.DeleteOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to delete modelService pod %s: %w", pod.Name, err)
+		}
+	}
+
+	return nil
 }

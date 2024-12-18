@@ -9,11 +9,24 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	cond "github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
-func CopyStatefulSetFields(from, to *appsv1.StatefulSet) bool {
+func CopyStatefulSetFields(from, to *appsv1.StatefulSet) (bool, bool) {
 	requireUpdate := false
+
+	requireRedeploy := checkRequireRedeploy(from.Spec.Template.Spec.Containers[0], to.Spec.Template.Spec.Containers[0])
+	// Check if pod need to redeployed
+	if requireRedeploy {
+		if from.Spec.Template.ObjectMeta.Annotations == nil {
+			from.Spec.Template.ObjectMeta.Annotations = make(map[string]string)
+		}
+		from.Spec.Template.ObjectMeta.Annotations[constant.TimestampAnno] = time.Now().UTC().Format(constant.TimeLayout)
+	} else {
+		from.Spec.Template.ObjectMeta.Annotations = to.Spec.Template.ObjectMeta.Annotations
+	}
+
 	if to.Labels == nil {
 		to.Labels = make(map[string]string)
 	}
@@ -34,7 +47,7 @@ func CopyStatefulSetFields(from, to *appsv1.StatefulSet) bool {
 	}
 	to.Annotations = from.Annotations
 
-	if from.Spec.Replicas != to.Spec.Replicas {
+	if *from.Spec.Replicas != *to.Spec.Replicas {
 		to.Spec.Replicas = from.Spec.Replicas
 		requireUpdate = true
 	}
@@ -54,7 +67,26 @@ func CopyStatefulSetFields(from, to *appsv1.StatefulSet) bool {
 	}
 	to.Spec.UpdateStrategy = from.Spec.UpdateStrategy
 
-	return requireUpdate
+	return requireUpdate, requireRedeploy
+}
+
+func checkRequireRedeploy(from, to corev1.Container) bool {
+	if !reflect.DeepEqual(to.Env, from.Env) {
+		return true
+	}
+	if !reflect.DeepEqual(to.Args, from.Args) {
+		return true
+	}
+	if !reflect.DeepEqual(to.Command, from.Command) {
+		return true
+	}
+	if !reflect.DeepEqual(to.Image, from.Image) {
+		return true
+	}
+	if !reflect.DeepEqual(to.Resources, from.Resources) {
+		return true
+	}
+	return false
 }
 
 func CopyDeploymentFields(from, to *appsv1.Deployment) bool {
@@ -162,4 +194,21 @@ func PodCondToCond(podc corev1.PodCondition) common.Condition {
 	}
 
 	return condition
+}
+
+func CopyVolumeClaimTemplates(from []corev1.PersistentVolumeClaim) []corev1.PersistentVolumeClaim {
+	if from == nil {
+		return []corev1.PersistentVolumeClaim{}
+	}
+	to := make([]corev1.PersistentVolumeClaim, len(from))
+	for i, pvc := range from {
+		newPVC := corev1.PersistentVolumeClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: pvc.Name,
+			},
+			Spec: pvc.Spec,
+		}
+		to[i] = newPVC
+	}
+	return to
 }
