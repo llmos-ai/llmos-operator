@@ -261,7 +261,7 @@ func constructInitContainers(ms *mlv1.ModelService, container corev1.Container) 
 
 	return []corev1.Container{
 		{
-			Name:    "download-model",
+			Name:    "download-models",
 			Image:   container.Image,
 			Command: []string{registryCli},
 			Args: []string{
