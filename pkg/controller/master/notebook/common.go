@@ -23,8 +23,8 @@ const (
 	DefaultFSGroup = int64(100)
 )
 
-func getNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
-	replicas := int32(1)
+func constructNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
+	replicas := notebook.Spec.Replicas
 	if metav1.HasAnnotation(notebook.ObjectMeta, constant.AnnotationResourceStopped) {
 		replicas = 0
 	}
