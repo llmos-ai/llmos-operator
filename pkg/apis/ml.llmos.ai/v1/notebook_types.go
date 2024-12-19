@@ -31,6 +31,9 @@ type NotebookSpec struct {
 	// +optional, template describes the notebooks that will be created.
 	Template NotebookTemplateSpec `json:"template,omitempty"`
 
+	// +kubebuilder:validation:Required
+	Replicas int32 `json:"replicas"`
+
 	// selector is a label query over pods that should match the replica count.
 	// It must match the pod template's labels.
 	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors

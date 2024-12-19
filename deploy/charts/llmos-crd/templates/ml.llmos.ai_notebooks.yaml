@@ -57,6 +57,9 @@ spec:
           spec:
             description: NotebookSpec defines the desired state of Dataset
             properties:
+              replicas:
+                format: int32
+                type: integer
               selector:
                 description: |-
                   selector is a label query over pods that should match the replica count.
@@ -8459,6 +8462,8 @@ spec:
                       type: object
                   type: object
                 type: array
+            required:
+            - replicas
             type: object
           status:
             description: NotebookStatus defines the observed state of Dataset
