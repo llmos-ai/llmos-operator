@@ -29,7 +29,8 @@ func (s *SettingHandler) systemRegistryOnChange(_ string, setting *mgmtv1.Settin
 		return setting, nil
 	}
 
-	if setting.Name != settings.GlobalSystemImageRegistryName || settings.GlobalSystemImageRegistry.Get() == "" {
+	if setting.Name != settings.GlobalSystemImageRegistryName ||
+		(settings.GlobalSystemImageRegistry.Get() == "" && setting.Value == "") {
 		return setting, nil
 	}
 
