@@ -51,6 +51,9 @@ func (h *statefulSetHandler) updateModelServiceStatus(ss *appsv1.StatefulSet, mo
 	podName := getDefaultPodName(ss.Name)
 	pod, err := h.podCache.Get(ss.Namespace, podName)
 	if err != nil {
+		if errors.IsNotFound(err) && *ss.Spec.Replicas == 0 {
+			return ss, nil
+		}
 		return ss, err
 	}
 
