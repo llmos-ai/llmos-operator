@@ -14,7 +14,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-monitoring
-  version: 0.1.4-up66.1.1
+  version: 0.1.5-up66.1.1
   enabled: false
   defaultValuesContent: |-
     nameOverride: "llmos-monitoring"
@@ -41,6 +41,9 @@ spec:
       alertmanagerSpec:
         useExistingSecret: false
         volumes: []
+        alertmanagerConfigSelector:
+          matchLabels:
+            llmos.ai/alertmanagerconfig: "true"
       resources:
         limits:
           memory: 500Mi
