@@ -128,6 +128,8 @@ func (h *handler) generateToken(userId string, token *mgmtv1.Token) (*mgmtv1.Tok
 	// user input ttl should not be greater than system's max maxTTL in seconds
 	if token.Spec.TTLSeconds <= maxTTL*60 {
 		maxTTL = token.Spec.TTLSeconds
+	} else {
+		maxTTL = maxTTL * 60
 	}
 
 	token, tokenStr, err := h.manager.NewAPIKeyToken(userId, maxTTL, token)
