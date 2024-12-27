@@ -24,13 +24,13 @@ version: 0.1.0
 appVersion: "0.1.0"
 dependencies:
   - name: kuberay-operator
-    version: "1.2.1"
+    version: 1.2.1
     repository: "https://ray-project.github.io/kuberay-helm"
     tags:
       - ml-framework
       - ray.io
   - name: llmos-gpu-stack
-    version: "0.1.0-rc7"
+    version: 0.1.0
     repository: "https://llmos-gpu-stack-charts.1block.ai"
     tags:
       - gpu-operator
