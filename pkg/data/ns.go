@@ -9,7 +9,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
 )
 
-var defaultNSs = []string{
+var ReservedSystemNamespaces = []string{
 	constant.PublicNamespaceName,
 	constant.StorageSystemNamespaceName,
 	constant.SUCNamespace,
@@ -21,7 +21,7 @@ var defaultNSs = []string{
 func addDefaultNamespaces(apply apply.Apply) error {
 	// add default system & public namespaces
 	var nss = make([]runtime.Object, 0)
-	for _, ns := range defaultNSs {
+	for _, ns := range ReservedSystemNamespaces {
 		newNs := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: ns,
