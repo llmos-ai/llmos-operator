@@ -28,6 +28,13 @@ spec:
         accessModes:
           - ReadWriteOnce
         size: 5Gi
+      resources:
+        requests:
+          cpu: 20m
+          memory: 100Mi
+        limits:
+          cpu: 500m
+          memory: 1024Mi
     replica:
       replicaCount: 0 # default to 0, scale up manually to 3 when the system storage is enabled
       persistence:
@@ -36,6 +43,13 @@ spec:
         accessModes:
           - ReadWriteOnce
         size: 5Gi
+      resources:
+        requests:
+          cpu: 20m
+          memory: 100Mi
+        limits:
+          cpu: 200m
+          memory: 1024Mi
     auth:
       enabled: true
       sentinel: true

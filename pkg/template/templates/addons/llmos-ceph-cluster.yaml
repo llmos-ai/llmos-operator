@@ -37,8 +37,8 @@ spec:
         limits:
           memory: "1Gi"
         requests:
-          cpu: "100m"
-          memory: "128Mi"
+          cpu: "10m"
+          memory: "20Mi"
 
     cephClusterSpec:
       cephVersion:
@@ -106,19 +106,19 @@ spec:
           limits:
             memory: "1Gi"
           requests:
-            cpu: "500m"
+            cpu: "50m"
             memory: "512Mi"
         mon:
           limits:
             memory: "2Gi"
           requests:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "50m"
+            memory: "256Mi"
         osd:
           limits:
             memory: "4Gi"
           requests:
-            cpu: "500m"
+            cpu: "100m"
             memory: "1Gi"
         prepareosd:
           # limits: It is not recommended to set limits on the OSD prepare job
@@ -130,37 +130,37 @@ spec:
           #         OSDs ; for larger devices 2Gi may be required.
           #         cf. https://github.com/rook/rook/pull/11103
           requests:
-            cpu: "100m"
+            cpu: "20m"
             memory: "50Mi"
         mgr-sidecar:
           limits:
             memory: "100Mi"
           requests:
-            cpu: "50m"
+            cpu: "10m"
             memory: "40Mi"
         crashcollector:
           limits:
             memory: "60Mi"
           requests:
-            cpu: "50m"
-            memory: "60Mi"
+            cpu: "10m"
+            memory: "40Mi"
         logcollector:
           limits:
             memory: "1Gi"
           requests:
-            cpu: "100m"
-            memory: "100Mi"
+            cpu: "20m"
+            memory: "50Mi"
         cleanup:
           limits:
             memory: "1Gi"
           requests:
-            cpu: "250m"
-            memory: "100Mi"
+            cpu: "20m"
+            memory: "50Mi"
         exporter:
           limits:
             memory: "128Mi"
           requests:
-            cpu: "50m"
+            cpu: "10m"
             memory: "50Mi"
 
       # priority classes to apply to ceph resources
@@ -228,8 +228,8 @@ spec:
               limits:
                 memory: "4Gi"
               requests:
-                cpu: "500m"
-                memory: "1024Mi"
+                cpu: "20m"
+                memory: "200Mi"
             priorityClassName: system-cluster-critical
         storageClass:
           enabled: true
