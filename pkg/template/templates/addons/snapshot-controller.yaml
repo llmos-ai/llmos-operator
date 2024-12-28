@@ -12,3 +12,11 @@ spec:
   chart: snapshot-controller
   version: 0.1.1
   enabled: true
+  defaultValuesContent: |-
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 10m
+        memory: 50Mi
