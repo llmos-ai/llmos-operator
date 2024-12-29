@@ -12,7 +12,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: rook-ceph-cluster
-  version: v1.15.3
+  version: v1.15.7
   enabled: false
   failurePolicy: manual
   defaultValuesContent: |-
@@ -211,7 +211,7 @@ spec:
     # @default -- See [below](#ceph-file-systems)
     cephFileSystems:
       - name: llmos-ceph-filesystem
-        # see https://github.com/rook/rook/blob/v1.15.3/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
+        # see https://github.com/rook/rook/blob/v1.15.7/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
         spec:
           metadataPool:
             replicated:
