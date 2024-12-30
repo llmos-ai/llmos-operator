@@ -76,4 +76,4 @@ kubectl wait --for=condition=complete --timeout=30s job/helm-install-llmos-opera
 # Wait for the llmos-operator pods to be ready
 echo "Waiting for llmos-operator pods to be ready..."
 sleep 3 # wait for a few seconds for the helm chart's deployment to show up
-kubectl wait --for=condition=ready --timeout=300s pod -l app.kubernetes.io/name=llmos-operator -n llmos-system
+kubectl wait --for=condition=ready --timeout=600s pod -l app.kubernetes.io/name=llmos-operator -n llmos-system
