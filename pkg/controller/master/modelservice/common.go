@@ -3,6 +3,7 @@ package modelservice
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,7 @@ const (
 	typeName       = "model-service"
 	vllmEngineName = "vllm"
 	modelScopeName = "modelscope"
+	vGPUNumber     = "volcano.sh/vgpu-number"
 )
 
 func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
@@ -190,6 +192,11 @@ func buildArgs(ms *mlv1.ModelService, args []string) []string {
 		"--served-model-name": ms.Spec.ServedModelName,
 	}
 
+	vGPUNumber := getVGPUNumber(ms)
+	if vGPUNumber > 0 {
+		specArgs["--tensor-parallel-size"] = strconv.Itoa(vGPUNumber)
+	}
+
 	for k, v := range specArgs {
 		// Skip empty values
 		if v == "" {
@@ -284,4 +291,17 @@ func getFormattedMSName(name string, appendix string) string {
 
 func getDefaultPodName(statefulSetName string) string {
 	return fmt.Sprintf("%s-0", statefulSetName)
+}
+
+func getVGPUNumber(ms *mlv1.ModelService) int {
+	if ms == nil || len(ms.Spec.Template.Spec.Containers) == 0 {
+		return 0
+	}
+
+	limits := ms.Spec.Template.Spec.Containers[0].Resources.Limits
+	if limit, exists := limits[corev1.ResourceName(vGPUNumber)]; exists {
+		return int(limit.Value())
+	}
+
+	return 0
 }
