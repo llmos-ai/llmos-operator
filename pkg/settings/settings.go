@@ -38,7 +38,7 @@ var (
 	LogLevel                  = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
 	ManagedAddonConfigs       = NewSetting(ManagedAddonConfigsName, "")
 	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "llmos-ai/mirrored-vllm-vllm-openai:v0.6.4.post1")
-	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.35.0")
+	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
 )
 
