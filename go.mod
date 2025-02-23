@@ -8,7 +8,7 @@ replace (
 	github.com/rancher/apiserver => github.com/oneblock-ai/apiserver v0.0.0-20240806034601-b41fbdc3179b
 	github.com/rancher/dynamiclistener => github.com/rancher/dynamiclistener v0.6.0
 	github.com/rancher/steve => github.com/oneblock-ai/steve v0.0.0-20240913011323-7840150bc342
-	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20240929041841-f6250da129e9
+	github.com/ray-project/kuberay/ray-operator => github.com/oneblock-ai/kuberay/ray-operator v0.0.0-20250223034640-f10585b817c4
 
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.44.0
 	go.opentelemetry.io/otel => go.opentelemetry.io/otel v1.19.0
@@ -59,6 +59,8 @@ require (
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/k3s-io/helm-controller v0.16.3
 	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
+	github.com/onsi/ginkgo/v2 v2.20.0
+	github.com/onsi/gomega v1.34.1
 	github.com/pkg/errors v0.9.1
 	github.com/rancher/apiserver v0.0.0-20240708202538-39a6f2535146
 	github.com/rancher/dynamiclistener v1.27.5
@@ -72,7 +74,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
@@ -104,7 +106,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
-	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
@@ -115,8 +116,8 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
+	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -196,7 +197,7 @@ require (
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.20.0 // indirect
-	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
@@ -204,7 +205,6 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
-	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240221002015-b0ce06bbee7c // indirect
 	google.golang.org/grpc v1.61.1 // indirect
