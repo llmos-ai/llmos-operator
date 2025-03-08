@@ -1,0 +1,48 @@
+apiVersion: ml.llmos.ai/v1
+kind: ModelVersion
+metadata:
+  name: llama-2-1
+  namespace: llmos-system
+spec:
+  model: llama-2
+  version: v1.0.0
+  enableFastLoading: false
+  # Optional: copy from another model version
+  # copyFrom:
+  #   namespace: other-namespace
+  #   modelName: other-model
+  #   version: v0.9.0
+---
+apiVersion: ml.llmos.ai/v1
+kind: ModelVersion
+metadata:
+  name: llama-2-2
+  namespace: llmos-system
+spec:
+  model: llama-2
+  version: v2.0.0
+  enableFastLoading: false
+---
+apiVersion: ml.llmos.ai/v1
+kind: ModelVersion
+metadata:
+  name: llama-3-1
+  namespace: llmos-system
+spec:
+  model: llama-3
+  version: v1.0.0
+  enableFastLoading: false
+---
+apiVersion: ml.llmos.ai/v1
+kind: ModelVersion
+metadata:
+  name: llama-2-3
+  namespace: llmos-system
+spec:
+  model: llama-2
+  version: v3.0.0
+  enableFastLoading: false
+  copyFrom:
+    namespace: llmos-system
+    name: llama-3
+    version: v1.0.0

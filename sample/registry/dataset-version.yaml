@@ -1,0 +1,44 @@
+apiVersion: ml.llmos.ai/v1
+kind: DatasetVersion
+metadata:
+  name: a
+  namespace: llmos-system
+spec:
+  dataset: alpaca-cleaned
+  version: v1.0.0
+  enableFastLoading: true
+---
+apiVersion: ml.llmos.ai/v1
+kind: DatasetVersion
+metadata: 
+  name: b
+  namespace: llmos-system
+spec:
+  dataset: alpaca-cleaned
+  version: v2.0.0
+  enableFastLoading: true
+---
+apiVersion: ml.llmos.ai/v1
+kind: DatasetVersion
+metadata: 
+  name: c
+  namespace: llmos-system
+spec:
+  dataset: alpaca-cleaned
+  version: v3.0.0
+  enableFastLoading: true
+  copyFrom:
+    namespace: llmos-system
+    name: alpaca-cleaned
+    version: v1.0.0
+---
+apiVersion: ml.llmos.ai/v1
+kind: DatasetVersion
+metadata:
+  name: d
+  namespace: llmos-system
+spec:
+  dataset: beta-clean
+  version: v1.0.0
+  enableFastLoading: true
+

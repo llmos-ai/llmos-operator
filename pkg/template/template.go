@@ -13,7 +13,7 @@ const (
 	AddonTemplate  = templateFolder + "/addons"
 )
 
-//go:embed all:templates/*
+//go:embed all:templates
 var templates embed.FS
 
 // Render renders a templates in the package `templates` folder. The templates

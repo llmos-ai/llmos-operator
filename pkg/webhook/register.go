@@ -15,6 +15,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/user"
 )
@@ -28,6 +29,10 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		helmchart.NewValidator(),
 		managedaddon.NewValidator(),
 		namespace.NewValidator(),
+		registry.NewModelValidator(mgmt),
+		registry.NewDatasetValidator(mgmt),
+		registry.NewModelVersionValidator(mgmt),
+		registry.NewDatasetVersionValidator(mgmt),
 	}
 
 	mutators = []admission.Mutator{
@@ -35,6 +40,8 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		raycluster.NewMutator(mgmt),
 		notebook.NewMutator(),
 		modelservice.NewMutator(),
+		registry.NewModelVersionMutator(mgmt),
+		registry.NewDatasetVersionMutator(mgmt),
 	}
 
 	return
