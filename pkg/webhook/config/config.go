@@ -13,6 +13,7 @@ import (
 
 	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io"
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
@@ -23,6 +24,7 @@ type Management struct {
 	RestConfig  *rest.Config
 
 	MgmtFactory *mgmtv1.Factory
+	LLMFactory  *mlv1.Factory
 	CoreFactory *corev1.Factory
 	AppsFactory *appsv1.Factory
 	RayFactory  *rayv1.Factory
@@ -51,6 +53,12 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, releaseName s
 		return nil, err
 	}
 	mgmt.starters = append(mgmt.starters, mgmt.MgmtFactory)
+
+	mgmt.LLMFactory, err = mlv1.NewFactoryFromConfig(restConfig)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.starters = append(mgmt.starters, mgmt.LLMFactory)
 
 	core, err := corev1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
 	if err != nil {

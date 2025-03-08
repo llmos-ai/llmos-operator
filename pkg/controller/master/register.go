@@ -6,14 +6,17 @@ import (
 	steve "github.com/rancher/steve/pkg/server"
 	"github.com/rancher/wrangler/v3/pkg/leader"
 
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/dataset"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/globalrole"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/managedaddon"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/model"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/monitoring"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/node"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/raycluster"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/roletemplate"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/roletemplatebinding"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/setting"
@@ -40,6 +43,9 @@ var registerFuncs = []registerFunc{
 	namespace.Register,
 	node.Register,
 	monitoring.Register,
+	registry.Register,
+	dataset.Register,
+	model.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management, opts config.Options) error {

@@ -1,0 +1,13 @@
+apiVersion: ml.llmos.ai/v1
+kind: DatasetVersion
+metadata: 
+  name: c
+  namespace: default
+spec:
+  dataset: alpaca-cleaned
+  version: v3.0.0
+  enableFastLoading: true
+  copyFrom:
+    namespace: default
+    dataset: alpaca-cleaned
+    version: v1.0.0
