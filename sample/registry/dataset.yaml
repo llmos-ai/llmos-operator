@@ -1,0 +1,53 @@
+apiVersion: ml.llmos.ai/v1
+kind: Dataset
+metadata:
+  name: alpaca-cleaned
+  namespace: default
+spec:
+  registry: demo-registry
+  datasetCard:
+    description: "A cleaned version of the Stanford Alpaca dataset for instruction tuning."
+    metadata:
+      tags:
+        - instruction-tuning
+        - text
+      license: "CC BY-NC 4.0"
+      splitTypes:
+        - train
+        - validation
+      features:
+        - instruction
+        - input
+        - output
+      numSamples: 52000
+      language: "en"
+      authors:
+        - "Stanford"
+      homepage: "https://github.com/tatsu-lab/stanford_alpaca"
+---
+apiVersion: ml.llmos.ai/v1
+kind: Dataset
+metadata:
+  name: beta-clean
+  namespace: default
+spec:
+  registry: demo-registry
+  datasetCard:
+    description: "A cleaned version of the Stanford Alpaca dataset for instruction tuning."
+    metadata:
+      tags:
+        - instruction-tuning
+        - text
+      license: "CC BY-NC 4.0"
+      splitTypes:
+        - train
+        - validation
+      features:
+        - instruction
+        - input
+        - output
+      numSamples: 52000
+      language: "en"
+      authors:
+        - "Stanford"
+      homepage: "https://github.com/tatsu-lab/stanford_alpaca"
