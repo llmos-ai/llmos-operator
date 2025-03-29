@@ -112,6 +112,11 @@ func (in *ModelServiceSpec) DeepCopyInto(out *ModelServiceSpec) {
 			(*out)[key] = val
 		}
 	}
+	if in.Tags != nil {
+		in, out := &in.Tags, &out.Tags
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 

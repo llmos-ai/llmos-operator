@@ -64,6 +64,15 @@ type ModelServiceSpec struct {
 
 	// +optional, enable gradio GUI of the model
 	EnableGUI bool `json:"enableGUI,omitempty"`
+
+	// +optional, tags of the model
+	Tags []string `json:"tags,omitempty"`
+
+	// +optional, pipeline tag of the model
+	PipelineTag string `json:"pipelineTag,omitempty"`
+
+	// +optional, library name of the model, e.g., transformers, diffusers, etc.
+	LibraryName string `json:"libraryName,omitempty"`
 }
 
 type ModelServiceTemplateSpec struct {
