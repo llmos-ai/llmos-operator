@@ -28,8 +28,6 @@ var (
 	UIPath                       = NewSetting("ui-path", "/usr/share/llmos/llmos-operator")
 	UIPl                         = NewSetting(UIPlSettingName, "llmos")    // UIPl is the private vendor/company name
 	UISource                     = NewSetting(UISourceSettingName, "auto") // Options are 'auto', 'external' or 'bundled'
-	// LocalLLMServerURL specify local LLM server url, e.g., http://llmos-ollama.llmos-system:11434
-	LocalLLMServerURL = NewSetting(LocalLLMServerURLSettingName, "")
 	// DatabaseURL set local database url, e.g., postgresql://user:password@llmos-postgresql.llmos-system:5432/llmos
 	DatabaseURL               = NewSetting(DatabaseUrlSettingName, "")
 	DefaultNotebookImages     = NewSetting(DefaultNotebookImagesSettingName, setDefaultNotebookImages())
@@ -40,13 +38,13 @@ var (
 	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "llmos-ai/mirrored-vllm-vllm-openai:v0.6.4.post1")
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
+	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")
 )
 
 const (
 	UIPlSettingName                  = "ui-pl"
 	UISourceSettingName              = "ui-source"
 	FirstLoginSettingName            = "first-login"
-	LocalLLMServerURLSettingName     = "local-llm-server-url"
 	DatabaseUrlSettingName           = "database-url"
 	DefaultNotebookImagesSettingName = "default-notebook-images"
 	ServerVersionName                = "server-version"
@@ -57,6 +55,7 @@ const (
 	ModelServiceDefaultImageName     = "model-service-default-image"
 	RayClusterDefaultVersionName     = "ray-cluster-default-version"
 	GlobalSystemImageRegistryName    = "global-system-image-registry"
+	HuggingFaceEndpointName          = "huggingface-endpoint"
 )
 
 func init() {
