@@ -2,8 +2,6 @@ module github.com/llmos-ai/llmos-operator
 
 go 1.23.0
 
-toolchain go1.24.0
-
 replace (
 	github.com/NVIDIA/gpu-operator => github.com/oneblock-ai/gpu-operator v0.0.0-20240929043743-4762768ce73c
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
