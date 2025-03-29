@@ -64,7 +64,7 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 	}
 
 	container := &ss.Spec.Template.Spec.Containers[0]
-	container.Args = buildArgs(ms, ss.Spec.Template.Spec.Containers[0].Args)
+	container.Args = buildArgs(ms)
 	container.Env = buildEnvs(ms, podSpec.Containers[0])
 	containerPort := container.Ports[0].ContainerPort
 
@@ -89,8 +89,8 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			InitialDelaySeconds: 15,
-			FailureThreshold:    5,
+			InitialDelaySeconds: 30,
+			FailureThreshold:    60,
 			PeriodSeconds:       10,
 		}
 	}
@@ -182,9 +182,10 @@ func constructModelStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.ModelService
 	return status
 }
 
-func buildArgs(ms *mlv1.ModelService, args []string) []string {
-	if args == nil {
-		args = make([]string, 0)
+func buildArgs(ms *mlv1.ModelService) []string {
+	var args []string
+	if len(ms.Spec.Template.Spec.Containers) > 0 {
+		args = append([]string{}, ms.Spec.Template.Spec.Containers[0].Args...)
 	}
 
 	specArgs := map[string]string{
@@ -197,25 +198,26 @@ func buildArgs(ms *mlv1.ModelService, args []string) []string {
 		specArgs["--tensor-parallel-size"] = strconv.Itoa(vGPUNumber)
 	}
 
-	for k, v := range specArgs {
-		// Skip empty values
-		if v == "" {
-			continue
-		}
-		found := false
-		for i, arg := range args {
-			if strings.Contains(arg, k) {
-				args[i] = fmt.Sprintf("%s=%s", k, v)
-				found = true
+	// Track arguments we've already modified or added
+	existingArgs := make(map[string]bool)
+
+	// Modify existing args or mark them as modified
+	for i, arg := range args {
+		for k := range specArgs {
+			if strings.HasPrefix(arg, k+"=") && specArgs[k] != "" {
+				existingArgs[k] = true
+				args[i] = fmt.Sprintf("%s=%s", k, specArgs[k])
 				break
 			}
 		}
+	}
 
-		if !found {
+	// Add new args that are not already present
+	for k, v := range specArgs {
+		if !existingArgs[k] && v != "" {
 			args = append(args, fmt.Sprintf("%s=%s", k, v))
 		}
 	}
-
 	return args
 }
 
