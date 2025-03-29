@@ -36,6 +36,9 @@ func (r *Router) Routes() http.Handler {
 	authHandler := auth.NewAuthHandler(r.scaled)
 	m.Path("/v1-public/auth").Handler(authHandler)
 
+	proxyHandler := proxy.NewHandler()
+	m.PathPrefix("/proxy").Handler(proxyHandler)
+
 	m.Handle("/", http.RedirectHandler("/dashboard/", http.StatusFound))
 
 	vueUI := ui.Vue
@@ -52,9 +55,6 @@ func (r *Router) Routes() http.Handler {
 		}
 		http.Redirect(rw, req, url, http.StatusFound)
 	})
-
-	localLLMHandler := proxy.NewHandler()
-	m.PathPrefix(proxy.LocalLLMApiPrefix).Handler(localLLMHandler)
 
 	// public handlers
 	publicHandler := publicui.NewPublicHandler()

@@ -2,19 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"unicode"
 
 	"gopkg.in/yaml.v3"
-
-	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
-
-func GetLocalLLMUrl() (*url.URL, error) {
-	localLLMUrl := settings.LocalLLMServerURL.Get()
-	return url.Parse(localLLMUrl)
-}
 
 // ReplaceAndLower replaces underscores and colons with hyphens and converts the string to lowercase.
 func ReplaceAndLower(s string) string {

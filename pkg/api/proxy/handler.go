@@ -1,30 +1,51 @@
 package proxy
 
 import (
-	"crypto/tls"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
-// Handler proxies requests to the rancher service
+// Handler proxies requests to the url
 type Handler struct {
 	Scheme string
 	Host   string
 }
 
 const (
-	ForwardedAPIHostHeader = "X-API-Host"
-	ForwardedProtoHeader   = "X-Forwarded-Proto"
-	ForwardedHostHeader    = "X-Forwarded-Host"
-	PrefixHeader           = "X-API-URL-Prefix"
-	LocalLLMApiPrefix      = "/local_llm_api/v1"
+	huggingFaceEndpoint = "https://huggingface.co"
+)
+
+var (
+	allowedSites = []string{
+		huggingFaceEndpoint,
+		"https://hf-mirror.com",
+		"https://modelscope.cn",
+		"https://www.modelscope.cn",
+	}
+
+	headerSkipped = map[string]bool{
+		"host":               true,
+		"port":               true,
+		"proto":              true,
+		"referer":            true,
+		"server":             true,
+		"content-length":     true,
+		"transfer-encoding":  true,
+		"cookie":             true,
+		"x-forwarded-host":   true,
+		"x-forwarded-port":   true,
+		"x-forwarded-proto":  true,
+		"x-forwarded-server": true,
+	}
 )
 
 func NewHandler() *Handler {
@@ -32,42 +53,98 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	localLLMUrl := settings.LocalLLMServerURL.Get()
-	url, err := url.Parse(localLLMUrl)
-	if err != nil {
-		logrus.Errorf("error parsing local LLM url: %v", err)
-		_, _ = rw.Write([]byte(fmt.Sprintf("error parsing local LLM url: %v", err)))
+	proxyHandler(rw, req)
+}
+
+func proxyHandler(w http.ResponseWriter, r *http.Request) {
+	urlStr := r.URL.Query().Get("url")
+	hfToken := r.URL.Query().Get("hf_token")
+	if urlStr == "" {
+		http.Error(w, "url parameter is missing", http.StatusBadRequest)
 		return
 	}
-	director := func(r *http.Request) {
-		r.URL.Scheme = url.Scheme
-		r.URL.Host = url.Host
-		r.URL.Path = trimProxyPrefix(req.URL.Path)
-		// set forwarded header
-		r.Header.Set(ForwardedAPIHostHeader, GetLastExistValue(req.Host, req.Header.Get(ForwardedAPIHostHeader)))
-		r.Header.Set(ForwardedHostHeader, GetLastExistValue(req.Host, req.Header.Get(ForwardedHostHeader)))
-		r.Header.Set(ForwardedProtoHeader, GetLastExistValue(req.URL.Scheme, req.Header.Get(ForwardedProtoHeader)))
-		r.Header.Set(PrefixHeader, GetLastExistValue(req.Header.Get(PrefixHeader)))
-	}
-	httpProxy := &httputil.ReverseProxy{
-		Director: director,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
-	httpProxy.ServeHTTP(rw, req)
-}
 
-func GetLastExistValue(values ...string) string {
-	var result string
-	for _, value := range values {
-		if value != "" {
-			result = value
+	if err := validateURL(urlStr); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
+	urlStr = replaceHFEndpoint(urlStr)
+	forwardedHeaders := processHeaders(r, hfToken)
+
+	client := &http.Client{Timeout: 60 * time.Second}
+	request, err := http.NewRequest(r.Method, urlStr, r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	request.Header = forwardedHeaders
+
+	resp, err := client.Do(request)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logrus.Errorf("error closing proxy response body: %s", err.Error())
+		}
+	}()
+
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
 		}
 	}
-	return result
+	w.WriteHeader(resp.StatusCode)
+	if resp.StatusCode == http.StatusOK {
+		if _, err := io.Copy(w, resp.Body); err != nil {
+			http.Error(w, "Error writing response body", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := w.Write([]byte(resp.Status)); err != nil {
+			log.Println("Error writing response status:", err)
+		}
+	}
 }
 
-func trimProxyPrefix(path string) string {
-	return strings.TrimPrefix(path, LocalLLMApiPrefix)
+func validateURL(rawURL string) error {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
+		return fmt.Errorf("invalid url query parameter")
+	}
+
+	for _, site := range allowedSites {
+		if site == parsedURL.Scheme+"://"+parsedURL.Host {
+			return nil
+		}
+	}
+	return fmt.Errorf("this site is not allowed")
+}
+
+func replaceHFEndpoint(rawURL string) string {
+	hfEndpoint := settings.HuggingFaceEndpoint.Get()
+	if hfEndpoint != "" && strings.HasPrefix(rawURL, huggingFaceEndpoint) {
+		return strings.Replace(rawURL, huggingFaceEndpoint, hfEndpoint, 1)
+	}
+	return rawURL
+}
+
+func processHeaders(req *http.Request, hfToken string) http.Header {
+	newHeaders := http.Header{}
+	for key, values := range req.Header {
+		keyLower := strings.ToLower(key)
+		if headerSkipped[keyLower] {
+			continue
+		} else {
+			newHeaders[key] = values
+		}
+	}
+
+	if hfToken != "" {
+		newHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", hfToken))
+		return newHeaders
+	}
+	return newHeaders
 }
