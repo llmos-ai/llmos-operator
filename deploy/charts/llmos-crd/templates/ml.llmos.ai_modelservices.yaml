@@ -61,6 +61,8 @@ spec:
                 type: object
               enableGUI:
                 type: boolean
+              libraryName:
+                type: string
               model:
                 type: string
               modelRegistry:
@@ -68,6 +70,8 @@ spec:
                 - huggingface
                 - modelscope
                 - local
+                type: string
+              pipelineTag:
                 type: string
               replicas:
                 format: int32
@@ -127,6 +131,10 @@ spec:
                 default: ClusterIP
                 description: Service Type string describes ingress methods for a service
                 type: string
+              tags:
+                items:
+                  type: string
+                type: array
               template:
                 properties:
                   spec:
