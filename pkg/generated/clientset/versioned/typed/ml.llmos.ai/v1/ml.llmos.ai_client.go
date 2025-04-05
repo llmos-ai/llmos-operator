@@ -27,13 +27,29 @@ import (
 
 type MlV1Interface interface {
 	RESTClient() rest.Interface
+	DatasetsGetter
+	DatasetVersionsGetter
+	ModelsGetter
 	ModelServicesGetter
 	NotebooksGetter
+	RegistriesGetter
 }
 
 // MlV1Client is used to interact with features provided by the ml.llmos.ai group.
 type MlV1Client struct {
 	restClient rest.Interface
+}
+
+func (c *MlV1Client) Datasets(namespace string) DatasetInterface {
+	return newDatasets(c, namespace)
+}
+
+func (c *MlV1Client) DatasetVersions(namespace string) DatasetVersionInterface {
+	return newDatasetVersions(c, namespace)
+}
+
+func (c *MlV1Client) Models(namespace string) ModelInterface {
+	return newModels(c, namespace)
 }
 
 func (c *MlV1Client) ModelServices(namespace string) ModelServiceInterface {
@@ -42,6 +58,10 @@ func (c *MlV1Client) ModelServices(namespace string) ModelServiceInterface {
 
 func (c *MlV1Client) Notebooks(namespace string) NotebookInterface {
 	return newNotebooks(c, namespace)
+}
+
+func (c *MlV1Client) Registries() RegistryInterface {
+	return newRegistries(c)
 }
 
 // NewForConfig creates a new MlV1Client for the given config.

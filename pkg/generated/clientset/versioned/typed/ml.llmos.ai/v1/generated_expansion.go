@@ -17,6 +17,14 @@ limitations under the License.
 
 package v1
 
+type DatasetExpansion interface{}
+
+type DatasetVersionExpansion interface{}
+
+type ModelExpansion interface{}
+
 type ModelServiceExpansion interface{}
 
 type NotebookExpansion interface{}
+
+type RegistryExpansion interface{}

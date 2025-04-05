@@ -1,0 +1,11 @@
+apiVersion: ml.llmos.ai/v1
+kind: Registry
+metadata:
+  name: demo-registry
+spec:
+  backendType: S3
+  s3Config:
+    useSSL: false
+    endpoint: localhost:9000
+    bucket: test
+    accessCredentialSecretName: s3-credentials

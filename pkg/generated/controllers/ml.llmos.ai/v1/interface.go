@@ -30,8 +30,12 @@ func init() {
 }
 
 type Interface interface {
+	Dataset() DatasetController
+	DatasetVersion() DatasetVersionController
+	Model() ModelController
 	ModelService() ModelServiceController
 	Notebook() NotebookController
+	Registry() RegistryController
 }
 
 func New(controllerFactory controller.SharedControllerFactory) Interface {
@@ -44,10 +48,26 @@ type version struct {
 	controllerFactory controller.SharedControllerFactory
 }
 
+func (v *version) Dataset() DatasetController {
+	return generic.NewController[*v1.Dataset, *v1.DatasetList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "Dataset"}, "datasets", true, v.controllerFactory)
+}
+
+func (v *version) DatasetVersion() DatasetVersionController {
+	return generic.NewController[*v1.DatasetVersion, *v1.DatasetVersionList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "DatasetVersion"}, "datasetversions", true, v.controllerFactory)
+}
+
+func (v *version) Model() ModelController {
+	return generic.NewController[*v1.Model, *v1.ModelList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "Model"}, "models", true, v.controllerFactory)
+}
+
 func (v *version) ModelService() ModelServiceController {
 	return generic.NewController[*v1.ModelService, *v1.ModelServiceList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "ModelService"}, "modelservices", true, v.controllerFactory)
 }
 
 func (v *version) Notebook() NotebookController {
 	return generic.NewController[*v1.Notebook, *v1.NotebookList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "Notebook"}, "notebooks", true, v.controllerFactory)
+}
+
+func (v *version) Registry() RegistryController {
+	return generic.NewNonNamespacedController[*v1.Registry, *v1.RegistryList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "Registry"}, "registries", v.controllerFactory)
 }

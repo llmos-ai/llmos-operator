@@ -25,6 +25,57 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// DatasetList is a list of Dataset resources
+type DatasetList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Dataset `json:"items"`
+}
+
+func NewDataset(namespace, name string, obj Dataset) *Dataset {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Dataset").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// DatasetVersionList is a list of DatasetVersion resources
+type DatasetVersionList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []DatasetVersion `json:"items"`
+}
+
+func NewDatasetVersion(namespace, name string, obj DatasetVersion) *DatasetVersion {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("DatasetVersion").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// ModelList is a list of Model resources
+type ModelList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Model `json:"items"`
+}
+
+func NewModel(namespace, name string, obj Model) *Model {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Model").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // ModelServiceList is a list of ModelService resources
 type ModelServiceList struct {
 	metav1.TypeMeta `json:",inline"`
@@ -52,6 +103,23 @@ type NotebookList struct {
 
 func NewNotebook(namespace, name string, obj Notebook) *Notebook {
 	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Notebook").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// RegistryList is a list of Registry resources
+type RegistryList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Registry `json:"items"`
+}
+
+func NewRegistry(namespace, name string, obj Registry) *Registry {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Registry").ToAPIVersionAndKind()
 	obj.Name = name
 	obj.Namespace = namespace
 	return &obj
