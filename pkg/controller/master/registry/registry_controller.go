@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"context"
 	"fmt"
 
 	ctlcorev1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -10,23 +11,36 @@ import (
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/registry/backend"
+	"github.com/llmos-ai/llmos-operator/pkg/server/config"
+)
+
+const (
+	registryOnChangeName = "registry.OnChange"
 )
 
 type handler struct {
-	registryClient       ctlmlv1.RegistryClient
-	registryCache        ctlmlv1.RegistryCache
-	secretClient         ctlcorev1.SecretClient
-	secretCache          ctlcorev1.SecretCache
-	modelClient          ctlmlv1.ModelClient
-	modelCache           ctlmlv1.ModelCache
-	modelVersionCache    ctlmlv1.ModelVersionCache
-	modelVersionClient   ctlmlv1.ModelVersionClient
-	datasetClient        ctlmlv1.DatasetClient
-	datasetCache         ctlmlv1.DatasetCache
-	datasetVersionClient ctlmlv1.DatasetVersionClient
-	datasetVersionCache  ctlmlv1.DatasetVersionCache
+	registryClient ctlmlv1.RegistryClient
+	registryCache  ctlmlv1.RegistryCache
+	secretClient   ctlcorev1.SecretClient
+	secretCache    ctlcorev1.SecretCache
 
 	rm *registry.Manager
+}
+
+func Register(_ context.Context, mgmt *config.Management, _ config.Options) error {
+	registries := mgmt.LLMFactory.Ml().V1().Registry()
+	secrets := mgmt.CoreFactory.Core().V1().Secret()
+
+	h := handler{
+		registryClient: registries,
+		registryCache:  registries.Cache(),
+		secretClient:   secrets,
+		secretCache:    secrets.Cache(),
+	}
+	h.rm = registry.NewManager(secrets.Cache(), registries.Cache())
+
+	registries.OnChange(mgmt.Ctx, registryOnChangeName, h.CheckRegistryAccessibility)
+	return nil
 }
 
 func (h *handler) CheckRegistryAccessibility(_ string, registry *mlv1.Registry) (*mlv1.Registry, error) {

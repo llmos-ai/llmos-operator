@@ -1,7 +1,8 @@
-package registry
+package dataset
 
 import (
 	"fmt"
+	"path"
 	"reflect"
 
 	"github.com/sirupsen/logrus"
@@ -9,39 +10,8 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/registry"
+	"github.com/llmos-ai/llmos-operator/pkg/registry/backend"
 )
-
-func (h *handler) OnChangeDataset(_ string, dataset *mlv1.Dataset) (*mlv1.Dataset, error) {
-	if dataset == nil || dataset.DeletionTimestamp != nil {
-		return dataset, nil
-	}
-
-	logrus.Debugf("dataset %s/%s changed", dataset.Namespace, dataset.Name)
-
-	datasetCopy := dataset.DeepCopy()
-
-	datasetRootDir, err := h.createRootDir(dataset.Spec.Registry, mlv1.DatasetResourceName, dataset.Namespace, dataset.Name, "")
-	if err != nil {
-		return h.updateDatasetStatus(datasetCopy, dataset, fmt.Errorf(registry.ErrCreateDirectory, datasetRootDir, err))
-	}
-
-	datasetCopy.Status.RootPath = datasetRootDir
-	return h.updateDatasetStatus(datasetCopy, dataset, nil)
-}
-
-func (h *handler) OnRemoveDataset(_ string, dataset *mlv1.Dataset) (*mlv1.Dataset, error) {
-	if dataset == nil || dataset.Status.RootPath == "" {
-		return nil, nil
-	}
-
-	logrus.Debugf("dataset %s/%s deleted", dataset.Namespace, dataset.Name)
-
-	if err := h.deleteRootDir(dataset.Spec.Registry, dataset.Status.RootPath); err != nil {
-		return nil, fmt.Errorf("delete root path %s failed: %w", dataset.Status.RootPath, err)
-	}
-
-	return dataset, nil
-}
 
 func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*mlv1.DatasetVersion, error) {
 	if dv == nil || dv.DeletionTimestamp != nil {
@@ -52,6 +22,7 @@ func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 
 	dvCopy := dv.DeepCopy()
 
+	// check dataset ready
 	dataset, err := h.checkDatasetReady(dv.Namespace, dv.Spec.Dataset)
 	if err != nil {
 		return h.updateDatasetVersionStatus(dvCopy, dv, err)
@@ -59,17 +30,24 @@ func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 	dvCopy.Status.Registry = dataset.Spec.Registry
 
 	if !mlv1.Ready.IsTrue(dv) {
-		versionDir, err := h.createRootDir(dataset.Spec.Registry, mlv1.DatasetResourceName, dv.Namespace, dv.Spec.Dataset, dv.Spec.Version)
+		// create directory for dataset version
+		b, err := h.rm.NewBackendFromRegistry(dataset.Spec.Registry)
 		if err != nil {
+			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf(registry.ErrCreateBackendClient, err))
+		}
+		versionDir := path.Join(dataset.Status.RootPath, dv.Spec.Version)
+		if err := b.CreateDirectory(versionDir); err != nil {
 			return h.updateDatasetVersionStatus(dvCopy, dv, err)
 		}
 		dvCopy.Status.RootPath = versionDir
 
-		if err = h.copyFrom(dataset.Spec.Registry, mlv1.DatasetResourceName, versionDir, dv.Spec.CopyFrom); err != nil {
+		// copy from other dataset version
+		if err = h.copyFrom(b, versionDir, dv.Spec.CopyFrom); err != nil {
 			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf("copy failed: %w", err))
 		}
 	}
 
+	// add version to dataset status
 	if _, exist := versionExists(dataset.Status.Versions, dv.Spec.Version); !exist {
 		datasetCopy := dataset.DeepCopy()
 		datasetCopy.Status.Versions = append(datasetCopy.Status.Versions, mlv1.Version{Version: dv.Spec.Version, ObjectName: dv.Name})
@@ -89,10 +67,16 @@ func (h *handler) OnRemoveDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 
 	logrus.Debugf("delete dataset version %s(%s) of %s/%s", dv.Spec.Version, dv.Name, dv.Namespace, dv.Spec.Dataset)
 
-	if err := h.deleteRootDir(dv.Status.Registry, dv.Status.RootPath); err != nil {
+	// delete directory of dataset version
+	b, err := h.rm.NewBackendFromRegistry(dv.Status.Registry)
+	if err != nil {
+		return nil, fmt.Errorf(registry.ErrCreateBackendClient, err)
+	}
+	if err := b.DeleteDirectory(dv.Status.RootPath); err != nil {
 		return nil, fmt.Errorf("delete files of dataset version %s/%s/%s failed: %w", dv.Namespace, dv.Spec.Dataset, dv.Name, err)
 	}
 
+	// remove version from dataset status
 	dataset, err := h.datasetCache.Get(dv.Namespace, dv.Spec.Dataset)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -111,25 +95,31 @@ func (h *handler) OnRemoveDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 	return dv, nil
 }
 
-func (h *handler) updateDatasetStatus(datasetCopy, dataset *mlv1.Dataset, err error) (*mlv1.Dataset, error) {
-	if err == nil {
-		mlv1.Ready.True(datasetCopy)
-		mlv1.Ready.Message(datasetCopy, "")
-	} else {
-		mlv1.Ready.False(datasetCopy)
-		mlv1.Ready.Message(datasetCopy, err.Error())
+func (h *handler) copyFrom(b backend.Backend, dst string, copyFrom *mlv1.CopyFrom) error {
+	if copyFrom == nil {
+		return nil
 	}
 
-	// don't update when no change happens
-	if reflect.DeepEqual(datasetCopy.Status, dataset.Status) {
-		return datasetCopy, err
+	logrus.Debugf("copy from %s/%s/%s", copyFrom.Namespace, copyFrom.Name, copyFrom.Version)
+
+	// check if the source dataset version is exist
+	dataset, err := h.datasetCache.Get(copyFrom.Namespace, copyFrom.Name)
+	if err != nil {
+		return fmt.Errorf("get dataset %s/%s failed: %w", copyFrom.Namespace, copyFrom.Name, err)
+	}
+	if !mlv1.Ready.IsTrue(dataset) {
+		return fmt.Errorf("dataset %s/%s is not ready", copyFrom.Namespace, copyFrom.Name)
+	}
+	if _, exist := versionExists(dataset.Status.Versions, copyFrom.Version); !exist {
+		return fmt.Errorf("version %s of dataset %s/%s not found", copyFrom.Version, copyFrom.Namespace, copyFrom.Name)
+	}
+	src := path.Join(dataset.Status.RootPath, copyFrom.Version)
+
+	if err := b.Copy(src, dst); err != nil {
+		return fmt.Errorf("copy from %s/%s/%s failed: %w", copyFrom.Namespace, copyFrom.Name, copyFrom.Version, err)
 	}
 
-	updatedDataset, updateErr := h.datasetClient.UpdateStatus(datasetCopy)
-	if updateErr != nil {
-		return nil, fmt.Errorf("update dataset status failed: %w", err)
-	}
-	return updatedDataset, err
+	return nil
 }
 
 func (h *handler) updateDatasetVersionStatus(dvCopy, dv *mlv1.DatasetVersion, err error) (*mlv1.DatasetVersion, error) {
@@ -152,15 +142,11 @@ func (h *handler) updateDatasetVersionStatus(dvCopy, dv *mlv1.DatasetVersion, er
 	return updatedDatasetVersion, err
 }
 
-func (h *handler) checkDatasetReady(namespace, name string) (*mlv1.Dataset, error) {
-	dataset, err := h.datasetCache.Get(namespace, name)
-	if err != nil {
-		return nil, err
+func versionExists(versions []mlv1.Version, version string) (int, bool) {
+	for i, v := range versions {
+		if v.Version == version {
+			return i, true
+		}
 	}
-
-	if !mlv1.Ready.IsTrue(dataset) {
-		return nil, fmt.Errorf("dataset %s/%s is not ready", namespace, name)
-	}
-
-	return dataset, nil
+	return -1, false
 }

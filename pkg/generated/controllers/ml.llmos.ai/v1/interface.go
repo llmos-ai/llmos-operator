@@ -34,7 +34,6 @@ type Interface interface {
 	DatasetVersion() DatasetVersionController
 	Model() ModelController
 	ModelService() ModelServiceController
-	ModelVersion() ModelVersionController
 	Notebook() NotebookController
 	Registry() RegistryController
 }
@@ -63,10 +62,6 @@ func (v *version) Model() ModelController {
 
 func (v *version) ModelService() ModelServiceController {
 	return generic.NewController[*v1.ModelService, *v1.ModelServiceList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "ModelService"}, "modelservices", true, v.controllerFactory)
-}
-
-func (v *version) ModelVersion() ModelVersionController {
-	return generic.NewController[*v1.ModelVersion, *v1.ModelVersionList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "ModelVersion"}, "modelversions", true, v.controllerFactory)
 }
 
 func (v *version) Notebook() NotebookController {

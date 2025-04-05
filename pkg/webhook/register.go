@@ -9,13 +9,15 @@ import (
 	"k8s.io/client-go/rest"
 
 	wconfig "github.com/llmos-ai/llmos-operator/pkg/webhook/config"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/dataset"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/datasetversion"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/helmchart"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/managedaddon"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/model"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/modelservice"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/namespace"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/notebook"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/raycluster"
-	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/upgrade"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/user"
 )
@@ -29,10 +31,9 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		helmchart.NewValidator(),
 		managedaddon.NewValidator(),
 		namespace.NewValidator(),
-		registry.NewModelValidator(mgmt),
-		registry.NewDatasetValidator(mgmt),
-		registry.NewModelVersionValidator(mgmt),
-		registry.NewDatasetVersionValidator(mgmt),
+		model.NewValidator(mgmt),
+		dataset.NewValidator(mgmt),
+		datasetversion.Newvalidator(mgmt),
 	}
 
 	mutators = []admission.Mutator{
@@ -40,8 +41,7 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		raycluster.NewMutator(mgmt),
 		notebook.NewMutator(),
 		modelservice.NewMutator(),
-		registry.NewModelVersionMutator(mgmt),
-		registry.NewDatasetVersionMutator(mgmt),
+		datasetversion.Newmutator(mgmt),
 	}
 
 	return

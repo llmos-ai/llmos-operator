@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"io"
+	"net/http"
 	"time"
 )
 
@@ -30,12 +30,12 @@ type Backend interface {
 
 // Uploader defines the interface for uploading data
 type Uploader interface {
-	Upload(objectName string, reader io.Reader, objectSize int64, contentType string) error
+	Upload(src, dst string) error
 }
 
-// Downloader defines the interface for downloading data
+// Downloader defines the interface for downloading data in HTTP response
 type Downloader interface {
-	Download(objectName string, writer io.Writer) error
+	Download(src string, rw http.ResponseWriter) error
 }
 
 // Deleter defines the interface for deleting data

@@ -1,12 +1,19 @@
 package s3
 
 import (
+	"archive/zip"
+	"bufio"
 	"context"
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
+	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
@@ -48,14 +55,82 @@ func NewMinioClient(endpoint, accessKeyID, accessKeySecret, bucket string, useSS
 	}, nil
 }
 
-// Upload uploads an object to the specified bucket
-func (mc *MinioClient) Upload(objectName string, reader io.Reader, objectSize int64, contentType string) error {
-	_, err := mc.client.PutObject(context.Background(), mc.bucket, objectName, reader, objectSize, minio.PutObjectOptions{ContentType: contentType})
-	return err
+// Upload support both file and directory upload
+func (mc *MinioClient) Upload(src, dst string) error {
+	fileInfo, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf("stat file %s failed: %v", src, err)
+	}
+
+	if fileInfo.IsDir() {
+		return mc.uploadDirectory(src, dst)
+	}
+	return mc.uploadFile(src, path.Join(dst, fileInfo.Name()))
 }
 
-// Download downloads an object from the specified bucket
-func (mc *MinioClient) Download(objectName string, writer io.Writer) error {
+func (mc *MinioClient) uploadFile(src, dst string) error {
+	file, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("open file %s failed: %v", src, err)
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("stat file %s failed: %v", src, err)
+	}
+
+	contentType, err := mimetype.DetectReader(file)
+	if err != nil {
+		return fmt.Errorf("detect file %s mimetype failed: %v", src, err)
+	}
+	// reset file position because mimetype.DetectReader read the file
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("reset file position failed: %v", err)
+	}
+
+	if _, err := mc.client.PutObject(context.Background(), mc.bucket, dst, file,
+		fileInfo.Size(), minio.PutObjectOptions{ContentType: contentType.String()}); err != nil {
+		return fmt.Errorf("upload file %s failed: %v", src, err)
+	}
+
+	return nil
+}
+
+func (mc *MinioClient) uploadDirectory(src, dst string) error {
+	return filepath.Walk(src, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(src, filePath)
+		if err != nil {
+			return fmt.Errorf("get relative path failed: %v", err)
+		}
+
+		objectName := path.Join(dst, relPath)
+
+		return mc.uploadFile(filePath, objectName)
+	})
+}
+
+func (mc *MinioClient) Download(src string, rw http.ResponseWriter) error {
+	files, err := mc.List(src, true, true)
+	if err != nil {
+		return fmt.Errorf("list file %s failed: %v", src, err)
+	}
+	if len(files) == 1 && files[0].Path == src {
+		return mc.downloadFile(files[0], rw)
+	}
+
+	return mc.downloadDirectory(src, files, rw)
+}
+
+func (mc *MinioClient) download(objectName string, writer io.Writer) error {
 	object, err := mc.client.GetObject(context.Background(), mc.bucket, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		return err
@@ -64,6 +139,43 @@ func (mc *MinioClient) Download(objectName string, writer io.Writer) error {
 
 	_, err = io.Copy(writer, object)
 	return err
+}
+
+func (mc *MinioClient) downloadFile(file backend.FileInfo, rw http.ResponseWriter) error {
+	fileName := path.Base(file.Path)
+	rw.Header().Set("Content-Type", file.ContentType)
+	rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+		url.QueryEscape(fileName), url.QueryEscape(fileName)))
+
+	buf := bufio.NewWriter(rw)
+	defer buf.Flush()
+
+	return mc.download(file.Path, buf)
+}
+
+// downloadDirectory downloads a directory as a zip file
+func (mc *MinioClient) downloadDirectory(srcDir string, files []backend.FileInfo, rw http.ResponseWriter) error {
+	zipFileName := path.Base(srcDir) + ".zip"
+	rw.Header().Set("Content-Type", "application/zip")
+	rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+		url.QueryEscape(zipFileName), url.QueryEscape(zipFileName)))
+
+	zw := zip.NewWriter(rw)
+	defer zw.Close()
+
+	for _, file := range files {
+		relPath := strings.TrimPrefix(file.Path, srcDir)
+		fw, err := zw.Create(relPath)
+		if err != nil {
+			return fmt.Errorf("create zip entry failed: %v", err)
+		}
+
+		if err := mc.download(file.Path, fw); err != nil {
+			return fmt.Errorf("download file %s failed: %v", file.Name, err)
+		}
+	}
+
+	return nil
 }
 
 // Delete deletes an object from the specified bucket

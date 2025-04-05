@@ -25,8 +25,6 @@ type ModelExpansion interface{}
 
 type ModelServiceExpansion interface{}
 
-type ModelVersionExpansion interface{}
-
 type NotebookExpansion interface{}
 
 type RegistryExpansion interface{}

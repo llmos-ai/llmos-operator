@@ -20,16 +20,12 @@ const (
 )
 
 type Manager struct {
-	modelCache    ctlmlv1.ModelCache
-	datasetCache  ctlmlv1.DatasetCache
 	registryCache ctlmlv1.RegistryCache
 	secretCache   ctlcorev1.SecretCache
 }
 
-func NewManager(secretCache ctlcorev1.SecretCache, registryCache ctlmlv1.RegistryCache, modelCache ctlmlv1.ModelCache, datasetCache ctlmlv1.DatasetCache) *Manager {
+func NewManager(secretCache ctlcorev1.SecretCache, registryCache ctlmlv1.RegistryCache) *Manager {
 	return &Manager{
-		modelCache:    modelCache,
-		datasetCache:  datasetCache,
 		registryCache: registryCache,
 		secretCache:   secretCache,
 	}

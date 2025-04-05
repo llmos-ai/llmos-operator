@@ -31,7 +31,6 @@ var (
 	DatasetVersionResourceName = "datasetversions"
 	ModelResourceName          = "models"
 	ModelServiceResourceName   = "modelservices"
-	ModelVersionResourceName   = "modelversions"
 	NotebookResourceName       = "notebooks"
 	RegistryResourceName       = "registries"
 )
@@ -65,8 +64,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ModelList{},
 		&ModelService{},
 		&ModelServiceList{},
-		&ModelVersion{},
-		&ModelVersionList{},
 		&Notebook{},
 		&NotebookList{},
 		&Registry{},

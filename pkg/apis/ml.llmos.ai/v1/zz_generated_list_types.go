@@ -93,23 +93,6 @@ func NewModelService(namespace, name string, obj ModelService) *ModelService {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ModelVersionList is a list of ModelVersion resources
-type ModelVersionList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ModelVersion `json:"items"`
-}
-
-func NewModelVersion(namespace, name string, obj ModelVersion) *ModelVersion {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ModelVersion").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // NotebookList is a list of Notebook resources
 type NotebookList struct {
 	metav1.TypeMeta `json:",inline"`

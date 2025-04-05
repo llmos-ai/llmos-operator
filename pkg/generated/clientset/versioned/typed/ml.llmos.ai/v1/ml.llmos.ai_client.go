@@ -31,7 +31,6 @@ type MlV1Interface interface {
 	DatasetVersionsGetter
 	ModelsGetter
 	ModelServicesGetter
-	ModelVersionsGetter
 	NotebooksGetter
 	RegistriesGetter
 }
@@ -55,10 +54,6 @@ func (c *MlV1Client) Models(namespace string) ModelInterface {
 
 func (c *MlV1Client) ModelServices(namespace string) ModelServiceInterface {
 	return newModelServices(c, namespace)
-}
-
-func (c *MlV1Client) ModelVersions(namespace string) ModelVersionInterface {
-	return newModelVersions(c, namespace)
 }
 
 func (c *MlV1Client) Notebooks(namespace string) NotebookInterface {

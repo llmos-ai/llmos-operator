@@ -43,10 +43,6 @@ func (c *FakeMlV1) ModelServices(namespace string) v1.ModelServiceInterface {
 	return &FakeModelServices{c, namespace}
 }
 
-func (c *FakeMlV1) ModelVersions(namespace string) v1.ModelVersionInterface {
-	return &FakeModelVersions{c, namespace}
-}
-
 func (c *FakeMlV1) Notebooks(namespace string) v1.NotebookInterface {
 	return &FakeNotebooks{c, namespace}
 }

@@ -63,39 +63,4 @@ type ModelMetaData struct {
 	BaseModel         string   `json:"baseModel,omitempty"`         // Base model information
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +kubebuilder:resource:shortName=mv;mvs
-// +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Model",type="string",JSONPath=`.spec.model`
-// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=`.spec.version`
-// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
-
-// ModelVersion is a definition for the LLM Model Version
-type ModelVersion struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   ModelVersionSpec   `json:"spec,omitempty"`
-	Status ModelVersionStatus `json:"status,omitempty"`
-}
-
-type ModelVersionSpec struct {
-	Model   string `json:"model"`
-	Version string `json:"version"`
-	// +optional
-	CopyFrom *CopyFrom `json:"copyFrom,omitempty"`
-	// +optional
-	EnableFastLoading bool `json:"enableFastLoading,omitempty"`
-}
-
-type ModelVersionStatus struct {
-	Conditions []common.Condition `json:"conditions,omitempty"`
-
-	Registry string `json:"registry"`
-	RootPath string `json:"rootPath"`
-	// +optional
-	Snapshot string `json:"snapshot,omitempty"`
-}
-
 var Ready condition.Cond = "ready"
