@@ -1,6 +1,6 @@
 VERSION --arg-scope-and-set 0.8
 
-LET go_version = 1.22
+LET go_version = 1.23
 LET distro = alpine3.20
 
 FROM golang:${go_version}-${distro}
