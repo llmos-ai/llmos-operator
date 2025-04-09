@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos-operator/pkg/registry"
+	"github.com/llmos-ai/llmos-operator/pkg/registry/backend"
 	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
@@ -41,6 +43,7 @@ type CreateDirectoryInput struct {
 }
 
 type BaseHandler struct {
+	Ctx                    context.Context
 	RegistryManager        *registry.Manager
 	GetRegistryAndRootPath func(namespace, name string) (string, string, error)
 }
@@ -92,26 +95,18 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 
 func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
 	input := &UploadInput{}
-	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
-		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
-	}
 
-	if !isValidPath(input.TargetDirectory) {
-		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid target directory path")
-	}
-
-	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	err := decodeAndValidateInput(req, input, input.TargetDirectory)
 	if err != nil {
-		return fmt.Errorf("get registry and root path failed: %w", err)
+		return err
 	}
 
-	ctx := req.Context()
-	b, err := h.RegistryManager.NewBackendFromRegistry(ctx, reg)
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+		return err
 	}
 
-	if err := b.Upload(ctx, input.SourceFilePath, path.Join(rootPath, input.TargetDirectory)); err != nil {
+	if err := b.Upload(h.Ctx, input.SourceFilePath, path.Join(rootPath, input.TargetDirectory)); err != nil {
 		return fmt.Errorf("upload file %s failed: %w", input.SourceFilePath, err)
 	}
 
@@ -120,27 +115,20 @@ func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
 
 func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespace, name string) error {
 	input := &DownloadInput{}
-	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
-		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+
+	err := decodeAndValidateInput(req, input, input.TargetFilePath)
+	if err != nil {
+		return err
 	}
 
-	if !isValidPath(input.TargetFilePath) {
-		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid target file path")
-	}
-
-	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return fmt.Errorf("get registry and root path failed: %w", err)
-	}
-	ctx := req.Context()
-	b, err := h.RegistryManager.NewBackendFromRegistry(ctx, reg)
-	if err != nil {
-		return fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+		return err
 	}
 
 	objectName := path.Join(rootPath, input.TargetFilePath)
 
-	if err := b.Download(ctx, objectName, rw); err != nil {
+	if err := b.Download(h.Ctx, objectName, rw); err != nil {
 		return fmt.Errorf("download file %s failed: %w", input.TargetFilePath, err)
 	}
 
@@ -149,26 +137,18 @@ func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespa
 
 func (h BaseHandler) list(rw http.ResponseWriter, req *http.Request, namespace, name string) error {
 	input := &ListInput{}
-	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
-		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+	err := decodeAndValidateInput(req, input, input.TargetFilePath)
+	if err != nil {
+		return err
 	}
 
-	if !isValidPath(input.TargetFilePath) {
-		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid target file path")
-	}
-
-	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return fmt.Errorf("get registry and root path failed: %w", err)
-	}
-	ctx := req.Context()
-	b, err := h.RegistryManager.NewBackendFromRegistry(ctx, reg)
-	if err != nil {
-		return fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+		return err
 	}
 
 	objectName := path.Join(rootPath, input.TargetFilePath)
-	output, err := b.List(ctx, objectName, false, true)
+	output, err := b.List(h.Ctx, objectName, false, true)
 	if err != nil {
 		return fmt.Errorf("failed to list %s: %w", input.TargetFilePath, err)
 	}
@@ -180,26 +160,19 @@ func (h BaseHandler) list(rw http.ResponseWriter, req *http.Request, namespace, 
 
 func (h BaseHandler) remove(req *http.Request, namespace, name string) error {
 	input := &RemoveInput{}
-	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
-		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+
+	err := decodeAndValidateInput(req, input, input.TargetFilePath)
+	if err != nil {
+		return err
 	}
 
-	if !isValidPath(input.TargetFilePath) {
-		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid target file path")
-	}
-
-	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return fmt.Errorf("get registry and root path failed: %w", err)
-	}
-	ctx := req.Context()
-	b, err := h.RegistryManager.NewBackendFromRegistry(ctx, reg)
-	if err != nil {
-		return fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+		return err
 	}
 
 	objectName := path.Join(rootPath, input.TargetFilePath)
-	if err := b.Delete(ctx, objectName); err != nil {
+	if err := b.Delete(h.Ctx, objectName); err != nil {
 		return fmt.Errorf("remove file %s failed: %v", objectName, err)
 	}
 
@@ -209,22 +182,15 @@ func (h BaseHandler) remove(req *http.Request, namespace, name string) error {
 func (h BaseHandler) createDirectory(req *http.Request, namespace, name string) error {
 	input := &CreateDirectoryInput{}
 
-	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
-		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
-	}
-
-	if !isValidPath(input.TargetDirectory) {
-		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid target directory path")
-	}
-
-	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	err := decodeAndValidateInput(req, input, input.TargetDirectory)
 	if err != nil {
-		return fmt.Errorf("get registry and root path failed: %w", err)
+		return err
 	}
+
 	ctx := req.Context()
-	b, err := h.RegistryManager.NewBackendFromRegistry(ctx, reg)
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+		return err
 	}
 
 	directory := path.Join(rootPath, input.TargetDirectory)
@@ -233,6 +199,32 @@ func (h BaseHandler) createDirectory(req *http.Request, namespace, name string) 
 	}
 
 	return nil
+}
+
+func decodeAndValidateInput(req *http.Request, input interface{}, pathField string) error {
+	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+	}
+
+	if !isValidPath(pathField) {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid path")
+	}
+
+	return nil
+}
+
+func (h BaseHandler) getBackendAndRootPath(namespace, name string) (backend.Backend, string, error) {
+	reg, rootPath, err := h.GetRegistryAndRootPath(namespace, name)
+	if err != nil {
+		return nil, "", fmt.Errorf("get registry and root path failed: %w", err)
+	}
+
+	b, err := h.RegistryManager.NewBackendFromRegistry(h.Ctx, reg)
+	if err != nil {
+		return nil, "", fmt.Errorf("new backend for registry %s failed: %w", reg, err)
+	}
+
+	return b, rootPath, nil
 }
 
 // isValidPath checks if the path is valid and doesn't contain directory traversal attempts

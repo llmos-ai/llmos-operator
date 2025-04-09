@@ -50,7 +50,9 @@ func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 	// add version to dataset status
 	if _, exist := versionExists(dataset.Status.Versions, dv.Spec.Version); !exist {
 		datasetCopy := dataset.DeepCopy()
-		datasetCopy.Status.Versions = append(datasetCopy.Status.Versions, mlv1.Version{Version: dv.Spec.Version, ObjectName: dv.Name})
+		datasetCopy.Status.Versions = append(datasetCopy.Status.Versions,
+			mlv1.Version{Version: dv.Spec.Version, ObjectName: dv.Name})
+
 		if _, err := h.updateDatasetStatus(datasetCopy, dataset, nil); err != nil {
 			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf("add version %s to dataset %s/%s failed: %w",
 				dv.Spec.Version, dv.Namespace, dv.Spec.Dataset, err))
@@ -73,7 +75,8 @@ func (h *handler) OnRemoveDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 		return nil, fmt.Errorf(registry.ErrCreateBackendClient, err)
 	}
 	if err = b.Delete(h.ctx, dv.Status.RootPath); err != nil {
-		return nil, fmt.Errorf("delete files of dataset version %s/%s/%s failed: %w", dv.Namespace, dv.Spec.Dataset, dv.Name, err)
+		return nil, fmt.Errorf("delete files of dataset version %s/%s/%s failed: %w",
+			dv.Namespace, dv.Spec.Dataset, dv.Name, err)
 	}
 
 	// remove version from dataset status
@@ -88,7 +91,8 @@ func (h *handler) OnRemoveDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 		datasetCopy := dataset.DeepCopy()
 		datasetCopy.Status.Versions = append(datasetCopy.Status.Versions[:index], datasetCopy.Status.Versions[index+1:]...)
 		if _, err := h.updateDatasetStatus(datasetCopy, dataset, nil); err != nil {
-			return nil, fmt.Errorf("remove version %s from dataset %s/%s failed: %w", dv.Spec.Version, dataset.Namespace, dataset.Name, err)
+			return nil, fmt.Errorf("remove version %s from dataset %s/%s failed: %w",
+				dv.Spec.Version, dataset.Namespace, dataset.Name, err)
 		}
 	}
 

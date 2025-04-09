@@ -8,6 +8,9 @@ issues:
   exclude-use-default: false
   # restore some of the defaults
   # (fill in the rest as needed)
+  exclude-dirs:
+    - "tmp"
+    - "pkg/generated/*"
   exclude-rules:
     - path: "pkg/generated/*"
       linters:
@@ -39,7 +42,7 @@ linters:
   enable:
     - dupl
     - errcheck
-    - exportloopref
+    - copyloopvar
     - goconst
     - gocyclo
     - gofmt

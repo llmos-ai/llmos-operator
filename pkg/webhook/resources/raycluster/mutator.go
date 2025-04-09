@@ -55,7 +55,7 @@ func (m *mutator) Create(_ *admission.Request, newObj runtime.Object) (admission
 	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled))
 
 	// patch worker group specs
-	if cluster.Spec.WorkerGroupSpecs != nil && len(cluster.Spec.WorkerGroupSpecs) > 0 {
+	if len(cluster.Spec.WorkerGroupSpecs) > 0 {
 		patchOps = append(patchOps, patchWorkerGroupSpecs(cluster))
 	}
 
@@ -90,7 +90,7 @@ func (m *mutator) Update(_ *admission.Request, oldObj runtime.Object, newObj run
 	}
 
 	patchOps = append(patchOps, patchHeadGroupSpec(cluster, gcsEnabled))
-	if cluster.Spec.WorkerGroupSpecs != nil && len(cluster.Spec.WorkerGroupSpecs) > 0 {
+	if len(cluster.Spec.WorkerGroupSpecs) > 0 {
 		patchOps = append(patchOps, patchWorkerGroupSpecs(cluster))
 	}
 
@@ -282,7 +282,7 @@ func patchContainerLifecycle(spec corev1.PodTemplateSpec) *corev1.Lifecycle {
 }
 
 func isOwnedByRayService(cluster *rayv1.RayCluster) bool {
-	if cluster.OwnerReferences == nil || len(cluster.OwnerReferences) == 0 {
+	if len(cluster.OwnerReferences) == 0 {
 		return false
 	}
 	for _, owner := range cluster.OwnerReferences {

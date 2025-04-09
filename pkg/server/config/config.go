@@ -21,7 +21,7 @@ import (
 	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/nvidia.com"
 	kuberayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
 	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io"
-	"github.com/llmos-ai/llmos-operator/pkg/generated/controllers/upgrade.cattle.io"
+	upgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/upgrade.cattle.io"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/ent"
 )
 
@@ -60,7 +60,7 @@ type Management struct {
 	BatchFactory   *batchv1.Factory
 	StorageFactory *storagev1.Factory
 	MgmtFactory    *ctlmgmtv1.Factory
-	UpgradeFactory *upgrade.Factory
+	UpgradeFactory *upgradev1.Factory
 	LLMFactory     *ctlmlv1.Factory
 	KubeRayFactory *kuberayv1.Factory
 	NvidiaFactory  *nvidiav1.Factory
@@ -170,7 +170,7 @@ func setupManagement(ctx context.Context, restConfig *rest.Config, opts *generic
 	mgmt.LLMFactory = llm
 	mgmt.starters = append(mgmt.starters, llm)
 
-	upgrade, err := upgrade.NewFactoryFromConfigWithOptions(restConfig, opts)
+	upgrade, err := upgradev1.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
 		return nil, err
 	}

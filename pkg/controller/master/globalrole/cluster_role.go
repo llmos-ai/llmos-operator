@@ -26,7 +26,7 @@ func constructClusterRole(role *v1.GlobalRole) *rbacv1.ClusterRole {
 }
 
 func constructGlobalNsRoles(role *v1.GlobalRole) []*rbacv1.Role {
-	if role.NamespacedRules == nil || len(role.NamespacedRules) == 0 {
+	if len(role.NamespacedRules) == 0 {
 		return nil
 	}
 

@@ -76,7 +76,8 @@ func (h *handler) checkRegistryAccessibility(registry *mlv1.Registry) (backend.B
 	return b, nil
 }
 
-func (h *handler) updateRegistryAccessibleCondition(registry *mlv1.Registry, accessible bool, message string) (*mlv1.Registry, error) {
+func (h *handler) updateRegistryAccessibleCondition(registry *mlv1.Registry, accessible bool,
+	message string) (*mlv1.Registry, error) {
 	toUpdate := registry.DeepCopy()
 
 	if accessible {
