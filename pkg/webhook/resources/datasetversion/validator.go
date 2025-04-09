@@ -43,7 +43,8 @@ func (v *validator) Create(_ *admission.Request, obj runtime.Object) error {
 	// version should be unique in the dataset
 	for _, v := range ds.Status.Versions {
 		if v.Version == dv.Spec.Version {
-			return werror.BadRequest(fmt.Sprintf("dataset %s/%s already has version %s", dv.Namespace, dv.Spec.Dataset, dv.Spec.Version))
+			return werror.BadRequest(fmt.Sprintf("dataset %s/%s already has version %s",
+				dv.Namespace, dv.Spec.Dataset, dv.Spec.Version))
 		}
 	}
 

@@ -55,7 +55,7 @@ func (v *validator) Update(_ *admission.Request, _, newObj runtime.Object) error
 // validateAutoScalingWithWorkerGroupSpecs checks if enableInTreeAutoscaling is true, workerGroupSpecs should be defined
 func validateAutoScalingWithWorkerGroupSpecs(cluster *rayv1.RayCluster) error {
 	if cluster.Spec.EnableInTreeAutoscaling != nil && *cluster.Spec.EnableInTreeAutoscaling {
-		if cluster.Spec.WorkerGroupSpecs == nil || len(cluster.Spec.WorkerGroupSpecs) == 0 {
+		if len(cluster.Spec.WorkerGroupSpecs) == 0 {
 			return fmt.Errorf("enableInTreeAutoscaling is true, but workerGroupSpecs is not defined")
 		}
 	}

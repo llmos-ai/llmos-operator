@@ -30,7 +30,8 @@ type MinioClient struct {
 var _ backend.Backend = (*MinioClient)(nil)
 
 // NewMinioClient initializes a new MinIO client
-func NewMinioClient(ctx context.Context, endpoint, accessKeyID, accessKeySecret, bucket string, useSSL bool) (backend.Backend, error) {
+func NewMinioClient(ctx context.Context, endpoint, accessKeyID, accessKeySecret,
+	bucket string, useSSL bool) (backend.Backend, error) {
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, accessKeySecret, ""),
@@ -74,7 +75,7 @@ func (mc *MinioClient) uploadFile(ctx context.Context, src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("open file %s failed: %v", src, err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	fileInfo, err := file.Stat()
 	if err != nil {
@@ -140,7 +141,7 @@ func (mc *MinioClient) download(ctx context.Context, objectName string, writer i
 	if err != nil {
 		return err
 	}
-	defer object.Close()
+	defer object.Close() //nolint:errcheck
 
 	_, err = io.Copy(writer, object)
 	return err
@@ -153,22 +154,23 @@ func (mc *MinioClient) downloadFile(ctx context.Context, file backend.FileInfo, 
 		url.QueryEscape(fileName), url.QueryEscape(fileName)))
 
 	buf := bufio.NewWriter(rw)
-	defer buf.Flush()
+	defer buf.Flush() //nolint:errcheck
 
 	return mc.download(ctx, file.Path, buf)
 }
 
 // downloadDirectory downloads a directory as a zip file
-// TODO: Verify large directory download handling. Compressing large directories on the fly might consume significant CPU/memory.
-// Consider streaming a zip response or chunking downloads to handle big datasets gracefully.
-func (mc *MinioClient) downloadDirectory(ctx context.Context, srcDir string, files []backend.FileInfo, rw http.ResponseWriter) error {
+// TODO: Verify large directory download handling. compressing large directories on the fly might consume
+// significant CPU/memory. Consider streaming a zip response or chunking downloads to handle big datasets gracefully
+func (mc *MinioClient) downloadDirectory(ctx context.Context, srcDir string,
+	files []backend.FileInfo, rw http.ResponseWriter) error {
 	zipFileName := path.Base(srcDir) + ".zip"
 	rw.Header().Set("Content-Type", "application/zip")
 	rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
 		url.QueryEscape(zipFileName), url.QueryEscape(zipFileName)))
 
 	zw := zip.NewWriter(rw)
-	defer zw.Close()
+	defer zw.Close() //nolint:errcheck
 
 	for _, file := range files {
 		relPath := strings.TrimPrefix(file.Path, srcDir)
@@ -220,7 +222,8 @@ func (mc *MinioClient) get(ctx context.Context, objectName string) (backend.File
 }
 
 // List lists objects in the specified directory (prefix)
-func (mc *MinioClient) List(ctx context.Context, prefix string, recursive, skipItself bool) ([]backend.FileInfo, error) {
+func (mc *MinioClient) List(ctx context.Context, prefix string, recursive,
+	skipItself bool) ([]backend.FileInfo, error) {
 	if file, err := mc.get(ctx, prefix); err == nil {
 		return []backend.FileInfo{file}, nil
 	}
@@ -234,7 +237,7 @@ func (mc *MinioClient) List(ctx context.Context, prefix string, recursive, skipI
 		Recursive: recursive,
 	})
 
-	var fileInfos []backend.FileInfo
+	fileInfos := make([]backend.FileInfo, 0, len(objectCh))
 	for object := range objectCh {
 		if object.Err != nil {
 			return nil, object.Err
@@ -257,8 +260,8 @@ func (mc *MinioClient) List(ctx context.Context, prefix string, recursive, skipI
 	return fileInfos, nil
 }
 
-// TODO: Consider using h.mu.Lock() and defer h.mu.Unlock() ensures that the operations like create directory,
-// copy and delete directory section are thread-safe and do not interfere with concurrent operations.
+// CreateDirectory TODO: Consider using h.mu.Lock() and defer h.mu.Unlock() ensures that the operations like create
+// directory, copy and delete directory section are thread-safe and do not interfere with concurrent operations.
 func (mc *MinioClient) CreateDirectory(ctx context.Context, objectName string) error {
 	// Ensure the object name ends with a slash
 	objectName = ensureTrailingSlash(objectName)

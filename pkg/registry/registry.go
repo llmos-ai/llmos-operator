@@ -39,7 +39,8 @@ func (r *Manager) NewBackend(ctx context.Context, registry *mlv1.Registry) (back
 		return nil, fmt.Errorf("get access key failed: %w", err)
 	}
 
-	return s3.NewMinioClient(ctx, registry.Spec.S3Config.Endpoint, id, secret, registry.Spec.S3Config.Bucket, registry.Spec.S3Config.UseSSL)
+	return s3.NewMinioClient(ctx, registry.Spec.S3Config.Endpoint, id, secret,
+		registry.Spec.S3Config.Bucket, registry.Spec.S3Config.UseSSL)
 }
 
 func getAccessKey(secretCache ctlcorev1.SecretCache, accessCredentialSecretName string) (string, string, error) {
