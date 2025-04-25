@@ -25,6 +25,7 @@ func NewHandler(scaled *config.Scaled) Handler {
 	secretCache := scaled.CoreFactory.Core().V1().Secret().Cache()
 
 	h.BaseHandler = cr.BaseHandler{
+		Ctx:                    scaled.Ctx,
 		GetRegistryAndRootPath: h.GetRegistryAndRootPath,
 		RegistryManager:        registry.NewManager(secretCache, registryCache),
 	}
