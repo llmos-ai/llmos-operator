@@ -68,16 +68,18 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 	container.Env = buildEnvs(ms, podSpec.Containers[0])
 	containerPort := container.Ports[0].ContainerPort
 
-	if container.LivenessProbe == nil {
-		ss.Spec.Template.Spec.Containers[0].LivenessProbe = &corev1.Probe{
+	if container.StartupProbe == nil {
+		ss.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
 					Path: "/health",
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			PeriodSeconds:    30,
-			FailureThreshold: 3,
+			InitialDelaySeconds: 90,
+			FailureThreshold:    30,
+			PeriodSeconds:       10,
+			TimeoutSeconds:      5,
 		}
 	}
 
@@ -89,9 +91,24 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			InitialDelaySeconds: 30,
-			FailureThreshold:    60,
-			PeriodSeconds:       10,
+			PeriodSeconds:    10,
+			TimeoutSeconds:   2,
+			FailureThreshold: 3,
+			SuccessThreshold: 1,
+		}
+	}
+
+	if container.LivenessProbe == nil {
+		ss.Spec.Template.Spec.Containers[0].LivenessProbe = &corev1.Probe{
+			ProbeHandler: corev1.ProbeHandler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/health",
+					Port: intstr.FromInt32(containerPort),
+				},
+			},
+			PeriodSeconds:    20,
+			TimeoutSeconds:   5,
+			FailureThreshold: 3,
 		}
 	}
 
