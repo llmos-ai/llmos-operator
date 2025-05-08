@@ -139,7 +139,7 @@ func (h *handler) updateDatasetVersionStatus(dvCopy, dv *mlv1.DatasetVersion, er
 	if reflect.DeepEqual(dvCopy.Status, dv.Status) {
 		return dvCopy, err
 	}
-	updatedDatasetVersion, updateErr := h.datasetVersionClient.UpdateStatus(dvCopy)
+	updatedDatasetVersion, updateErr := h.datasetVersionClient.Update(dvCopy)
 	if updateErr != nil {
 		return nil, fmt.Errorf("update dataset version status failed: %w", updateErr)
 	}

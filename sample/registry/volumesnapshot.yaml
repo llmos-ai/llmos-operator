@@ -1,0 +1,9 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  namespace: default
+  name: vs-sample-1
+spec:
+  volumeSnapshotClassName: llmos-ceph-block-snapclass
+  source:
+    persistentVolumeClaimName: test 

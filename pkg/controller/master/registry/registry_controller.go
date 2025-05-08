@@ -41,7 +41,7 @@ func Register(_ context.Context, mgmt *config.Management, _ config.Options) erro
 		secretClient:   secrets,
 		secretCache:    secrets.Cache(),
 	}
-	h.rm = registry.NewManager(secrets.Cache(), registries.Cache())
+	h.rm = registry.NewManager(secrets.Cache().Get, registries.Cache().Get)
 
 	registries.OnChange(mgmt.Ctx, registryOnChangeName, h.CheckRegistryAccessibility)
 	return nil

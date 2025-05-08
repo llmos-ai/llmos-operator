@@ -10,21 +10,25 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	ctlstoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	werror "github.com/llmos-ai/llmos-operator/pkg/webhook/error"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/common"
 )
 
 type validator struct {
 	admission.DefaultValidator
 
-	registryCache ctlmlv1.RegistryCache
+	registryCache     ctlmlv1.RegistryCache
+	storageClassCache ctlstoragev1.StorageClassCache
 }
 
 var _ admission.Validator = &validator{}
 
 func NewValidator(mgmt *config.Management) admission.Validator {
 	return &validator{
-		registryCache: mgmt.LLMFactory.Ml().V1().Registry().Cache(),
+		registryCache:     mgmt.LLMFactory.Ml().V1().Registry().Cache(),
+		storageClassCache: mgmt.StorageFactory.Storage().V1().StorageClass().Cache(),
 	}
 }
 
@@ -39,6 +43,12 @@ func (v *validator) Create(_ *admission.Request, obj runtime.Object) error {
 		return werror.InternalError(fmt.Sprintf("get registry %s failed: %v", m.Spec.Registry, err))
 	}
 
+	if m.Spec.LocalCache == mlv1.CacheStateActive {
+		if err := common.CheckStorageClassExists(v.storageClassCache); err != nil {
+			return werror.BadRequest(err.Error())
+		}
+	}
+
 	return nil
 }
 
@@ -50,10 +60,16 @@ func (v *validator) Update(_ *admission.Request, oldObj runtime.Object, newObj r
 		return werror.MethodNotAllowed("registry field cannot be modified once set")
 	}
 
+	if newM.Spec.LocalCache == mlv1.CacheStateActive {
+		if err := common.CheckStorageClassExists(v.storageClassCache); err != nil {
+			return werror.BadRequest(err.Error())
+		}
+	}
+
 	return nil
 }
 
-func (v validator) Resource() admission.Resource {
+func (v *validator) Resource() admission.Resource {
 	return admission.Resource{
 		Names:      []string{"models"},
 		Scope:      admissionregv1.NamespacedScope,

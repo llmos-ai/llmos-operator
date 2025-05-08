@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 
@@ -127,6 +128,25 @@ func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespa
 	}
 
 	objectName := path.Join(rootPath, input.TargetFilePath)
+
+	fileInfo, err := b.List(h.Ctx, objectName, false, false)
+	if err != nil {
+		return fmt.Errorf("failed to list %s: %w", objectName, err)
+	}
+	if len(fileInfo) == 0 {
+		return apierror.NewAPIError(validation.NotFound, fmt.Sprintf("target %s not found", objectName))
+	}
+	// if fileInfo[0].Size == 0, it means the objectName is a directory
+	if fileInfo[0].Size == 0 {
+		zipFileName := fmt.Sprintf("%s.zip", path.Base(input.TargetFilePath))
+		rw.Header().Set("Content-Type", "application/zip")
+		rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+			url.QueryEscape(zipFileName), url.QueryEscape(zipFileName)))
+	} else {
+		rw.Header().Set("Content-Type", fileInfo[0].ContentType)
+		rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+			url.QueryEscape(fileInfo[0].Name), url.QueryEscape(fileInfo[0].Name)))
+	}
 
 	if err := b.Download(h.Ctx, objectName, rw); err != nil {
 		return fmt.Errorf("download file %s failed: %w", input.TargetFilePath, err)

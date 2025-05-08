@@ -9,8 +9,8 @@ import (
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Registry",type="string",JSONPath=`.spec.registry`
+// +kubebuilder:printcolumn:name="VolumeSnapshot",type="string",JSONPath=`.status.cacheStatus.volumeSnapshot`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Model is a definition for the LLM Model
@@ -28,6 +28,8 @@ type ModelSpec struct {
 	Card *ModelCard `json:"modelCard,omitempty"`
 
 	Registry string `json:"registry"`
+	// +optional
+	LocalCache CacheStateType `json:"localCache,omitempty"`
 }
 
 type ModelStatus struct {
@@ -35,6 +37,9 @@ type ModelStatus struct {
 	Conditions []common.Condition `json:"conditions,omitempty"`
 	// RootPath is the root path of the model in the storage
 	RootPath string `json:"path,omitempty"`
+	// CacheStatus is the status of the model cache
+	// +optional
+	CacheStatus *CacheStatus `json:"cacheStatus,omitempty"`
 }
 
 // ModelCard contains metadata and description for a model
@@ -61,4 +66,6 @@ type ModelMetaData struct {
 	BaseModel         string   `json:"baseModel,omitempty"`         // Base model information
 }
 
-var Ready condition.Cond = "ready"
+var (
+	Ready condition.Cond = "ready"
+)
