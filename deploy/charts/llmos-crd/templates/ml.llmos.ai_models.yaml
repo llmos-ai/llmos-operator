@@ -18,6 +18,9 @@ spec:
     - jsonPath: .spec.registry
       name: Registry
       type: string
+    - jsonPath: .status.cacheStatus.volumeSnapshot
+      name: VolumeSnapshot
+      type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -46,6 +49,13 @@ spec:
           spec:
             description: ModelSpec defines the desired state of Model
             properties:
+              localCache:
+                description: LocalCache defines the state of the cache, using the
+                  same enumeration values ​​as CacheStateType
+                enum:
+                - active
+                - inactive
+                type: string
               modelCard:
                 description: |-
                   ModelCard contains metadata and description for a model
@@ -100,6 +110,37 @@ spec:
             type: object
           status:
             properties:
+              cacheStatus:
+                description: CacheStatus is the status of the model cache
+                properties:
+                  cacheMessage:
+                    description: CacheMessage provides additional information about
+                      the cache operation
+                    type: string
+                  jobName:
+                    description: JobName is the name of the job responsible for the
+                      cache operation
+                    type: string
+                  lastCacheTime:
+                    description: LastCacheTime is the timestamp when the model was
+                      last successfully cached
+                    format: date-time
+                    type: string
+                  status:
+                    description: Status represents the current status of the local
+                      cache operation
+                    enum:
+                    - idle
+                    - pending
+                    - downloading
+                    - completed
+                    - failed
+                    type: string
+                  volumeSnapshot:
+                    description: VolumeSnapshot stores the cached content and is used
+                      to restore the model or dataset
+                    type: string
+                type: object
               conditions:
                 description: Conditions is a list of conditions representing the status
                   of the Model
@@ -137,5 +178,4 @@ spec:
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
+    subresources: {}
