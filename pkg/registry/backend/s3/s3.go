@@ -71,6 +71,51 @@ func (mc *MinioClient) Upload(ctx context.Context, src, dst string) error {
 	return mc.uploadFile(ctx, src, path.Join(dst, fileInfo.Name()))
 }
 
+// UploadFromReader uploads data from an io.Reader to the backend storage
+// This is useful for uploading data directly from HTTP requests without saving to local filesystem
+func (mc *MinioClient) UploadFromReader(ctx context.Context, reader io.Reader, dst string,
+	size int64, contentType string) error {
+	// If content type is not provided, try to detect it
+	if contentType == "" {
+		// Create a buffer to read the first 512 bytes for content type detection
+		bufReader := bufio.NewReader(reader)
+		header, err := bufReader.Peek(512)
+		if err != nil && err != io.EOF {
+			return fmt.Errorf("failed to read header for content type detection: %w", err)
+		}
+
+		// Detect content type
+		detectedType := mimetype.Detect(header)
+		contentType = detectedType.String()
+
+		// Use the buffered reader for the upload
+		reader = bufReader
+	}
+
+	// Upload the file to MinIO
+	options := minio.PutObjectOptions{ContentType: contentType}
+
+	// If size is not known (size <= 0), use streaming upload
+	if size <= 0 {
+		// For unknown size, we need to use PutObject with a reader that doesn't need size
+		// This might be less efficient for large files
+		info, err := mc.client.PutObject(ctx, mc.bucket, dst, reader, -1, options)
+		if err != nil {
+			return fmt.Errorf("upload from reader failed: %w", err)
+		}
+		logrus.Debugf("Uploaded object %s of size %d with etag %s", info.Key, info.Size, info.ETag)
+	} else {
+		// For known size, use the more efficient method
+		info, err := mc.client.PutObject(ctx, mc.bucket, dst, reader, size, options)
+		if err != nil {
+			return fmt.Errorf("upload from reader failed: %w", err)
+		}
+		logrus.Debugf("Uploaded object %s of size %d with etag %s", info.Key, info.Size, info.ETag)
+	}
+
+	return nil
+}
+
 func (mc *MinioClient) uploadFile(ctx context.Context, src, dst string) error {
 	file, err := os.Open(src)
 	if err != nil {

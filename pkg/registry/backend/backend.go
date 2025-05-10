@@ -34,7 +34,13 @@ type Backend interface {
 
 // Uploader defines the interface for uploading data
 type Uploader interface {
+	// Upload uploads a file from local filesystem to the backend storage
 	Upload(ctx context.Context, src, dst string) error
+	// UploadFromReader uploads data from an io.Reader to the backend storage
+	// This is useful for uploading data directly from HTTP requests without saving to local filesystem
+	// The size parameter is required for some backends to properly upload the file
+	// The contentType parameter is optional and will be detected if empty
+	UploadFromReader(ctx context.Context, reader io.Reader, dst string, size int64, contentType string) error
 }
 
 // Downloader defines the interface for downloading data

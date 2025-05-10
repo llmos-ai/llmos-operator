@@ -29,9 +29,13 @@ const (
 )
 
 type UploadInput struct {
-	SourceFilePath string `json:"sourceFilePath"`
-	// if empty, use version as target directory
+	// TargetDirectory is the directory path where the file will be stored
+	// This is a required field for all uploads
 	TargetDirectory string `json:"targetDirectory"`
+	// RelativePaths is now a slice of strings, corresponding to the order of files
+	RelativePaths []string `json:"relativePaths"`
+	// Note: All uploads are now handled directly from HTTP multipart/form-data requests
+	// For both single and multiple file uploads: The file content must be provided in the 'file' field of the multipart form
 }
 type DownloadInput struct {
 	TargetFilePath string `json:"targetFilePath"`
@@ -95,11 +99,28 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 }
 
 func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
-	input := &UploadInput{}
+	// All uploads are now direct uploads from HTTP requests
+	// Verify that this is a multipart form request
+	contentType := req.Header.Get("Content-Type")
+	if !strings.HasPrefix(contentType, "multipart/form-data") {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Upload requires a multipart/form-data request")
+	}
 
-	err := decodeAndValidateInput(req, input, input.TargetDirectory)
-	if err != nil {
-		return err
+	// Parse the multipart form
+	if err := req.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse multipart form: %v", err))
+	}
+
+	// Get the JSON data from the form
+	jsonData := req.FormValue("data")
+	if jsonData == "" {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Missing 'data' field in multipart form")
+	}
+
+	// Decode the JSON data
+	input := &UploadInput{}
+	if err := json.Unmarshal([]byte(jsonData), input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse JSON data: %v", err))
 	}
 
 	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
@@ -107,8 +128,46 @@ func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
 		return err
 	}
 
-	if err := b.Upload(h.Ctx, input.SourceFilePath, path.Join(rootPath, input.TargetDirectory)); err != nil {
-		return fmt.Errorf("upload file %s failed: %w", input.SourceFilePath, err)
+	// Get all files from the multipart form
+	form := req.MultipartForm
+	if form == nil || form.File == nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "No files found in multipart form")
+	}
+
+	// Look for files with the field name 'file'
+	files, ok := form.File["file"]
+	if !ok || len(files) == 0 {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "No files found with field name 'file'")
+	}
+
+	// Process each file
+	for i, fileHeader := range files {
+		// Open the file
+		file, err := fileHeader.Open()
+		if err != nil {
+			return apierror.NewAPIError(validation.InvalidBodyContent,
+				fmt.Sprintf("Failed to open file %s: %v", fileHeader.Filename, err))
+		}
+
+		// Determine the filename
+		fileName := fileHeader.Filename
+
+		// Get the relative path for the file
+		var relativePath string
+		if i < len(input.RelativePaths) {
+			relativePath = input.RelativePaths[i]
+		}
+
+		// Construct the destination path
+		destPath := path.Join(rootPath, input.TargetDirectory, relativePath, fileName)
+
+		// Upload the file
+		err = b.UploadFromReader(h.Ctx, file, destPath, fileHeader.Size, fileHeader.Header.Get("Content-Type"))
+		file.Close() // nolint:errcheck
+
+		if err != nil {
+			return fmt.Errorf("upload file %s failed: %w", fileName, err)
+		}
 	}
 
 	return nil
