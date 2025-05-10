@@ -8,7 +8,6 @@ import (
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Registry",type="string",JSONPath=`.spec.registry`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
@@ -64,7 +63,6 @@ type DatasetMetaData struct {
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:resource:shortName=dv;dvs
-// +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Dataset",type="string",JSONPath=`.spec.dataset`
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=`.spec.version`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
@@ -85,7 +83,7 @@ type DatasetVersionSpec struct {
 	// +optional
 	CopyFrom *CopyFrom `json:"copyFrom,omitempty"`
 	// +optional
-	EnableFastLoading bool `json:"enableFastLoading,omitempty"`
+	LocalCache CacheStateType `json:"localCache,omitempty"`
 }
 
 type DatasetVersionStatus struct {
@@ -94,7 +92,7 @@ type DatasetVersionStatus struct {
 	Registry string `json:"registry"`
 	RootPath string `json:"rootPath"`
 	// +optional
-	Snapshot string `json:"snapshot,omitempty"`
+	CacheStatus *CacheStatus `json:"cacheStatus,omitempty"`
 }
 
 type CopyFrom struct {

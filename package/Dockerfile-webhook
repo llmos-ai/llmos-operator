@@ -5,7 +5,7 @@ WORKDIR /var/lib/llmos/llmos-operator
 RUN zypper ar -G https://download.opensuse.org/repositories/utilities/15.6/utilities.repo || true && \
     zypper ref
 
-RUN zypper -n in git unzip tar gzip && \
+RUN zypper -n in git unzip tar gzip curl && \
     zypper -n clean -a && rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
     mkdir -p /var/lib/llmos/llmos-operator
 

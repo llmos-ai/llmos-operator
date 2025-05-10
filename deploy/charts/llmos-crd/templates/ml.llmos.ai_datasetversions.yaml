@@ -67,8 +67,13 @@ spec:
                 type: object
               dataset:
                 type: string
-              enableFastLoading:
-                type: boolean
+              localCache:
+                description: LocalCache defines the state of the cache, using the
+                  same enumeration values ​​as CacheStateType
+                enum:
+                - active
+                - inactive
+                type: string
               version:
                 type: string
             required:
@@ -77,6 +82,36 @@ spec:
             type: object
           status:
             properties:
+              cacheStatus:
+                properties:
+                  cacheMessage:
+                    description: CacheMessage provides additional information about
+                      the cache operation
+                    type: string
+                  jobName:
+                    description: JobName is the name of the job responsible for the
+                      cache operation
+                    type: string
+                  lastCacheTime:
+                    description: LastCacheTime is the timestamp when the model was
+                      last successfully cached
+                    format: date-time
+                    type: string
+                  status:
+                    description: Status represents the current status of the local
+                      cache operation
+                    enum:
+                    - idle
+                    - pending
+                    - downloading
+                    - completed
+                    - failed
+                    type: string
+                  volumeSnapshot:
+                    description: VolumeSnapshot stores the cached content and is used
+                      to restore the model or dataset
+                    type: string
+                type: object
               conditions:
                 items:
                   properties:
@@ -109,8 +144,6 @@ spec:
                 type: string
               rootPath:
                 type: string
-              snapshot:
-                type: string
             required:
             - registry
             - rootPath
@@ -118,5 +151,4 @@ spec:
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
+    subresources: {}

@@ -46,7 +46,7 @@ func Register(_ context.Context, mgmt *config.Management, _ config.Options) erro
 		datasetVersionClient: datasetVersions,
 		datasetVersionCache:  datasetVersions.Cache(),
 	}
-	h.rm = registry.NewManager(secrets.Cache(), registries.Cache())
+	h.rm = registry.NewManager(secrets.Cache().Get, registries.Cache().Get)
 
 	datasets.OnChange(mgmt.Ctx, datasetOnChangeName, h.OnChangeDataset)
 	datasets.OnRemove(mgmt.Ctx, datasetOnRemoveName, h.OnRemoveDataset)
@@ -111,7 +111,7 @@ func (h *handler) updateDatasetStatus(datasetCopy, dataset *mlv1.Dataset, err er
 		return datasetCopy, err
 	}
 
-	updatedDataset, updateErr := h.datasetClient.UpdateStatus(datasetCopy)
+	updatedDataset, updateErr := h.datasetClient.Update(datasetCopy)
 	if updateErr != nil {
 		return nil, fmt.Errorf("update dataset status failed: %w", updateErr)
 	}

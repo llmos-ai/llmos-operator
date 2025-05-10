@@ -11,21 +11,25 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	ctlstoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	werror "github.com/llmos-ai/llmos-operator/pkg/webhook/error"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/common"
 )
 
 type validator struct {
 	admission.DefaultValidator
 
-	datasetCache ctlmlv1.DatasetCache
+	datasetCache      ctlmlv1.DatasetCache
+	storageClassCache ctlstoragev1.StorageClassCache
 }
 
 var _ admission.Validator = &validator{}
 
 func Newvalidator(mgmt *config.Management) admission.Validator {
 	return &validator{
-		datasetCache: mgmt.LLMFactory.Ml().V1().Dataset().Cache(),
+		datasetCache:      mgmt.LLMFactory.Ml().V1().Dataset().Cache(),
+		storageClassCache: mgmt.StorageFactory.Storage().V1().StorageClass().Cache(),
 	}
 }
 
@@ -48,6 +52,12 @@ func (v *validator) Create(_ *admission.Request, obj runtime.Object) error {
 		}
 	}
 
+	if dv.Spec.LocalCache == mlv1.CacheStateActive {
+		if err := common.CheckStorageClassExists(v.storageClassCache); err != nil {
+			return werror.BadRequest(err.Error())
+		}
+	}
+
 	return nil
 }
 
@@ -61,6 +71,12 @@ func (v *validator) Update(_ *admission.Request, oldObj runtime.Object, newObj r
 
 	if !reflect.DeepEqual(oldDV.Spec.CopyFrom, newDV.Spec.CopyFrom) {
 		return werror.MethodNotAllowed("copyFrom field cannot be modified once set")
+	}
+
+	if newDV.Spec.LocalCache == mlv1.CacheStateActive {
+		if err := common.CheckStorageClassExists(v.storageClassCache); err != nil {
+			return werror.BadRequest(err.Error())
+		}
 	}
 
 	return nil

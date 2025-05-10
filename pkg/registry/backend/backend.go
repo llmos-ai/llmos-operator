@@ -2,7 +2,7 @@ package backend
 
 import (
 	"context"
-	"net/http"
+	"io"
 	"time"
 )
 
@@ -11,8 +11,10 @@ type FileInfo struct {
 	Name         string
 	Path         string
 	Size         int64
+	IsDir        bool
 	LastModified time.Time
 	ContentType  string
+	ETag         string
 }
 
 // Backend defines the interface for backend storage
@@ -27,16 +29,24 @@ type Backend interface {
 	CreateDirectory(ctx context.Context, path string) error
 	DeleteDirectory(ctx context.Context, path string) error
 	GetObjectURL(objectName string) string
+	GetSize(ctx context.Context, path string) (int64, error)
 }
 
 // Uploader defines the interface for uploading data
 type Uploader interface {
+	// Upload uploads a file from local filesystem to the backend storage
 	Upload(ctx context.Context, src, dst string) error
+	// UploadFromReader uploads data from an io.Reader to the backend storage
+	// This is useful for uploading data directly from HTTP requests without saving to local filesystem
+	// The size parameter is required for some backends to properly upload the file
+	// The contentType parameter is optional and will be detected if empty
+	UploadFromReader(ctx context.Context, reader io.Reader, dst string, size int64, contentType string) error
 }
 
-// Downloader defines the interface for downloading data in HTTP response
+// Downloader defines the interface for downloading data
 type Downloader interface {
-	Download(ctx context.Context, src string, rw http.ResponseWriter) error
+	Download(ctx context.Context, src string, rw io.Writer) error
+	IncrementalDownload(ctx context.Context, targetDir, outputDir string, concurrency int) error
 }
 
 // Deleter defines the interface for deleting data
