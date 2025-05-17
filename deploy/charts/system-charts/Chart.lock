@@ -7,10 +7,10 @@ dependencies:
   version: 0.1.0
 - name: rook-ceph
   repository: https://charts.rook.io/release
-  version: v1.15.7
+  version: v1.17.2
 - name: rook-ceph-cluster
   repository: https://charts.rook.io/release
-  version: v1.15.7
+  version: v1.17.2
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 20.3.0
@@ -23,5 +23,5 @@ dependencies:
 - name: llmos-monitoring
   repository: https://llmos-charts.1block.ai
   version: 0.1.5-up66.1.1
-digest: sha256:83f66a64a70a9203820016bca15c9be7cb5e7e2668c287dd45bba67787308e02
-generated: "2025-02-23T10:18:24.659878+08:00"
+digest: sha256:8ad212349acdb0d275d952572ffb18e594ea8c96e8205b8367f1147d859924cb
+generated: "2025-05-17T15:39:22.405093+08:00"
