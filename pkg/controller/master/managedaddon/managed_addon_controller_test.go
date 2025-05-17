@@ -38,7 +38,7 @@ configOverride:
 #   osd_pool_default_min_size = 2
 cephClusterSpec:
   cephVersion:
-    image: quay.io/ceph/ceph:v18.2.4
+    image: ghcr.io/llmos-ai/mirrored-ceph-ceph:v19.2.2
   dataDirHostPath: /var/lib/llmos/rook-ceph
   mon:
     count: 3
@@ -99,7 +99,7 @@ configOverride: |
   osd_pool_default_min_size = 2
 cephClusterSpec:
   cephVersion:
-    image: quay.io/ceph/ceph:v18.2.5
+    image: ghcr.io/llmos-ai/mirrored-ceph-ceph:v19.2.2
   dataDirHostPath: /var/lib/llmos/rook-test
   mon:
     count: 2
@@ -162,7 +162,7 @@ configOverride: |
   osd_pool_default_min_size = 2
 cephClusterSpec:
   cephVersion:
-    image: quay.io/ceph/ceph:v18.2.5
+    image: ghcr.io/llmos-ai/mirrored-ceph-ceph:v19.2.2
   dataDirHostPath: /var/lib/llmos/rook-test
   mon:
     count: 2

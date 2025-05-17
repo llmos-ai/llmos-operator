@@ -12,7 +12,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: rook-ceph-cluster
-  version: v1.15.7
+  version: v1.17.2
   enabled: false
   failurePolicy: manual
   defaultValuesContent: |-
@@ -42,7 +42,7 @@ spec:
 
     cephClusterSpec:
       cephVersion:
-        image: quay.io/ceph/ceph:v18.2.4
+        image: ghcr.io/llmos-ai/mirrored-ceph-ceph:v19.2.2
 
       # The path on the host where configuration files will be persisted. Must be specified.
       # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
@@ -211,7 +211,7 @@ spec:
     # @default -- See [below](#ceph-file-systems)
     cephFileSystems:
       - name: llmos-ceph-filesystem
-        # see https://github.com/rook/rook/blob/v1.15.7/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
+        # see https://github.com/rook/rook/blob/v1.17.2/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
         spec:
           metadataPool:
             replicated:

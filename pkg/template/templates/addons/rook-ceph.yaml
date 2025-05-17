@@ -10,7 +10,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: rook-ceph
-  version: 1.15.7
+  version: 1.17.2
   enabled: true
   defaultValuesContent: |-
     image:
@@ -39,6 +39,8 @@ spec:
       # -- Disable the CSI driver.
       disableCsiDriver: "false"
       provisionerReplicas: 1 # default to 1
+      cephcsi:
+        repository: ghcr.io/llmos-ai/mirrored-cephcsi-cephcsi
       registrar:
         repository: ghcr.io/llmos-ai/mirrored-sig-storage-csi-node-driver-registrar
       provisioner:
