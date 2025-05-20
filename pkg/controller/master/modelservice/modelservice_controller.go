@@ -10,7 +10,6 @@ import (
 	"github.com/rancher/wrangler/v3/pkg/relatedresource"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -109,7 +108,7 @@ func (h *handler) OnChange(_ string, ms *mlv1.ModelService) (*mlv1.ModelService,
 }
 
 // reconcileModelStatefulSet reconciles the statefulSet of the model
-func (h *handler) reconcileModelStatefulSet(ms *mlv1.ModelService) (*v1.StatefulSet, error) {
+func (h *handler) reconcileModelStatefulSet(ms *mlv1.ModelService) (*appsv1.StatefulSet, error) {
 	ss := constructModelStatefulSet(ms)
 	foundSs, err := h.StatefulSetCache.Get(ss.Namespace, ss.Name)
 	if err != nil && errors.IsNotFound(err) {

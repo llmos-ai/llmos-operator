@@ -100,7 +100,7 @@ func (h *handler) updateStatus(rt *mgmtv1.RoleTemplate, cr *rbacv1.ClusterRole) 
 	mgmtv1.ClusterRoleExists.Reason(toUpdate, "Created")
 
 	toUpdate.Status.LastUpdate = time.Now().Format(time.RFC3339)
-	toUpdate.Status.ObservedGeneration = toUpdate.ObjectMeta.Generation
+	toUpdate.Status.ObservedGeneration = toUpdate.Generation
 	toUpdate.Status.State = "Complete"
 
 	if !reflect.DeepEqual(toUpdate.Status, rt.Status) {
