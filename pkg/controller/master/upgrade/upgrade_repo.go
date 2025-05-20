@@ -7,7 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	apierror "k8s.io/apimachinery/pkg/api/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -67,7 +66,7 @@ func (h *upgradeHandler) reconcileUpgradeSystemChartsRepo(upgrade *mgmtv1.Upgrad
 func (h *upgradeHandler) reconcileRepoSvc(upgrade *mgmtv1.Upgrade) error {
 	svc := constructUpgradeRepoService(upgrade)
 	_, err := h.svcCache.Get(svc.Namespace, svc.Name)
-	if err != nil && apierror.IsNotFound(err) {
+	if err != nil && apierrors.IsNotFound(err) {
 		if _, err = h.svcClient.Create(svc); err != nil {
 			logrus.Errorf("Failed to create upgrade repo service for upgrade %s: %v", upgrade.Name, err)
 			return err

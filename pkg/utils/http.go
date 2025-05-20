@@ -77,7 +77,7 @@ func EncodeVars(vars map[string]string) map[string]string {
 }
 
 func removeNewLineInString(v string) string {
-	escaped := strings.Replace(v, "\n", "", -1)
-	escaped = strings.Replace(escaped, "\r", "", -1)
+	escaped := strings.ReplaceAll(v, "\n", "")
+	escaped = strings.ReplaceAll(escaped, "\r", "")
 	return escaped
 }
