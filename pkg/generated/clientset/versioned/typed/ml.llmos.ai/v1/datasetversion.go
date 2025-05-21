@@ -18,15 +18,14 @@ limitations under the License.
 package v1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	mlllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // DatasetVersionsGetter has a method to return a DatasetVersionInterface.
@@ -37,158 +36,34 @@ type DatasetVersionsGetter interface {
 
 // DatasetVersionInterface has methods to work with DatasetVersion resources.
 type DatasetVersionInterface interface {
-	Create(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.CreateOptions) (*v1.DatasetVersion, error)
-	Update(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (*v1.DatasetVersion, error)
-	UpdateStatus(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (*v1.DatasetVersion, error)
+	Create(ctx context.Context, datasetVersion *mlllmosaiv1.DatasetVersion, opts metav1.CreateOptions) (*mlllmosaiv1.DatasetVersion, error)
+	Update(ctx context.Context, datasetVersion *mlllmosaiv1.DatasetVersion, opts metav1.UpdateOptions) (*mlllmosaiv1.DatasetVersion, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, datasetVersion *mlllmosaiv1.DatasetVersion, opts metav1.UpdateOptions) (*mlllmosaiv1.DatasetVersion, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.DatasetVersion, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.DatasetVersionList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*mlllmosaiv1.DatasetVersion, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*mlllmosaiv1.DatasetVersionList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.DatasetVersion, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *mlllmosaiv1.DatasetVersion, err error)
 	DatasetVersionExpansion
 }
 
 // datasetVersions implements DatasetVersionInterface
 type datasetVersions struct {
-	client rest.Interface
-	ns     string
+	*gentype.ClientWithList[*mlllmosaiv1.DatasetVersion, *mlllmosaiv1.DatasetVersionList]
 }
 
 // newDatasetVersions returns a DatasetVersions
 func newDatasetVersions(c *MlV1Client, namespace string) *datasetVersions {
 	return &datasetVersions{
-		client: c.RESTClient(),
-		ns:     namespace,
+		gentype.NewClientWithList[*mlllmosaiv1.DatasetVersion, *mlllmosaiv1.DatasetVersionList](
+			"datasetversions",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			namespace,
+			func() *mlllmosaiv1.DatasetVersion { return &mlllmosaiv1.DatasetVersion{} },
+			func() *mlllmosaiv1.DatasetVersionList { return &mlllmosaiv1.DatasetVersionList{} },
+		),
 	}
-}
-
-// Get takes name of the datasetVersion, and returns the corresponding datasetVersion object, and an error if there is any.
-func (c *datasetVersions) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.DatasetVersion, err error) {
-	result = &v1.DatasetVersion{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of DatasetVersions that match those selectors.
-func (c *datasetVersions) List(ctx context.Context, opts metav1.ListOptions) (result *v1.DatasetVersionList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1.DatasetVersionList{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested datasetVersions.
-func (c *datasetVersions) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a datasetVersion and creates it.  Returns the server's representation of the datasetVersion, and an error, if there is any.
-func (c *datasetVersions) Create(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.CreateOptions) (result *v1.DatasetVersion, err error) {
-	result = &v1.DatasetVersion{}
-	err = c.client.Post().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(datasetVersion).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a datasetVersion and updates it. Returns the server's representation of the datasetVersion, and an error, if there is any.
-func (c *datasetVersions) Update(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (result *v1.DatasetVersion, err error) {
-	result = &v1.DatasetVersion{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		Name(datasetVersion.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(datasetVersion).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *datasetVersions) UpdateStatus(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (result *v1.DatasetVersion, err error) {
-	result = &v1.DatasetVersion{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		Name(datasetVersion.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(datasetVersion).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the datasetVersion and deletes it. Returns an error if one occurs.
-func (c *datasetVersions) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *datasetVersions) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("datasetversions").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched datasetVersion.
-func (c *datasetVersions) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.DatasetVersion, err error) {
-	result = &v1.DatasetVersion{}
-	err = c.client.Patch(pt).
-		Namespace(c.ns).
-		Resource("datasetversions").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

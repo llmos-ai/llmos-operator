@@ -28,15 +28,15 @@ type FakeRayV1 struct {
 }
 
 func (c *FakeRayV1) RayClusters() v1.RayClusterInterface {
-	return &FakeRayClusters{c}
+	return newFakeRayClusters(c)
 }
 
 func (c *FakeRayV1) RayJobs() v1.RayJobInterface {
-	return &FakeRayJobs{c}
+	return newFakeRayJobs(c)
 }
 
 func (c *FakeRayV1) RayServices() v1.RayServiceInterface {
-	return &FakeRayServices{c}
+	return newFakeRayServices(c)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

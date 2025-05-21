@@ -28,39 +28,39 @@ type FakeManagementV1 struct {
 }
 
 func (c *FakeManagementV1) GlobalRoles() v1.GlobalRoleInterface {
-	return &FakeGlobalRoles{c}
+	return newFakeGlobalRoles(c)
 }
 
 func (c *FakeManagementV1) ManagedAddons(namespace string) v1.ManagedAddonInterface {
-	return &FakeManagedAddons{c, namespace}
+	return newFakeManagedAddons(c, namespace)
 }
 
 func (c *FakeManagementV1) RoleTemplates() v1.RoleTemplateInterface {
-	return &FakeRoleTemplates{c}
+	return newFakeRoleTemplates(c)
 }
 
 func (c *FakeManagementV1) RoleTemplateBindings() v1.RoleTemplateBindingInterface {
-	return &FakeRoleTemplateBindings{c}
+	return newFakeRoleTemplateBindings(c)
 }
 
 func (c *FakeManagementV1) Settings() v1.SettingInterface {
-	return &FakeSettings{c}
+	return newFakeSettings(c)
 }
 
 func (c *FakeManagementV1) Tokens() v1.TokenInterface {
-	return &FakeTokens{c}
+	return newFakeTokens(c)
 }
 
 func (c *FakeManagementV1) Upgrades() v1.UpgradeInterface {
-	return &FakeUpgrades{c}
+	return newFakeUpgrades(c)
 }
 
 func (c *FakeManagementV1) Users() v1.UserInterface {
-	return &FakeUsers{c}
+	return newFakeUsers(c)
 }
 
 func (c *FakeManagementV1) Versions() v1.VersionInterface {
-	return &FakeVersions{c}
+	return newFakeVersions(c)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

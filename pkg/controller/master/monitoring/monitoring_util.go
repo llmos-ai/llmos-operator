@@ -41,6 +41,7 @@ func isMonitoringEnabled() bool {
 }
 
 // constructEtcdEndpointsSubset constructs the endpoint subset for the etcd monitoring service
+// nolint:staticcheck
 func constructEtcdEndpointsSubset(nodes []*corev1.Node) []corev1.EndpointSubset {
 	var endpointSubset = []corev1.EndpointSubset{
 		{

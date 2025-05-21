@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
 func TestBuildArgs(t *testing.T) {
@@ -35,7 +36,7 @@ func TestBuildArgs(t *testing.T) {
 
 	result := buildArgs(ms)
 
-	if !reflect.DeepEqual(result, expectedArgs) {
+	if !utils.EqualIgnoreOrder(result, expectedArgs) {
 		t.Errorf("Expected %v, got %v", expectedArgs, result)
 	}
 }

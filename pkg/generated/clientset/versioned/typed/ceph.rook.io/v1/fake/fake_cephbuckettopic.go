@@ -18,111 +18,32 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
+	cephrookiov1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
 	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeCephBucketTopics implements CephBucketTopicInterface
-type FakeCephBucketTopics struct {
+// fakeCephBucketTopics implements CephBucketTopicInterface
+type fakeCephBucketTopics struct {
+	*gentype.FakeClientWithList[*v1.CephBucketTopic, *v1.CephBucketTopicList]
 	Fake *FakeCephV1
-	ns   string
 }
 
-var cephbuckettopicsResource = v1.SchemeGroupVersion.WithResource("cephbuckettopics")
-
-var cephbuckettopicsKind = v1.SchemeGroupVersion.WithKind("CephBucketTopic")
-
-// Get takes name of the cephBucketTopic, and returns the corresponding cephBucketTopic object, and an error if there is any.
-func (c *FakeCephBucketTopics) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CephBucketTopic, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(cephbuckettopicsResource, c.ns, name), &v1.CephBucketTopic{})
-
-	if obj == nil {
-		return nil, err
+func newFakeCephBucketTopics(fake *FakeCephV1, namespace string) cephrookiov1.CephBucketTopicInterface {
+	return &fakeCephBucketTopics{
+		gentype.NewFakeClientWithList[*v1.CephBucketTopic, *v1.CephBucketTopicList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("cephbuckettopics"),
+			v1.SchemeGroupVersion.WithKind("CephBucketTopic"),
+			func() *v1.CephBucketTopic { return &v1.CephBucketTopic{} },
+			func() *v1.CephBucketTopicList { return &v1.CephBucketTopicList{} },
+			func(dst, src *v1.CephBucketTopicList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.CephBucketTopicList) []*v1.CephBucketTopic { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.CephBucketTopicList, items []*v1.CephBucketTopic) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.CephBucketTopic), err
-}
-
-// List takes label and field selectors, and returns the list of CephBucketTopics that match those selectors.
-func (c *FakeCephBucketTopics) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CephBucketTopicList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(cephbuckettopicsResource, cephbuckettopicsKind, c.ns, opts), &v1.CephBucketTopicList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.CephBucketTopicList{ListMeta: obj.(*v1.CephBucketTopicList).ListMeta}
-	for _, item := range obj.(*v1.CephBucketTopicList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested cephBucketTopics.
-func (c *FakeCephBucketTopics) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(cephbuckettopicsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a cephBucketTopic and creates it.  Returns the server's representation of the cephBucketTopic, and an error, if there is any.
-func (c *FakeCephBucketTopics) Create(ctx context.Context, cephBucketTopic *v1.CephBucketTopic, opts metav1.CreateOptions) (result *v1.CephBucketTopic, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(cephbuckettopicsResource, c.ns, cephBucketTopic), &v1.CephBucketTopic{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephBucketTopic), err
-}
-
-// Update takes the representation of a cephBucketTopic and updates it. Returns the server's representation of the cephBucketTopic, and an error, if there is any.
-func (c *FakeCephBucketTopics) Update(ctx context.Context, cephBucketTopic *v1.CephBucketTopic, opts metav1.UpdateOptions) (result *v1.CephBucketTopic, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(cephbuckettopicsResource, c.ns, cephBucketTopic), &v1.CephBucketTopic{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephBucketTopic), err
-}
-
-// Delete takes name of the cephBucketTopic and deletes it. Returns an error if one occurs.
-func (c *FakeCephBucketTopics) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(cephbuckettopicsResource, c.ns, name, opts), &v1.CephBucketTopic{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeCephBucketTopics) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(cephbuckettopicsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.CephBucketTopicList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched cephBucketTopic.
-func (c *FakeCephBucketTopics) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CephBucketTopic, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(cephbuckettopicsResource, c.ns, name, pt, data, subresources...), &v1.CephBucketTopic{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephBucketTopic), err
 }
