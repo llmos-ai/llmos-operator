@@ -1,10 +1,11 @@
 package registry
 
 var (
-	ErrCreateBackendClient = "create backend client failed: %w"
-	ErrCreateDirectory     = "create directory %s failed: %w"
-	ErrUploadFile          = "upload file %s failed: %w"
-	ErrDownloadFile        = "download file %s failed: %w"
-	ErrListFiles           = "list files with prefix %s failed: %w"
-	ErrDeleteFile          = "delete file %s failed: %w"
+	ErrCreateBackendClient = "failed to create backend client: %w"
+	ErrCreateDirectory     = "failed to create directory %s: %w"
+	ErrUploadFile          = "failed to upload file %s: %w"
+	ErrDownloadFile        = "failed to download file %s: %w"
+	ErrListFiles           = "failed to list files with prefix %s: %w"
+	ErrDeleteFile          = "failed to delete file %s: %w"
+	ErrGetSize             = "failed to get size of path %s: %w"
 )
