@@ -27,12 +27,14 @@ import (
 )
 
 var (
-	DatasetResourceName        = "datasets"
-	DatasetVersionResourceName = "datasetversions"
-	ModelResourceName          = "models"
-	ModelServiceResourceName   = "modelservices"
-	NotebookResourceName       = "notebooks"
-	RegistryResourceName       = "registries"
+	DatasetResourceName           = "datasets"
+	DatasetVersionResourceName    = "datasetversions"
+	LocalModelResourceName        = "localmodels"
+	LocalModelVersionResourceName = "localmodelversions"
+	ModelResourceName             = "models"
+	ModelServiceResourceName      = "modelservices"
+	NotebookResourceName          = "notebooks"
+	RegistryResourceName          = "registries"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -60,6 +62,10 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&DatasetList{},
 		&DatasetVersion{},
 		&DatasetVersionList{},
+		&LocalModel{},
+		&LocalModelList{},
+		&LocalModelVersion{},
+		&LocalModelVersionList{},
 		&Model{},
 		&ModelList{},
 		&ModelService{},

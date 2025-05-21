@@ -20,64 +20,39 @@ package v1
 import (
 	"net/http"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	v1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
-type MlV1Interface interface {
+type SnapshotV1Interface interface {
 	RESTClient() rest.Interface
-	DatasetsGetter
-	DatasetVersionsGetter
-	LocalModelsGetter
-	LocalModelVersionsGetter
-	ModelsGetter
-	ModelServicesGetter
-	NotebooksGetter
-	RegistriesGetter
+	VolumeSnapshotsGetter
+	VolumeSnapshotClassesGetter
+	VolumeSnapshotContentsGetter
 }
 
-// MlV1Client is used to interact with features provided by the ml.llmos.ai group.
-type MlV1Client struct {
+// SnapshotV1Client is used to interact with features provided by the snapshot.storage.k8s.io group.
+type SnapshotV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *MlV1Client) Datasets(namespace string) DatasetInterface {
-	return newDatasets(c, namespace)
+func (c *SnapshotV1Client) VolumeSnapshots(namespace string) VolumeSnapshotInterface {
+	return newVolumeSnapshots(c, namespace)
 }
 
-func (c *MlV1Client) DatasetVersions(namespace string) DatasetVersionInterface {
-	return newDatasetVersions(c, namespace)
+func (c *SnapshotV1Client) VolumeSnapshotClasses() VolumeSnapshotClassInterface {
+	return newVolumeSnapshotClasses(c)
 }
 
-func (c *MlV1Client) LocalModels(namespace string) LocalModelInterface {
-	return newLocalModels(c, namespace)
+func (c *SnapshotV1Client) VolumeSnapshotContents() VolumeSnapshotContentInterface {
+	return newVolumeSnapshotContents(c)
 }
 
-func (c *MlV1Client) LocalModelVersions(namespace string) LocalModelVersionInterface {
-	return newLocalModelVersions(c, namespace)
-}
-
-func (c *MlV1Client) Models(namespace string) ModelInterface {
-	return newModels(c, namespace)
-}
-
-func (c *MlV1Client) ModelServices(namespace string) ModelServiceInterface {
-	return newModelServices(c, namespace)
-}
-
-func (c *MlV1Client) Notebooks(namespace string) NotebookInterface {
-	return newNotebooks(c, namespace)
-}
-
-func (c *MlV1Client) Registries() RegistryInterface {
-	return newRegistries(c)
-}
-
-// NewForConfig creates a new MlV1Client for the given config.
+// NewForConfig creates a new SnapshotV1Client for the given config.
 // NewForConfig is equivalent to NewForConfigAndClient(c, httpClient),
 // where httpClient was generated with rest.HTTPClientFor(c).
-func NewForConfig(c *rest.Config) (*MlV1Client, error) {
+func NewForConfig(c *rest.Config) (*SnapshotV1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -89,9 +64,9 @@ func NewForConfig(c *rest.Config) (*MlV1Client, error) {
 	return NewForConfigAndClient(&config, httpClient)
 }
 
-// NewForConfigAndClient creates a new MlV1Client for the given config and http client.
+// NewForConfigAndClient creates a new SnapshotV1Client for the given config and http client.
 // Note the http client provided takes precedence over the configured transport values.
-func NewForConfigAndClient(c *rest.Config, h *http.Client) (*MlV1Client, error) {
+func NewForConfigAndClient(c *rest.Config, h *http.Client) (*SnapshotV1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -100,12 +75,12 @@ func NewForConfigAndClient(c *rest.Config, h *http.Client) (*MlV1Client, error) 
 	if err != nil {
 		return nil, err
 	}
-	return &MlV1Client{client}, nil
+	return &SnapshotV1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new MlV1Client for the given config and
+// NewForConfigOrDie creates a new SnapshotV1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *MlV1Client {
+func NewForConfigOrDie(c *rest.Config) *SnapshotV1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -113,9 +88,9 @@ func NewForConfigOrDie(c *rest.Config) *MlV1Client {
 	return client
 }
 
-// New creates a new MlV1Client for the given RESTClient.
-func New(c rest.Interface) *MlV1Client {
-	return &MlV1Client{c}
+// New creates a new SnapshotV1Client for the given RESTClient.
+func New(c rest.Interface) *SnapshotV1Client {
+	return &SnapshotV1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -133,7 +108,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *MlV1Client) RESTClient() rest.Interface {
+func (c *SnapshotV1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

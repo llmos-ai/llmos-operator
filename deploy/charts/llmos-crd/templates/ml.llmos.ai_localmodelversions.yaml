@@ -4,21 +4,25 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     {}
-  name: models.ml.llmos.ai
+  name: localmodelversions.ml.llmos.ai
 spec:
   group: ml.llmos.ai
   names:
-    kind: Model
-    listKind: ModelList
-    plural: models
-    singular: model
+    kind: LocalModelVersion
+    listKind: LocalModelVersionList
+    plural: localmodelversions
+    singular: localmodelversion
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.registry
-      name: Registry
+    - jsonPath: .spec.localModel
+      name: LocalModel
       type: string
-    - jsonPath: .status.cacheStatus.volumeSnapshot
+    - jsonPath: .status.version
+      name: Version
+      priority: 8
+      type: integer
+    - jsonPath: .status.volumeSnapshot
       name: VolumeSnapshot
       type: string
     - jsonPath: .metadata.creationTimestamp
@@ -27,7 +31,7 @@ spec:
     name: v1
     schema:
       openAPIV3Schema:
-        description: Model is a definition for the LLM Model
+        description: LocalModelVersion is the version of local model
         properties:
           apiVersion:
             description: |-
@@ -47,59 +51,11 @@ spec:
           metadata:
             type: object
           spec:
-            description: ModelSpec defines the desired state of Model
             properties:
-              modelCard:
-                description: |-
-                  ModelCard contains metadata and description for a model
-                  Reference: https://huggingface.co/docs/hub/models-cards
-                properties:
-                  description:
-                    type: string
-                  metadata:
-                    description: ModelMetaData is the metadata of a model
-                    properties:
-                      baseModel:
-                        type: string
-                      cpu:
-                        type: boolean
-                      datasets:
-                        items:
-                          type: string
-                        type: array
-                      evaluationResults:
-                        type: string
-                      framework:
-                        type: string
-                      gpu:
-                        type: boolean
-                      language:
-                        type: string
-                      libraryName:
-                        type: string
-                      libraryVersion:
-                        type: string
-                      license:
-                        type: string
-                      metrics:
-                        items:
-                          type: string
-                        type: array
-                      tags:
-                        items:
-                          type: string
-                        type: array
-                      trainingData:
-                        type: string
-                    type: object
-                required:
-                - description
-                - metadata
-                type: object
-              registry:
+              localModel:
                 type: string
             required:
-            - registry
+            - localModel
             type: object
           status:
             properties:
@@ -133,9 +89,12 @@ spec:
                   - type
                   type: object
                 type: array
-              path:
-                description: RootPath is the root path of the model in the storage
+              version:
+                type: integer
+              volumeSnapshot:
                 type: string
+            required:
+            - version
             type: object
         type: object
     served: true
