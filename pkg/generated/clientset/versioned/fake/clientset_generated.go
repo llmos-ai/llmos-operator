@@ -31,6 +31,8 @@ import (
 	fakenvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/nvidia.com/v1/fake"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1"
 	fakerayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1/fake"
+	snapshotv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/snapshot.storage.k8s.io/v1"
+	fakesnapshotv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/snapshot.storage.k8s.io/v1/fake"
 	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1"
 	fakestoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1/fake"
 	upgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
@@ -129,6 +131,11 @@ func (c *Clientset) NvidiaV1() nvidiav1.NvidiaV1Interface {
 // RayV1 retrieves the RayV1Client
 func (c *Clientset) RayV1() rayv1.RayV1Interface {
 	return &fakerayv1.FakeRayV1{Fake: &c.Fake}
+}
+
+// SnapshotV1 retrieves the SnapshotV1Client
+func (c *Clientset) SnapshotV1() snapshotv1.SnapshotV1Interface {
+	return &fakesnapshotv1.FakeSnapshotV1{Fake: &c.Fake}
 }
 
 // StorageV1 retrieves the StorageV1Client

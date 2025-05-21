@@ -59,6 +59,40 @@ func NewDatasetVersion(namespace, name string, obj DatasetVersion) *DatasetVersi
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// LocalModelList is a list of LocalModel resources
+type LocalModelList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []LocalModel `json:"items"`
+}
+
+func NewLocalModel(namespace, name string, obj LocalModel) *LocalModel {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("LocalModel").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// LocalModelVersionList is a list of LocalModelVersion resources
+type LocalModelVersionList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []LocalModelVersion `json:"items"`
+}
+
+func NewLocalModelVersion(namespace, name string, obj LocalModelVersion) *LocalModelVersion {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("LocalModelVersion").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // ModelList is a list of Model resources
 type ModelList struct {
 	metav1.TypeMeta `json:",inline"`
