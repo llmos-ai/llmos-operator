@@ -28,27 +28,27 @@ type FakeMlV1 struct {
 }
 
 func (c *FakeMlV1) Datasets(namespace string) v1.DatasetInterface {
-	return &FakeDatasets{c, namespace}
+	return newFakeDatasets(c, namespace)
 }
 
 func (c *FakeMlV1) DatasetVersions(namespace string) v1.DatasetVersionInterface {
-	return &FakeDatasetVersions{c, namespace}
+	return newFakeDatasetVersions(c, namespace)
 }
 
 func (c *FakeMlV1) Models(namespace string) v1.ModelInterface {
-	return &FakeModels{c, namespace}
+	return newFakeModels(c, namespace)
 }
 
 func (c *FakeMlV1) ModelServices(namespace string) v1.ModelServiceInterface {
-	return &FakeModelServices{c, namespace}
+	return newFakeModelServices(c, namespace)
 }
 
 func (c *FakeMlV1) Notebooks(namespace string) v1.NotebookInterface {
-	return &FakeNotebooks{c, namespace}
+	return newFakeNotebooks(c, namespace)
 }
 
 func (c *FakeMlV1) Registries() v1.RegistryInterface {
-	return &FakeRegistries{c}
+	return newFakeRegistries(c)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

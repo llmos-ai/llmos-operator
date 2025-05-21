@@ -18,103 +18,34 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeRoleTemplateBindings implements RoleTemplateBindingInterface
-type FakeRoleTemplateBindings struct {
+// fakeRoleTemplateBindings implements RoleTemplateBindingInterface
+type fakeRoleTemplateBindings struct {
+	*gentype.FakeClientWithList[*v1.RoleTemplateBinding, *v1.RoleTemplateBindingList]
 	Fake *FakeManagementV1
 }
 
-var roletemplatebindingsResource = v1.SchemeGroupVersion.WithResource("roletemplatebindings")
-
-var roletemplatebindingsKind = v1.SchemeGroupVersion.WithKind("RoleTemplateBinding")
-
-// Get takes name of the roleTemplateBinding, and returns the corresponding roleTemplateBinding object, and an error if there is any.
-func (c *FakeRoleTemplateBindings) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.RoleTemplateBinding, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(roletemplatebindingsResource, name), &v1.RoleTemplateBinding{})
-	if obj == nil {
-		return nil, err
+func newFakeRoleTemplateBindings(fake *FakeManagementV1) managementllmosaiv1.RoleTemplateBindingInterface {
+	return &fakeRoleTemplateBindings{
+		gentype.NewFakeClientWithList[*v1.RoleTemplateBinding, *v1.RoleTemplateBindingList](
+			fake.Fake,
+			"",
+			v1.SchemeGroupVersion.WithResource("roletemplatebindings"),
+			v1.SchemeGroupVersion.WithKind("RoleTemplateBinding"),
+			func() *v1.RoleTemplateBinding { return &v1.RoleTemplateBinding{} },
+			func() *v1.RoleTemplateBindingList { return &v1.RoleTemplateBindingList{} },
+			func(dst, src *v1.RoleTemplateBindingList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.RoleTemplateBindingList) []*v1.RoleTemplateBinding {
+				return gentype.ToPointerSlice(list.Items)
+			},
+			func(list *v1.RoleTemplateBindingList, items []*v1.RoleTemplateBinding) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.RoleTemplateBinding), err
-}
-
-// List takes label and field selectors, and returns the list of RoleTemplateBindings that match those selectors.
-func (c *FakeRoleTemplateBindings) List(ctx context.Context, opts metav1.ListOptions) (result *v1.RoleTemplateBindingList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(roletemplatebindingsResource, roletemplatebindingsKind, opts), &v1.RoleTemplateBindingList{})
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.RoleTemplateBindingList{ListMeta: obj.(*v1.RoleTemplateBindingList).ListMeta}
-	for _, item := range obj.(*v1.RoleTemplateBindingList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested roleTemplateBindings.
-func (c *FakeRoleTemplateBindings) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(roletemplatebindingsResource, opts))
-}
-
-// Create takes the representation of a roleTemplateBinding and creates it.  Returns the server's representation of the roleTemplateBinding, and an error, if there is any.
-func (c *FakeRoleTemplateBindings) Create(ctx context.Context, roleTemplateBinding *v1.RoleTemplateBinding, opts metav1.CreateOptions) (result *v1.RoleTemplateBinding, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(roletemplatebindingsResource, roleTemplateBinding), &v1.RoleTemplateBinding{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplateBinding), err
-}
-
-// Update takes the representation of a roleTemplateBinding and updates it. Returns the server's representation of the roleTemplateBinding, and an error, if there is any.
-func (c *FakeRoleTemplateBindings) Update(ctx context.Context, roleTemplateBinding *v1.RoleTemplateBinding, opts metav1.UpdateOptions) (result *v1.RoleTemplateBinding, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(roletemplatebindingsResource, roleTemplateBinding), &v1.RoleTemplateBinding{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplateBinding), err
-}
-
-// Delete takes name of the roleTemplateBinding and deletes it. Returns an error if one occurs.
-func (c *FakeRoleTemplateBindings) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(roletemplatebindingsResource, name, opts), &v1.RoleTemplateBinding{})
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeRoleTemplateBindings) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(roletemplatebindingsResource, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.RoleTemplateBindingList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched roleTemplateBinding.
-func (c *FakeRoleTemplateBindings) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.RoleTemplateBinding, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(roletemplatebindingsResource, name, pt, data, subresources...), &v1.RoleTemplateBinding{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplateBinding), err
 }

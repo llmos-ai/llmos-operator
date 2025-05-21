@@ -18,123 +18,30 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	mlllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeModels implements ModelInterface
-type FakeModels struct {
+// fakeModels implements ModelInterface
+type fakeModels struct {
+	*gentype.FakeClientWithList[*v1.Model, *v1.ModelList]
 	Fake *FakeMlV1
-	ns   string
 }
 
-var modelsResource = v1.SchemeGroupVersion.WithResource("models")
-
-var modelsKind = v1.SchemeGroupVersion.WithKind("Model")
-
-// Get takes name of the model, and returns the corresponding model object, and an error if there is any.
-func (c *FakeModels) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Model, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(modelsResource, c.ns, name), &v1.Model{})
-
-	if obj == nil {
-		return nil, err
+func newFakeModels(fake *FakeMlV1, namespace string) mlllmosaiv1.ModelInterface {
+	return &fakeModels{
+		gentype.NewFakeClientWithList[*v1.Model, *v1.ModelList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("models"),
+			v1.SchemeGroupVersion.WithKind("Model"),
+			func() *v1.Model { return &v1.Model{} },
+			func() *v1.ModelList { return &v1.ModelList{} },
+			func(dst, src *v1.ModelList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.ModelList) []*v1.Model { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.ModelList, items []*v1.Model) { list.Items = gentype.FromPointerSlice(items) },
+		),
+		fake,
 	}
-	return obj.(*v1.Model), err
-}
-
-// List takes label and field selectors, and returns the list of Models that match those selectors.
-func (c *FakeModels) List(ctx context.Context, opts metav1.ListOptions) (result *v1.ModelList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(modelsResource, modelsKind, c.ns, opts), &v1.ModelList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.ModelList{ListMeta: obj.(*v1.ModelList).ListMeta}
-	for _, item := range obj.(*v1.ModelList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested models.
-func (c *FakeModels) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(modelsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a model and creates it.  Returns the server's representation of the model, and an error, if there is any.
-func (c *FakeModels) Create(ctx context.Context, model *v1.Model, opts metav1.CreateOptions) (result *v1.Model, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(modelsResource, c.ns, model), &v1.Model{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Model), err
-}
-
-// Update takes the representation of a model and updates it. Returns the server's representation of the model, and an error, if there is any.
-func (c *FakeModels) Update(ctx context.Context, model *v1.Model, opts metav1.UpdateOptions) (result *v1.Model, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(modelsResource, c.ns, model), &v1.Model{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Model), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeModels) UpdateStatus(ctx context.Context, model *v1.Model, opts metav1.UpdateOptions) (*v1.Model, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(modelsResource, "status", c.ns, model), &v1.Model{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Model), err
-}
-
-// Delete takes name of the model and deletes it. Returns an error if one occurs.
-func (c *FakeModels) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(modelsResource, c.ns, name, opts), &v1.Model{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeModels) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(modelsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.ModelList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched model.
-func (c *FakeModels) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Model, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(modelsResource, c.ns, name, pt, data, subresources...), &v1.Model{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Model), err
 }

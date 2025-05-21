@@ -17,7 +17,7 @@ ARG --global AWS_SECRET_ACCESS_KEY=
 ARG --global AWS_DEFAULT_REGION=
 ARG --global S3_BUCKET_NAME=
 ARG --global UPLOAD_CHARTS=
-ARG --global K3S_TAG=v1.31.0+k3s1
+ARG --global K3S_TAG=v1.33.0+k3s1
 
 WORKDIR /llmos-operator
 

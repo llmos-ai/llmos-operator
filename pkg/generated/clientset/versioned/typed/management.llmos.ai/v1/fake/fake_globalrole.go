@@ -18,114 +18,30 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeGlobalRoles implements GlobalRoleInterface
-type FakeGlobalRoles struct {
+// fakeGlobalRoles implements GlobalRoleInterface
+type fakeGlobalRoles struct {
+	*gentype.FakeClientWithList[*v1.GlobalRole, *v1.GlobalRoleList]
 	Fake *FakeManagementV1
 }
 
-var globalrolesResource = v1.SchemeGroupVersion.WithResource("globalroles")
-
-var globalrolesKind = v1.SchemeGroupVersion.WithKind("GlobalRole")
-
-// Get takes name of the globalRole, and returns the corresponding globalRole object, and an error if there is any.
-func (c *FakeGlobalRoles) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.GlobalRole, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(globalrolesResource, name), &v1.GlobalRole{})
-	if obj == nil {
-		return nil, err
+func newFakeGlobalRoles(fake *FakeManagementV1) managementllmosaiv1.GlobalRoleInterface {
+	return &fakeGlobalRoles{
+		gentype.NewFakeClientWithList[*v1.GlobalRole, *v1.GlobalRoleList](
+			fake.Fake,
+			"",
+			v1.SchemeGroupVersion.WithResource("globalroles"),
+			v1.SchemeGroupVersion.WithKind("GlobalRole"),
+			func() *v1.GlobalRole { return &v1.GlobalRole{} },
+			func() *v1.GlobalRoleList { return &v1.GlobalRoleList{} },
+			func(dst, src *v1.GlobalRoleList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.GlobalRoleList) []*v1.GlobalRole { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.GlobalRoleList, items []*v1.GlobalRole) { list.Items = gentype.FromPointerSlice(items) },
+		),
+		fake,
 	}
-	return obj.(*v1.GlobalRole), err
-}
-
-// List takes label and field selectors, and returns the list of GlobalRoles that match those selectors.
-func (c *FakeGlobalRoles) List(ctx context.Context, opts metav1.ListOptions) (result *v1.GlobalRoleList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(globalrolesResource, globalrolesKind, opts), &v1.GlobalRoleList{})
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.GlobalRoleList{ListMeta: obj.(*v1.GlobalRoleList).ListMeta}
-	for _, item := range obj.(*v1.GlobalRoleList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested globalRoles.
-func (c *FakeGlobalRoles) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(globalrolesResource, opts))
-}
-
-// Create takes the representation of a globalRole and creates it.  Returns the server's representation of the globalRole, and an error, if there is any.
-func (c *FakeGlobalRoles) Create(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.CreateOptions) (result *v1.GlobalRole, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(globalrolesResource, globalRole), &v1.GlobalRole{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.GlobalRole), err
-}
-
-// Update takes the representation of a globalRole and updates it. Returns the server's representation of the globalRole, and an error, if there is any.
-func (c *FakeGlobalRoles) Update(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (result *v1.GlobalRole, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(globalrolesResource, globalRole), &v1.GlobalRole{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.GlobalRole), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeGlobalRoles) UpdateStatus(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (*v1.GlobalRole, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateSubresourceAction(globalrolesResource, "status", globalRole), &v1.GlobalRole{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.GlobalRole), err
-}
-
-// Delete takes name of the globalRole and deletes it. Returns an error if one occurs.
-func (c *FakeGlobalRoles) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(globalrolesResource, name, opts), &v1.GlobalRole{})
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeGlobalRoles) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(globalrolesResource, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.GlobalRoleList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched globalRole.
-func (c *FakeGlobalRoles) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.GlobalRole, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(globalrolesResource, name, pt, data, subresources...), &v1.GlobalRole{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.GlobalRole), err
 }
