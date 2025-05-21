@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/rancher/apiserver/pkg/apierror"
@@ -28,9 +31,13 @@ const (
 )
 
 type UploadInput struct {
-	SourceFilePath string `json:"sourceFilePath"`
-	// if empty, use version as target directory
+	// TargetDirectory is the directory path where the file will be stored
+	// This is a required field for all uploads
 	TargetDirectory string `json:"targetDirectory"`
+	// RelativePaths is now a slice of strings, corresponding to the order of files
+	RelativePaths []string `json:"relativePaths"`
+	// Note: All uploads are now handled directly from HTTP multipart/form-data requests
+	// For both single and multiple file uploads: The file content must be provided in the 'file' field of the multipart form
 }
 type DownloadInput struct {
 	TargetFilePath string `json:"targetFilePath"`
@@ -40,6 +47,18 @@ type RemoveInput DownloadInput
 
 type CreateDirectoryInput struct {
 	TargetDirectory string `json:"targetDirectory"`
+}
+
+type Progress struct {
+	DestPath  string `json:"destPath"`
+	TotalSize int64  `json:"totalSize"`
+	ReadSize  int64  `json:"readSize"`
+}
+
+// ResponseWriterSync wraps an http.ResponseWriter with a mutex for thread safety
+type ResponseWriterSync struct {
+	sync.Mutex
+	rw http.ResponseWriter
 }
 
 type BaseHandler struct {
@@ -79,7 +98,7 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 
 	switch action {
 	case ActionUpload:
-		return h.upload(req, namespace, name)
+		return h.upload(rw, req, namespace, name)
 	case ActionDownload:
 		return h.download(rw, req, namespace, name)
 	case ActionList:
@@ -93,12 +112,29 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 	}
 }
 
-func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
-	input := &UploadInput{}
+func (h BaseHandler) upload(rw http.ResponseWriter, req *http.Request, namespace, name string) error {
+	// All uploads are now direct uploads from HTTP requests
+	// Verify that this is a multipart form request
+	contentType := req.Header.Get("Content-Type")
+	if !strings.HasPrefix(contentType, "multipart/form-data") {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Upload requires a multipart/form-data request")
+	}
 
-	err := decodeAndValidateInput(req, input, input.TargetDirectory)
-	if err != nil {
-		return err
+	// Parse the multipart form
+	if err := req.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse multipart form: %v", err))
+	}
+
+	// Get the JSON data from the form
+	jsonData := req.FormValue("data")
+	if jsonData == "" {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Missing 'data' field in multipart form")
+	}
+
+	// Decode the JSON data
+	input := &UploadInput{}
+	if err := json.Unmarshal([]byte(jsonData), input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse JSON data: %v", err))
 	}
 
 	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
@@ -106,11 +142,121 @@ func (h BaseHandler) upload(req *http.Request, namespace, name string) error {
 		return err
 	}
 
-	if err := b.Upload(h.Ctx, input.SourceFilePath, path.Join(rootPath, input.TargetDirectory)); err != nil {
-		return fmt.Errorf("upload file %s failed: %w", input.SourceFilePath, err)
+	// Get all files from the multipart form
+	form := req.MultipartForm
+	if form == nil || form.File == nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "No files found in multipart form")
+	}
+
+	// Look for files with the field name 'file'
+	files, ok := form.File["file"]
+	if !ok || len(files) == 0 {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "No files found with field name 'file'")
+	}
+
+	// Use Server-Sent Events (SSE) to send progress updates
+	rw.Header().Set("Content-Type", "text/event-stream")
+	rw.Header().Set("Cache-Control", "no-cache")
+	rw.Header().Set("Connection", "keep-alive")
+
+	syncWriter := &ResponseWriterSync{rw: rw}
+
+	errors := make(chan error, len(files))
+
+	// Add a WaitGroup to wait for all uploads to complete
+	var wg sync.WaitGroup
+
+	// Process each file
+	for i := range files {
+		// Get the relative path for the file
+		var relativePath string
+		if i < len(input.RelativePaths) {
+			relativePath = input.RelativePaths[i]
+		}
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			errors <- h.uploadOneFile(syncWriter, b, files[i], path.Join(rootPath, input.TargetDirectory, relativePath))
+		}(i)
+	}
+
+	// Wait for all uploads to complete in a separate goroutine
+	go func() {
+		wg.Wait()
+		close(errors)
+	}()
+
+	// Collect any errors that occurred during upload
+	var uploadErrors []error
+	for err := range errors {
+		if err != nil {
+			uploadErrors = append(uploadErrors, err)
+		}
+	}
+
+	// If any errors occurred, return the first one
+	if len(uploadErrors) > 0 {
+		return uploadErrors[0]
 	}
 
 	return nil
+}
+
+func (h BaseHandler) uploadOneFile(rw *ResponseWriterSync, b backend.Backend, fileHeader *multipart.FileHeader, targetPath string) error {
+	// Open the file
+	file, err := fileHeader.Open()
+	if err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent,
+			fmt.Sprintf("Failed to open file %s: %v", fileHeader.Filename, err))
+	}
+
+	// Construct the destination path
+	destPath := path.Join(targetPath, fileHeader.Filename)
+
+	processChan := make(chan int64, 10)
+	reader := backend.NewProgressReader(file, fileHeader.Size, processChan)
+	// Context for canceling the progress reporting
+	ctx, cancel := context.WithCancel(context.Background())
+	go reportProgress(ctx, rw, processChan, fileHeader.Size, destPath)
+	// Upload the file
+	err = b.UploadFromReader(h.Ctx, reader, destPath, fileHeader.Size, fileHeader.Header.Get("Content-Type"))
+	file.Close() // nolint:errcheck
+	cancel()
+
+	if err != nil {
+		return fmt.Errorf("upload file %s failed: %w", destPath, err)
+	}
+
+	return nil
+}
+
+func reportProgress(ctx context.Context, rw *ResponseWriterSync, processChan chan int64, totalSize int64, destPath string) {
+	for {
+		select {
+		case progress, ok := <-processChan:
+			if !ok {
+				return
+			}
+			p := &Progress{
+				DestPath:  destPath,
+				TotalSize: totalSize,
+				ReadSize:  progress,
+			}
+			data, err := json.Marshal(p)
+			if err != nil {
+				logrus.Errorf("marshal progress %+v failed: %v", p, err)
+				continue
+			}
+			if _, err := fmt.Fprintf(rw, "data: %s\n", data); err != nil {
+				logrus.Errorf("stream progress write failed: %v", err)
+				return
+			}
+			rw.Flush()
+
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
 func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespace, name string) error {
@@ -118,18 +264,37 @@ func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespa
 
 	err := decodeAndValidateInput(req, input, input.TargetFilePath)
 	if err != nil {
-		return err
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("failed to parse body: %v", err))
 	}
 
 	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
 	if err != nil {
-		return err
+		return apierror.NewAPIError(validation.ServerError, fmt.Sprintf("get backend failed: %v", err))
 	}
 
 	objectName := path.Join(rootPath, input.TargetFilePath)
 
+	fileInfo, err := b.List(h.Ctx, objectName, false, false)
+	if err != nil {
+		return apierror.NewAPIError(validation.ServerError, fmt.Sprintf("list %s failed: %v", objectName, err))
+	}
+	if len(fileInfo) == 0 {
+		return apierror.NewAPIError(validation.NotFound, fmt.Sprintf("target %s not found", objectName))
+	}
+	// if fileInfo[0].Size == 0, it means the objectName is a directory
+	if fileInfo[0].Size == 0 {
+		zipFileName := fmt.Sprintf("%s.zip", path.Base(input.TargetFilePath))
+		rw.Header().Set("Content-Type", "application/zip")
+		rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+			url.QueryEscape(zipFileName), url.QueryEscape(zipFileName)))
+	} else {
+		rw.Header().Set("Content-Type", fileInfo[0].ContentType)
+		rw.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`,
+			url.QueryEscape(fileInfo[0].Name), url.QueryEscape(fileInfo[0].Name)))
+	}
+
 	if err := b.Download(h.Ctx, objectName, rw); err != nil {
-		return fmt.Errorf("download file %s failed: %w", input.TargetFilePath, err)
+		return apierror.NewAPIError(validation.ServerError, fmt.Sprintf("download %s failed: %v", objectName, err))
 	}
 
 	return nil
@@ -240,4 +405,18 @@ func isValidPath(p string) bool {
 	}
 
 	return true
+}
+
+// Write safely writes to the underlying ResponseWriter with mutex protection
+func (r *ResponseWriterSync) Write(p []byte) (n int, err error) {
+	r.Lock()
+	defer r.Unlock()
+	return r.rw.Write(p)
+}
+
+// Flush safely flushes the underlying ResponseWriter with mutex protection
+func (r *ResponseWriterSync) Flush() {
+	r.Lock()
+	defer r.Unlock()
+	r.rw.(http.Flusher).Flush()
 }
