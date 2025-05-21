@@ -27,6 +27,7 @@ import (
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
 	nvidiav1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/nvidia.com/v1"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ray.io/v1"
+	snapshotv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/snapshot.storage.k8s.io/v1"
 	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/storage.k8s.io/v1"
 	upgradev1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
 	discovery "k8s.io/client-go/discovery"
@@ -42,6 +43,7 @@ type Interface interface {
 	MlV1() mlv1.MlV1Interface
 	NvidiaV1() nvidiav1.NvidiaV1Interface
 	RayV1() rayv1.RayV1Interface
+	SnapshotV1() snapshotv1.SnapshotV1Interface
 	StorageV1() storagev1.StorageV1Interface
 	UpgradeV1() upgradev1.UpgradeV1Interface
 }
@@ -55,6 +57,7 @@ type Clientset struct {
 	mlV1         *mlv1.MlV1Client
 	nvidiaV1     *nvidiav1.NvidiaV1Client
 	rayV1        *rayv1.RayV1Client
+	snapshotV1   *snapshotv1.SnapshotV1Client
 	storageV1    *storagev1.StorageV1Client
 	upgradeV1    *upgradev1.UpgradeV1Client
 }
@@ -87,6 +90,11 @@ func (c *Clientset) NvidiaV1() nvidiav1.NvidiaV1Interface {
 // RayV1 retrieves the RayV1Client
 func (c *Clientset) RayV1() rayv1.RayV1Interface {
 	return c.rayV1
+}
+
+// SnapshotV1 retrieves the SnapshotV1Client
+func (c *Clientset) SnapshotV1() snapshotv1.SnapshotV1Interface {
+	return c.snapshotV1
 }
 
 // StorageV1 retrieves the StorageV1Client
@@ -167,6 +175,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.snapshotV1, err = snapshotv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.storageV1, err = storagev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -202,6 +214,7 @@ func New(c rest.Interface) *Clientset {
 	cs.mlV1 = mlv1.New(c)
 	cs.nvidiaV1 = nvidiav1.New(c)
 	cs.rayV1 = rayv1.New(c)
+	cs.snapshotV1 = snapshotv1.New(c)
 	cs.storageV1 = storagev1.New(c)
 	cs.upgradeV1 = upgradev1.New(c)
 

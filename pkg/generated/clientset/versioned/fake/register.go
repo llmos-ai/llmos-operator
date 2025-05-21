@@ -20,6 +20,7 @@ package fake
 import (
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
+	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
@@ -43,6 +44,7 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 	mlv1.AddToScheme,
 	nvidiav1.AddToScheme,
 	rayv1.AddToScheme,
+	snapshotv1.AddToScheme,
 	storagev1.AddToScheme,
 	upgradev1.AddToScheme,
 }

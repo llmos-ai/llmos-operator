@@ -32,6 +32,8 @@ func init() {
 type Interface interface {
 	Dataset() DatasetController
 	DatasetVersion() DatasetVersionController
+	LocalModel() LocalModelController
+	LocalModelVersion() LocalModelVersionController
 	Model() ModelController
 	ModelService() ModelServiceController
 	Notebook() NotebookController
@@ -54,6 +56,14 @@ func (v *version) Dataset() DatasetController {
 
 func (v *version) DatasetVersion() DatasetVersionController {
 	return generic.NewController[*v1.DatasetVersion, *v1.DatasetVersionList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "DatasetVersion"}, "datasetversions", true, v.controllerFactory)
+}
+
+func (v *version) LocalModel() LocalModelController {
+	return generic.NewController[*v1.LocalModel, *v1.LocalModelList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "LocalModel"}, "localmodels", true, v.controllerFactory)
+}
+
+func (v *version) LocalModelVersion() LocalModelVersionController {
+	return generic.NewController[*v1.LocalModelVersion, *v1.LocalModelVersionList](schema.GroupVersionKind{Group: "ml.llmos.ai", Version: "v1", Kind: "LocalModelVersion"}, "localmodelversions", true, v.controllerFactory)
 }
 
 func (v *version) Model() ModelController {

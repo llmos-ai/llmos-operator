@@ -4,25 +4,26 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     {}
-  name: datasetversions.ml.llmos.ai
+  name: localmodelversions.ml.llmos.ai
 spec:
   group: ml.llmos.ai
   names:
-    kind: DatasetVersion
-    listKind: DatasetVersionList
-    plural: datasetversions
-    shortNames:
-    - dv
-    - dvs
-    singular: datasetversion
+    kind: LocalModelVersion
+    listKind: LocalModelVersionList
+    plural: localmodelversions
+    singular: localmodelversion
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.dataset
-      name: Dataset
+    - jsonPath: .spec.localModel
+      name: LocalModel
       type: string
-    - jsonPath: .spec.version
+    - jsonPath: .status.version
       name: Version
+      priority: 8
+      type: integer
+    - jsonPath: .status.volumeSnapshot
+      name: VolumeSnapshot
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -30,7 +31,10 @@ spec:
     name: v1
     schema:
       openAPIV3Schema:
-        description: DatasetVersion is a definition for the LLM Dataset Version
+        description: |-
+          LocalModelVersion is the version of local model
+          It references its parent LocalModel via the localModel field.
+          The controller will create appropriate PVCs and download jobs to fetch the model contents.
         properties:
           apiVersion:
             description: |-
@@ -50,32 +54,17 @@ spec:
           metadata:
             type: object
           spec:
-            description: DatasetVersionSpec defines the desired state of DatasetVersion
             properties:
-              copyFrom:
-                properties:
-                  dataset:
-                    type: string
-                  namespace:
-                    type: string
-                  version:
-                    type: string
-                required:
-                - dataset
-                - namespace
-                - version
-                type: object
-              dataset:
-                type: string
-              version:
+              localModel:
                 type: string
             required:
-            - dataset
-            - version
+            - localModel
             type: object
           status:
             properties:
               conditions:
+                description: Conditions is a list of conditions representing the status
+                  of the Model
                 items:
                   properties:
                     lastTransitionTime:
@@ -103,13 +92,12 @@ spec:
                   - type
                   type: object
                 type: array
-              registry:
-                type: string
-              rootPath:
+              version:
+                type: integer
+              volumeSnapshot:
                 type: string
             required:
-            - registry
-            - rootPath
+            - version
             type: object
         type: object
     served: true
