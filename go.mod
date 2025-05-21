@@ -59,6 +59,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/k3s-io/helm-controller v0.16.3
+	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/minio/minio-go/v7 v7.0.89
 	github.com/oneblock-ai/webhook v0.0.0-20240122084603-b51d23225312
 	github.com/onsi/ginkgo/v2 v2.22.0

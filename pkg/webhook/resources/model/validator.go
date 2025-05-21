@@ -10,6 +10,7 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	ctlstoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	werror "github.com/llmos-ai/llmos-operator/pkg/webhook/error"
 )
@@ -17,14 +18,16 @@ import (
 type validator struct {
 	admission.DefaultValidator
 
-	registryCache ctlmlv1.RegistryCache
+	registryCache     ctlmlv1.RegistryCache
+	storageClassCache ctlstoragev1.StorageClassCache
 }
 
 var _ admission.Validator = &validator{}
 
 func NewValidator(mgmt *config.Management) admission.Validator {
 	return &validator{
-		registryCache: mgmt.LLMFactory.Ml().V1().Registry().Cache(),
+		registryCache:     mgmt.LLMFactory.Ml().V1().Registry().Cache(),
+		storageClassCache: mgmt.StorageFactory.Storage().V1().StorageClass().Cache(),
 	}
 }
 
@@ -53,7 +56,7 @@ func (v *validator) Update(_ *admission.Request, oldObj runtime.Object, newObj r
 	return nil
 }
 
-func (v validator) Resource() admission.Resource {
+func (v *validator) Resource() admission.Resource {
 	return admission.Resource{
 		Names:      []string{"models"},
 		Scope:      admissionregv1.NamespacedScope,

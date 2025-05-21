@@ -10,6 +10,8 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
+type ModelGetter func(namespace, name string) (*mlv1.Model, error)
+
 type Handler struct {
 	modelCache ctlmlv1.ModelCache
 
@@ -27,15 +29,19 @@ func NewHandler(scaled *config.Scaled) Handler {
 	h.BaseHandler = cr.BaseHandler{
 		Ctx:                    scaled.Ctx,
 		GetRegistryAndRootPath: h.GetRegistryAndRootPath,
-		RegistryManager:        registry.NewManager(secretCache, registryCache),
+		RegistryManager:        registry.NewManager(secretCache.Get, registryCache.Get),
 	}
 
 	return h
 }
 
 func (h Handler) GetRegistryAndRootPath(namespace, name string) (string, string, error) {
+	return GetModelRegistryAndRootPath(h.modelCache.Get, namespace, name)
+}
+
+func GetModelRegistryAndRootPath(modelGetter ModelGetter, namespace, name string) (string, string, error) {
 	var registry, rootPath string
-	v, err := h.modelCache.Get(namespace, name)
+	v, err := modelGetter(namespace, name)
 	if err != nil {
 		return "", "", fmt.Errorf("get model %s/%s failed: %w", namespace, name, err)
 	}

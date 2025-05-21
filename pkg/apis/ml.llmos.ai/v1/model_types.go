@@ -11,6 +11,7 @@ import (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Registry",type="string",JSONPath=`.spec.registry`
+// +kubebuilder:printcolumn:name="VolumeSnapshot",type="string",JSONPath=`.status.cacheStatus.volumeSnapshot`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Model is a definition for the LLM Model
@@ -61,4 +62,6 @@ type ModelMetaData struct {
 	BaseModel         string   `json:"baseModel,omitempty"`         // Base model information
 }
 
-var Ready condition.Cond = "ready"
+var (
+	Ready condition.Cond = "ready"
+)

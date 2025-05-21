@@ -10,6 +10,8 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
+type DatasetVersionGetter func(namespace, name string) (*mlv1.DatasetVersion, error)
+
 type Handler struct {
 	dvCache ctlmlv1.DatasetVersionCache
 
@@ -27,15 +29,19 @@ func NewHandler(scaled *config.Scaled) Handler {
 	h.BaseHandler = cr.BaseHandler{
 		Ctx:                    scaled.Ctx,
 		GetRegistryAndRootPath: h.GetRegistryAndRootPath,
-		RegistryManager:        registry.NewManager(secretCache, registryCache),
+		RegistryManager:        registry.NewManager(secretCache.Get, registryCache.Get),
 	}
 
 	return h
 }
 
 func (h Handler) GetRegistryAndRootPath(namespace, name string) (string, string, error) {
+	return GetDatasetVersionRegistryAndRootPath(h.dvCache.Get, namespace, name)
+}
+
+func GetDatasetVersionRegistryAndRootPath(dvGetter DatasetVersionGetter, namespace, name string) (string, string, error) {
 	var registry, rootPath string
-	v, err := h.dvCache.Get(namespace, name)
+	v, err := dvGetter(namespace, name)
 	if err != nil {
 		return "", "", fmt.Errorf("get datasetversion %s/%s failed: %w", namespace, name, err)
 	}

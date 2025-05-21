@@ -15,8 +15,10 @@ import (
 )
 
 const (
-	modelOnChangeName = "model.OnChange"
-	modelOnRemoveName = "model.OnRemove"
+	modelOnChangeName          = "model.OnChange"
+	modelOnRemoveName          = "model.OnRemove"
+	jobOnChangeName            = "job.model.OnChange"
+	volumeSnapshotOnChangeName = "volumesnapshot.model.OnChange"
 )
 
 type handler struct {
@@ -39,10 +41,11 @@ func Register(_ context.Context, mgmt *config.Management, _ config.Options) erro
 		modelClient: models,
 		modelCache:  models.Cache(),
 	}
-	h.rm = registry.NewManager(secrets.Cache(), registries.Cache())
+	h.rm = registry.NewManager(secrets.Cache().Get, registries.Cache().Get)
 
 	models.OnChange(mgmt.Ctx, modelOnChangeName, h.OnChange)
 	models.OnRemove(mgmt.Ctx, modelOnRemoveName, h.OnRemove)
+
 	return nil
 }
 
@@ -61,11 +64,12 @@ func (h *handler) OnChange(_ string, model *mlv1.Model) (*mlv1.Model, error) {
 		return h.updateModelStatus(modelCopy, model, fmt.Errorf(registry.ErrCreateBackendClient, err))
 	}
 	modelRootDir := path.Join(mlv1.ModelResourceName, model.Namespace, model.Name)
-	if err := b.CreateDirectory(h.ctx, modelRootDir); err != nil {
+	if err = b.CreateDirectory(h.ctx, modelRootDir); err != nil {
 		return h.updateModelStatus(modelCopy, model, fmt.Errorf(registry.ErrCreateDirectory, modelRootDir, err))
 	}
 
 	modelCopy.Status.RootPath = modelRootDir
+
 	return h.updateModelStatus(modelCopy, model, nil)
 }
 

@@ -11,6 +11,7 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	ctlstoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	werror "github.com/llmos-ai/llmos-operator/pkg/webhook/error"
 )
@@ -18,14 +19,16 @@ import (
 type validator struct {
 	admission.DefaultValidator
 
-	datasetCache ctlmlv1.DatasetCache
+	datasetCache      ctlmlv1.DatasetCache
+	storageClassCache ctlstoragev1.StorageClassCache
 }
 
 var _ admission.Validator = &validator{}
 
 func Newvalidator(mgmt *config.Management) admission.Validator {
 	return &validator{
-		datasetCache: mgmt.LLMFactory.Ml().V1().Dataset().Cache(),
+		datasetCache:      mgmt.LLMFactory.Ml().V1().Dataset().Cache(),
+		storageClassCache: mgmt.StorageFactory.Storage().V1().StorageClass().Cache(),
 	}
 }
 
