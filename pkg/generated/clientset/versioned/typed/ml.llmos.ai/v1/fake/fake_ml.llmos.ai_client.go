@@ -35,6 +35,14 @@ func (c *FakeMlV1) DatasetVersions(namespace string) v1.DatasetVersionInterface 
 	return newFakeDatasetVersions(c, namespace)
 }
 
+func (c *FakeMlV1) LocalModels(namespace string) v1.LocalModelInterface {
+	return newFakeLocalModels(c, namespace)
+}
+
+func (c *FakeMlV1) LocalModelVersions(namespace string) v1.LocalModelVersionInterface {
+	return newFakeLocalModelVersions(c, namespace)
+}
+
 func (c *FakeMlV1) Models(namespace string) v1.ModelInterface {
 	return newFakeModels(c, namespace)
 }

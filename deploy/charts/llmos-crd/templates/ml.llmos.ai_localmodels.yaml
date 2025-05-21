@@ -4,25 +4,28 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     {}
-  name: datasetversions.ml.llmos.ai
+  name: localmodels.ml.llmos.ai
 spec:
   group: ml.llmos.ai
   names:
-    kind: DatasetVersion
-    listKind: DatasetVersionList
-    plural: datasetversions
-    shortNames:
-    - dv
-    - dvs
-    singular: datasetversion
+    kind: LocalModel
+    listKind: LocalModelList
+    plural: localmodels
+    singular: localmodel
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.dataset
-      name: Dataset
+    - jsonPath: .spec.registry
+      name: Registry
       type: string
-    - jsonPath: .spec.version
-      name: Version
+    - jsonPath: .spec.modelName
+      name: ModelName
+      type: string
+    - jsonPath: .status.defaultVersion
+      name: DefaultVersion
+      type: integer
+    - jsonPath: .status.defaultVersionName
+      name: DefaultVersionName
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -30,7 +33,10 @@ spec:
     name: v1
     schema:
       openAPIV3Schema:
-        description: DatasetVersion is a definition for the LLM Dataset Version
+        description: |-
+          LocalModel is the model stored in the local storage
+          The LocalModel acts as a parent resource for LocalModelVersion instances and provides
+          registry/source information for downloading the model data.
         properties:
           apiVersion:
             description: |-
@@ -50,32 +56,29 @@ spec:
           metadata:
             type: object
           spec:
-            description: DatasetVersionSpec defines the desired state of DatasetVersion
             properties:
-              copyFrom:
-                properties:
-                  dataset:
-                    type: string
-                  namespace:
-                    type: string
-                  version:
-                    type: string
-                required:
-                - dataset
-                - namespace
-                - version
-                type: object
-              dataset:
+              defaultVersion:
+                description: |-
+                  DefaultVersion is the default version of the local model
+                  If DefaultVersion is empty, choose the latest version
                 type: string
-              version:
+              modelName:
+                description: ModelName is the name of the model in the registry like
+                  deepseek-ai/deepseek-r1
+                type: string
+              registry:
+                description: Registry can be the private registry or the public registry
+                  like huggingface.co
                 type: string
             required:
-            - dataset
-            - version
+            - modelName
+            - registry
             type: object
           status:
             properties:
               conditions:
+                description: Conditions is a list of conditions representing the status
+                  of the Model
                 items:
                   properties:
                     lastTransitionTime:
@@ -103,13 +106,10 @@ spec:
                   - type
                   type: object
                 type: array
-              registry:
+              defaultVersion:
+                type: integer
+              defaultVersionName:
                 type: string
-              rootPath:
-                type: string
-            required:
-            - registry
-            - rootPath
             type: object
         type: object
     served: true
