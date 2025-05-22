@@ -587,14 +587,13 @@ func (mc *MinioClient) downloadFilesWithConcurrency(ctx context.Context, files [
 	wg.Wait()
 	close(errorCh)
 
-	if len(errorCh) == 0 {
-		return nil
-	}
-
 	// Check for errors
 	errs := make([]error, 0, len(errorCh))
 	for err := range errorCh {
 		errs = append(errs, err)
+	}
+	if len(errs) == 0 {
+		return nil
 	}
 	return fmt.Errorf("failed to download, multiple errors: %v", errs)
 }
@@ -662,7 +661,7 @@ func (mc *MinioClient) downloadSingleFile(
 
 			// Compare calculated MD5 with ETag
 			calculatedMD5 := fmt.Sprintf("%x", hash.Sum(nil))
-			if strings.ToLower(calculatedMD5) != strings.ToLower(etag) {
+			if !strings.EqualFold(calculatedMD5, etag) {
 				return fmt.Errorf("ETag verification failed: expected %s, got %s", etag, calculatedMD5)
 			}
 

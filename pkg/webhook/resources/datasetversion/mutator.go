@@ -22,7 +22,7 @@ type mutator struct {
 
 var _ admission.Mutator = &mutator{}
 
-func Newmutator(mgmt *config.Management) admission.Mutator {
+func NewMutator(mgmt *config.Management) admission.Mutator {
 	return &mutator{
 		datasetCache: mgmt.LLMFactory.Ml().V1().Dataset().Cache(),
 	}

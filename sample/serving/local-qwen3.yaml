@@ -1,0 +1,64 @@
+apiVersion: ml.llmos.ai/v1
+kind: ModelService
+metadata:
+  name: qwen3-local
+  namespace: default
+spec:
+  model: default/qwen3
+  modelRegistry: local
+  replicas: 1
+  serviceType: ClusterIP
+  tags:
+    - transformer
+    - safetensors
+    - pytorch
+  template:
+    spec:
+      containers:
+        - args:
+            - '--dtype=half'
+            - '--enable-reasoning'
+            - '--reasoning-parser=deepseek_r1'
+          image: docker.io/vllm/vllm-openai:v0.8.5
+          name: server
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '8'
+              memory: 16Gi
+              volcano.sh/vgpu-memory: '10240'
+              volcano.sh/vgpu-number: '1'
+            requests:
+              cpu: '4'
+              memory: 10Gi
+          volumeMounts:
+            - mountPath: /root/.cache/huggingface/hub
+              name: model-dir
+            - mountPath: /dev/shm
+              name: dshm
+      runtimeClassName: nvidia
+      schedulerName: volcano
+      volumes:
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+          name: dshm
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: model-dir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        dataSource:
+          name: qwen3-v1
+          kind: VolumeSnapshot
+          apiGroup: snapshot.storage.k8s.io
+        storageClassName: llmos-ceph-block

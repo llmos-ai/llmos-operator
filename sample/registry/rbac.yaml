@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: llmos-operator-registry-reader
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ml.llmos.ai
+  resources:
+  - registries
+  - models
+  - datasetversions
+  verbs:
+  - get
+  - list
+  - watch

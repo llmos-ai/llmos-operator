@@ -12,6 +12,8 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/dataset"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/datasetversion"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/helmchart"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/localmodel"
+	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/localmodelversion"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/model"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/resources/modelservice"
@@ -33,7 +35,9 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		namespace.NewValidator(),
 		model.NewValidator(mgmt),
 		dataset.NewValidator(mgmt),
-		datasetversion.Newvalidator(mgmt),
+		datasetversion.NewValidator(mgmt),
+		localmodelversion.NewValidator(mgmt),
+		localmodel.NewValidator(mgmt),
 	}
 
 	mutators = []admission.Mutator{
@@ -41,7 +45,8 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 		raycluster.NewMutator(mgmt),
 		notebook.NewMutator(),
 		modelservice.NewMutator(),
-		datasetversion.Newmutator(mgmt),
+		datasetversion.NewMutator(mgmt),
+		localmodelversion.NewMutator(mgmt),
 	}
 
 	return
