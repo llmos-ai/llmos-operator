@@ -6,7 +6,6 @@ metadata:
 spec:
   dataset: alpaca-cleaned
   version: v3.0.0
-  enableFastLoading: true
   copyFrom:
     namespace: default
     dataset: alpaca-cleaned

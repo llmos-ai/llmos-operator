@@ -53,7 +53,7 @@ func (v *validator) Update(_ *admission.Request, oldObj runtime.Object, newObj r
 	return nil
 }
 
-func (v validator) Resource() admission.Resource {
+func (v *validator) Resource() admission.Resource {
 	return admission.Resource{
 		Names:      []string{"models"},
 		Scope:      admissionregv1.NamespacedScope,
