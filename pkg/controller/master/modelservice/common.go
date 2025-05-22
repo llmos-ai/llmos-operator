@@ -113,14 +113,14 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 	}
 
 	// Copy all the labels to the pod
-	ls := &ss.Spec.Template.ObjectMeta.Labels
-	for k, v := range ms.ObjectMeta.Labels {
+	ls := &ss.Spec.Template.Labels
+	for k, v := range ms.Labels {
 		(*ls)[k] = v
 	}
 
 	// Copy all the annotations to the pod
-	annos := &ss.Spec.Template.ObjectMeta.Annotations
-	for k, v := range ms.ObjectMeta.Annotations {
+	annos := &ss.Spec.Template.Annotations
+	for k, v := range ms.Annotations {
 		if !strings.Contains(k, "kubectl") && !strings.Contains(k, "notebook") {
 			(*annos)[k] = v
 		}

@@ -18,15 +18,14 @@ limitations under the License.
 package v1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // VersionsGetter has a method to return a VersionInterface.
@@ -37,131 +36,32 @@ type VersionsGetter interface {
 
 // VersionInterface has methods to work with Version resources.
 type VersionInterface interface {
-	Create(ctx context.Context, version *v1.Version, opts metav1.CreateOptions) (*v1.Version, error)
-	Update(ctx context.Context, version *v1.Version, opts metav1.UpdateOptions) (*v1.Version, error)
+	Create(ctx context.Context, version *managementllmosaiv1.Version, opts metav1.CreateOptions) (*managementllmosaiv1.Version, error)
+	Update(ctx context.Context, version *managementllmosaiv1.Version, opts metav1.UpdateOptions) (*managementllmosaiv1.Version, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Version, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.VersionList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*managementllmosaiv1.Version, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*managementllmosaiv1.VersionList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Version, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *managementllmosaiv1.Version, err error)
 	VersionExpansion
 }
 
 // versions implements VersionInterface
 type versions struct {
-	client rest.Interface
+	*gentype.ClientWithList[*managementllmosaiv1.Version, *managementllmosaiv1.VersionList]
 }
 
 // newVersions returns a Versions
 func newVersions(c *ManagementV1Client) *versions {
 	return &versions{
-		client: c.RESTClient(),
+		gentype.NewClientWithList[*managementllmosaiv1.Version, *managementllmosaiv1.VersionList](
+			"versions",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			"",
+			func() *managementllmosaiv1.Version { return &managementllmosaiv1.Version{} },
+			func() *managementllmosaiv1.VersionList { return &managementllmosaiv1.VersionList{} },
+		),
 	}
-}
-
-// Get takes name of the version, and returns the corresponding version object, and an error if there is any.
-func (c *versions) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Version, err error) {
-	result = &v1.Version{}
-	err = c.client.Get().
-		Resource("versions").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of Versions that match those selectors.
-func (c *versions) List(ctx context.Context, opts metav1.ListOptions) (result *v1.VersionList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1.VersionList{}
-	err = c.client.Get().
-		Resource("versions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested versions.
-func (c *versions) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Resource("versions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a version and creates it.  Returns the server's representation of the version, and an error, if there is any.
-func (c *versions) Create(ctx context.Context, version *v1.Version, opts metav1.CreateOptions) (result *v1.Version, err error) {
-	result = &v1.Version{}
-	err = c.client.Post().
-		Resource("versions").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(version).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a version and updates it. Returns the server's representation of the version, and an error, if there is any.
-func (c *versions) Update(ctx context.Context, version *v1.Version, opts metav1.UpdateOptions) (result *v1.Version, err error) {
-	result = &v1.Version{}
-	err = c.client.Put().
-		Resource("versions").
-		Name(version.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(version).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the version and deletes it. Returns an error if one occurs.
-func (c *versions) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete().
-		Resource("versions").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *versions) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Resource("versions").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched version.
-func (c *versions) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Version, err error) {
-	result = &v1.Version{}
-	err = c.client.Patch(pt).
-		Resource("versions").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

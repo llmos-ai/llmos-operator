@@ -149,7 +149,7 @@ func (h *handler) updateStatus(globalRole *mgmtv1.GlobalRole, cr *rbacv1.Cluster
 		mgmtv1.NamespacedRoleExists.Reason(toUpdate, "Created")
 	}
 	toUpdate.Status.LastUpdate = time.Now().Format(time.RFC3339)
-	toUpdate.Status.ObservedGeneration = toUpdate.ObjectMeta.Generation
+	toUpdate.Status.ObservedGeneration = toUpdate.Generation
 	toUpdate.Status.State = "Complete"
 
 	if !reflect.DeepEqual(toUpdate.Status, globalRole.Status) {

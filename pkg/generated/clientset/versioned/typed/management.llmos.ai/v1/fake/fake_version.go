@@ -18,103 +18,30 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeVersions implements VersionInterface
-type FakeVersions struct {
+// fakeVersions implements VersionInterface
+type fakeVersions struct {
+	*gentype.FakeClientWithList[*v1.Version, *v1.VersionList]
 	Fake *FakeManagementV1
 }
 
-var versionsResource = v1.SchemeGroupVersion.WithResource("versions")
-
-var versionsKind = v1.SchemeGroupVersion.WithKind("Version")
-
-// Get takes name of the version, and returns the corresponding version object, and an error if there is any.
-func (c *FakeVersions) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Version, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(versionsResource, name), &v1.Version{})
-	if obj == nil {
-		return nil, err
+func newFakeVersions(fake *FakeManagementV1) managementllmosaiv1.VersionInterface {
+	return &fakeVersions{
+		gentype.NewFakeClientWithList[*v1.Version, *v1.VersionList](
+			fake.Fake,
+			"",
+			v1.SchemeGroupVersion.WithResource("versions"),
+			v1.SchemeGroupVersion.WithKind("Version"),
+			func() *v1.Version { return &v1.Version{} },
+			func() *v1.VersionList { return &v1.VersionList{} },
+			func(dst, src *v1.VersionList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.VersionList) []*v1.Version { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.VersionList, items []*v1.Version) { list.Items = gentype.FromPointerSlice(items) },
+		),
+		fake,
 	}
-	return obj.(*v1.Version), err
-}
-
-// List takes label and field selectors, and returns the list of Versions that match those selectors.
-func (c *FakeVersions) List(ctx context.Context, opts metav1.ListOptions) (result *v1.VersionList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(versionsResource, versionsKind, opts), &v1.VersionList{})
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.VersionList{ListMeta: obj.(*v1.VersionList).ListMeta}
-	for _, item := range obj.(*v1.VersionList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested versions.
-func (c *FakeVersions) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(versionsResource, opts))
-}
-
-// Create takes the representation of a version and creates it.  Returns the server's representation of the version, and an error, if there is any.
-func (c *FakeVersions) Create(ctx context.Context, version *v1.Version, opts metav1.CreateOptions) (result *v1.Version, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(versionsResource, version), &v1.Version{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Version), err
-}
-
-// Update takes the representation of a version and updates it. Returns the server's representation of the version, and an error, if there is any.
-func (c *FakeVersions) Update(ctx context.Context, version *v1.Version, opts metav1.UpdateOptions) (result *v1.Version, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(versionsResource, version), &v1.Version{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Version), err
-}
-
-// Delete takes name of the version and deletes it. Returns an error if one occurs.
-func (c *FakeVersions) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(versionsResource, name, opts), &v1.Version{})
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeVersions) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(versionsResource, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.VersionList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched version.
-func (c *FakeVersions) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Version, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(versionsResource, name, pt, data, subresources...), &v1.Version{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Version), err
 }

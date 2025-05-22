@@ -18,15 +18,14 @@ limitations under the License.
 package v1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // ManagedAddonsGetter has a method to return a ManagedAddonInterface.
@@ -37,158 +36,34 @@ type ManagedAddonsGetter interface {
 
 // ManagedAddonInterface has methods to work with ManagedAddon resources.
 type ManagedAddonInterface interface {
-	Create(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.CreateOptions) (*v1.ManagedAddon, error)
-	Update(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.UpdateOptions) (*v1.ManagedAddon, error)
-	UpdateStatus(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.UpdateOptions) (*v1.ManagedAddon, error)
+	Create(ctx context.Context, managedAddon *managementllmosaiv1.ManagedAddon, opts metav1.CreateOptions) (*managementllmosaiv1.ManagedAddon, error)
+	Update(ctx context.Context, managedAddon *managementllmosaiv1.ManagedAddon, opts metav1.UpdateOptions) (*managementllmosaiv1.ManagedAddon, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, managedAddon *managementllmosaiv1.ManagedAddon, opts metav1.UpdateOptions) (*managementllmosaiv1.ManagedAddon, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.ManagedAddon, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.ManagedAddonList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*managementllmosaiv1.ManagedAddon, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*managementllmosaiv1.ManagedAddonList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.ManagedAddon, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *managementllmosaiv1.ManagedAddon, err error)
 	ManagedAddonExpansion
 }
 
 // managedAddons implements ManagedAddonInterface
 type managedAddons struct {
-	client rest.Interface
-	ns     string
+	*gentype.ClientWithList[*managementllmosaiv1.ManagedAddon, *managementllmosaiv1.ManagedAddonList]
 }
 
 // newManagedAddons returns a ManagedAddons
 func newManagedAddons(c *ManagementV1Client, namespace string) *managedAddons {
 	return &managedAddons{
-		client: c.RESTClient(),
-		ns:     namespace,
+		gentype.NewClientWithList[*managementllmosaiv1.ManagedAddon, *managementllmosaiv1.ManagedAddonList](
+			"managedaddons",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			namespace,
+			func() *managementllmosaiv1.ManagedAddon { return &managementllmosaiv1.ManagedAddon{} },
+			func() *managementllmosaiv1.ManagedAddonList { return &managementllmosaiv1.ManagedAddonList{} },
+		),
 	}
-}
-
-// Get takes name of the managedAddon, and returns the corresponding managedAddon object, and an error if there is any.
-func (c *managedAddons) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.ManagedAddon, err error) {
-	result = &v1.ManagedAddon{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of ManagedAddons that match those selectors.
-func (c *managedAddons) List(ctx context.Context, opts metav1.ListOptions) (result *v1.ManagedAddonList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1.ManagedAddonList{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested managedAddons.
-func (c *managedAddons) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a managedAddon and creates it.  Returns the server's representation of the managedAddon, and an error, if there is any.
-func (c *managedAddons) Create(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.CreateOptions) (result *v1.ManagedAddon, err error) {
-	result = &v1.ManagedAddon{}
-	err = c.client.Post().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(managedAddon).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a managedAddon and updates it. Returns the server's representation of the managedAddon, and an error, if there is any.
-func (c *managedAddons) Update(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.UpdateOptions) (result *v1.ManagedAddon, err error) {
-	result = &v1.ManagedAddon{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		Name(managedAddon.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(managedAddon).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *managedAddons) UpdateStatus(ctx context.Context, managedAddon *v1.ManagedAddon, opts metav1.UpdateOptions) (result *v1.ManagedAddon, err error) {
-	result = &v1.ManagedAddon{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		Name(managedAddon.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(managedAddon).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the managedAddon and deletes it. Returns an error if one occurs.
-func (c *managedAddons) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *managedAddons) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("managedaddons").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched managedAddon.
-func (c *managedAddons) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.ManagedAddon, err error) {
-	result = &v1.ManagedAddon{}
-	err = c.client.Patch(pt).
-		Namespace(c.ns).
-		Resource("managedaddons").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

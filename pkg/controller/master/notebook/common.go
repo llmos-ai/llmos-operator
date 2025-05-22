@@ -56,14 +56,14 @@ func constructNoteBookStatefulSet(notebook *mlv1.Notebook) *v1.StatefulSet {
 	}
 
 	// copy all the notebook labels to the pod including pod default related labels
-	l := &ss.Spec.Template.ObjectMeta.Labels
-	for k, v := range notebook.ObjectMeta.Labels {
+	l := &ss.Spec.Template.Labels
+	for k, v := range notebook.Labels {
 		(*l)[k] = v
 	}
 
 	// copy all the notebook annotations to the pod.
-	a := &ss.Spec.Template.ObjectMeta.Annotations
-	for k, v := range notebook.ObjectMeta.Annotations {
+	a := &ss.Spec.Template.Annotations
+	for k, v := range notebook.Annotations {
 		if !strings.Contains(k, "kubectl") && !strings.Contains(k, "notebook") {
 			(*a)[k] = v
 		}

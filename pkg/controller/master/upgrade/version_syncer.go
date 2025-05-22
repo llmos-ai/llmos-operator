@@ -255,7 +255,7 @@ func (s *versionSyncer) getClusterMetaInfo() (map[string]string, error) {
 }
 
 func convertToGi(q *resource.Quantity) string {
-	giValue := float64(q.Value()) / math.Pow(1024, 3) // Convert bytes to Gi
+	giValue := float64(q.Value()) / float64(1024*1024*1024) // Convert bytes to Gi
 	if giValue < 1 {
 		return fmt.Sprintf("%dMi", int64(math.Ceil(giValue*1024)))
 	}

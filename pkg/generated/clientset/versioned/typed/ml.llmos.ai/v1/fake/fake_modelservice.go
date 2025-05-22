@@ -18,123 +18,32 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	mlllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeModelServices implements ModelServiceInterface
-type FakeModelServices struct {
+// fakeModelServices implements ModelServiceInterface
+type fakeModelServices struct {
+	*gentype.FakeClientWithList[*v1.ModelService, *v1.ModelServiceList]
 	Fake *FakeMlV1
-	ns   string
 }
 
-var modelservicesResource = v1.SchemeGroupVersion.WithResource("modelservices")
-
-var modelservicesKind = v1.SchemeGroupVersion.WithKind("ModelService")
-
-// Get takes name of the modelService, and returns the corresponding modelService object, and an error if there is any.
-func (c *FakeModelServices) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.ModelService, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(modelservicesResource, c.ns, name), &v1.ModelService{})
-
-	if obj == nil {
-		return nil, err
+func newFakeModelServices(fake *FakeMlV1, namespace string) mlllmosaiv1.ModelServiceInterface {
+	return &fakeModelServices{
+		gentype.NewFakeClientWithList[*v1.ModelService, *v1.ModelServiceList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("modelservices"),
+			v1.SchemeGroupVersion.WithKind("ModelService"),
+			func() *v1.ModelService { return &v1.ModelService{} },
+			func() *v1.ModelServiceList { return &v1.ModelServiceList{} },
+			func(dst, src *v1.ModelServiceList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.ModelServiceList) []*v1.ModelService { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.ModelServiceList, items []*v1.ModelService) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.ModelService), err
-}
-
-// List takes label and field selectors, and returns the list of ModelServices that match those selectors.
-func (c *FakeModelServices) List(ctx context.Context, opts metav1.ListOptions) (result *v1.ModelServiceList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(modelservicesResource, modelservicesKind, c.ns, opts), &v1.ModelServiceList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.ModelServiceList{ListMeta: obj.(*v1.ModelServiceList).ListMeta}
-	for _, item := range obj.(*v1.ModelServiceList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested modelServices.
-func (c *FakeModelServices) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(modelservicesResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a modelService and creates it.  Returns the server's representation of the modelService, and an error, if there is any.
-func (c *FakeModelServices) Create(ctx context.Context, modelService *v1.ModelService, opts metav1.CreateOptions) (result *v1.ModelService, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(modelservicesResource, c.ns, modelService), &v1.ModelService{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.ModelService), err
-}
-
-// Update takes the representation of a modelService and updates it. Returns the server's representation of the modelService, and an error, if there is any.
-func (c *FakeModelServices) Update(ctx context.Context, modelService *v1.ModelService, opts metav1.UpdateOptions) (result *v1.ModelService, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(modelservicesResource, c.ns, modelService), &v1.ModelService{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.ModelService), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeModelServices) UpdateStatus(ctx context.Context, modelService *v1.ModelService, opts metav1.UpdateOptions) (*v1.ModelService, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(modelservicesResource, "status", c.ns, modelService), &v1.ModelService{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.ModelService), err
-}
-
-// Delete takes name of the modelService and deletes it. Returns an error if one occurs.
-func (c *FakeModelServices) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(modelservicesResource, c.ns, name, opts), &v1.ModelService{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeModelServices) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(modelservicesResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.ModelServiceList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched modelService.
-func (c *FakeModelServices) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.ModelService, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(modelservicesResource, c.ns, name, pt, data, subresources...), &v1.ModelService{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.ModelService), err
 }

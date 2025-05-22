@@ -1,6 +1,6 @@
 VERSION --arg-scope-and-set 0.8
 
-LET go_version = 1.23
+LET go_version = 1.24
 LET distro = alpine3.20
 
 FROM golang:${go_version}-${distro}
@@ -17,7 +17,7 @@ ARG --global AWS_SECRET_ACCESS_KEY=
 ARG --global AWS_DEFAULT_REGION=
 ARG --global S3_BUCKET_NAME=
 ARG --global UPLOAD_CHARTS=
-ARG --global K3S_TAG=v1.31.0+k3s1
+ARG --global K3S_TAG=v1.33.0+k3s1
 
 WORKDIR /llmos-operator
 

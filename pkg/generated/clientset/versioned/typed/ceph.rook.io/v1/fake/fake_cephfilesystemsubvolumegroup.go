@@ -18,111 +18,34 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
+	cephrookiov1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
 	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeCephFilesystemSubVolumeGroups implements CephFilesystemSubVolumeGroupInterface
-type FakeCephFilesystemSubVolumeGroups struct {
+// fakeCephFilesystemSubVolumeGroups implements CephFilesystemSubVolumeGroupInterface
+type fakeCephFilesystemSubVolumeGroups struct {
+	*gentype.FakeClientWithList[*v1.CephFilesystemSubVolumeGroup, *v1.CephFilesystemSubVolumeGroupList]
 	Fake *FakeCephV1
-	ns   string
 }
 
-var cephfilesystemsubvolumegroupsResource = v1.SchemeGroupVersion.WithResource("cephfilesystemsubvolumegroups")
-
-var cephfilesystemsubvolumegroupsKind = v1.SchemeGroupVersion.WithKind("CephFilesystemSubVolumeGroup")
-
-// Get takes name of the cephFilesystemSubVolumeGroup, and returns the corresponding cephFilesystemSubVolumeGroup object, and an error if there is any.
-func (c *FakeCephFilesystemSubVolumeGroups) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.CephFilesystemSubVolumeGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(cephfilesystemsubvolumegroupsResource, c.ns, name), &v1.CephFilesystemSubVolumeGroup{})
-
-	if obj == nil {
-		return nil, err
+func newFakeCephFilesystemSubVolumeGroups(fake *FakeCephV1, namespace string) cephrookiov1.CephFilesystemSubVolumeGroupInterface {
+	return &fakeCephFilesystemSubVolumeGroups{
+		gentype.NewFakeClientWithList[*v1.CephFilesystemSubVolumeGroup, *v1.CephFilesystemSubVolumeGroupList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("cephfilesystemsubvolumegroups"),
+			v1.SchemeGroupVersion.WithKind("CephFilesystemSubVolumeGroup"),
+			func() *v1.CephFilesystemSubVolumeGroup { return &v1.CephFilesystemSubVolumeGroup{} },
+			func() *v1.CephFilesystemSubVolumeGroupList { return &v1.CephFilesystemSubVolumeGroupList{} },
+			func(dst, src *v1.CephFilesystemSubVolumeGroupList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.CephFilesystemSubVolumeGroupList) []*v1.CephFilesystemSubVolumeGroup {
+				return gentype.ToPointerSlice(list.Items)
+			},
+			func(list *v1.CephFilesystemSubVolumeGroupList, items []*v1.CephFilesystemSubVolumeGroup) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.CephFilesystemSubVolumeGroup), err
-}
-
-// List takes label and field selectors, and returns the list of CephFilesystemSubVolumeGroups that match those selectors.
-func (c *FakeCephFilesystemSubVolumeGroups) List(ctx context.Context, opts metav1.ListOptions) (result *v1.CephFilesystemSubVolumeGroupList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(cephfilesystemsubvolumegroupsResource, cephfilesystemsubvolumegroupsKind, c.ns, opts), &v1.CephFilesystemSubVolumeGroupList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.CephFilesystemSubVolumeGroupList{ListMeta: obj.(*v1.CephFilesystemSubVolumeGroupList).ListMeta}
-	for _, item := range obj.(*v1.CephFilesystemSubVolumeGroupList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested cephFilesystemSubVolumeGroups.
-func (c *FakeCephFilesystemSubVolumeGroups) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(cephfilesystemsubvolumegroupsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a cephFilesystemSubVolumeGroup and creates it.  Returns the server's representation of the cephFilesystemSubVolumeGroup, and an error, if there is any.
-func (c *FakeCephFilesystemSubVolumeGroups) Create(ctx context.Context, cephFilesystemSubVolumeGroup *v1.CephFilesystemSubVolumeGroup, opts metav1.CreateOptions) (result *v1.CephFilesystemSubVolumeGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(cephfilesystemsubvolumegroupsResource, c.ns, cephFilesystemSubVolumeGroup), &v1.CephFilesystemSubVolumeGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephFilesystemSubVolumeGroup), err
-}
-
-// Update takes the representation of a cephFilesystemSubVolumeGroup and updates it. Returns the server's representation of the cephFilesystemSubVolumeGroup, and an error, if there is any.
-func (c *FakeCephFilesystemSubVolumeGroups) Update(ctx context.Context, cephFilesystemSubVolumeGroup *v1.CephFilesystemSubVolumeGroup, opts metav1.UpdateOptions) (result *v1.CephFilesystemSubVolumeGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(cephfilesystemsubvolumegroupsResource, c.ns, cephFilesystemSubVolumeGroup), &v1.CephFilesystemSubVolumeGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephFilesystemSubVolumeGroup), err
-}
-
-// Delete takes name of the cephFilesystemSubVolumeGroup and deletes it. Returns an error if one occurs.
-func (c *FakeCephFilesystemSubVolumeGroups) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(cephfilesystemsubvolumegroupsResource, c.ns, name, opts), &v1.CephFilesystemSubVolumeGroup{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeCephFilesystemSubVolumeGroups) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(cephfilesystemsubvolumegroupsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.CephFilesystemSubVolumeGroupList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched cephFilesystemSubVolumeGroup.
-func (c *FakeCephFilesystemSubVolumeGroups) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.CephFilesystemSubVolumeGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(cephfilesystemsubvolumegroupsResource, c.ns, name, pt, data, subresources...), &v1.CephFilesystemSubVolumeGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.CephFilesystemSubVolumeGroup), err
 }

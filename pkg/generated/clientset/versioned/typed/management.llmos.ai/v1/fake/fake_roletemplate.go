@@ -18,114 +18,32 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/management.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeRoleTemplates implements RoleTemplateInterface
-type FakeRoleTemplates struct {
+// fakeRoleTemplates implements RoleTemplateInterface
+type fakeRoleTemplates struct {
+	*gentype.FakeClientWithList[*v1.RoleTemplate, *v1.RoleTemplateList]
 	Fake *FakeManagementV1
 }
 
-var roletemplatesResource = v1.SchemeGroupVersion.WithResource("roletemplates")
-
-var roletemplatesKind = v1.SchemeGroupVersion.WithKind("RoleTemplate")
-
-// Get takes name of the roleTemplate, and returns the corresponding roleTemplate object, and an error if there is any.
-func (c *FakeRoleTemplates) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.RoleTemplate, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(roletemplatesResource, name), &v1.RoleTemplate{})
-	if obj == nil {
-		return nil, err
+func newFakeRoleTemplates(fake *FakeManagementV1) managementllmosaiv1.RoleTemplateInterface {
+	return &fakeRoleTemplates{
+		gentype.NewFakeClientWithList[*v1.RoleTemplate, *v1.RoleTemplateList](
+			fake.Fake,
+			"",
+			v1.SchemeGroupVersion.WithResource("roletemplates"),
+			v1.SchemeGroupVersion.WithKind("RoleTemplate"),
+			func() *v1.RoleTemplate { return &v1.RoleTemplate{} },
+			func() *v1.RoleTemplateList { return &v1.RoleTemplateList{} },
+			func(dst, src *v1.RoleTemplateList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.RoleTemplateList) []*v1.RoleTemplate { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.RoleTemplateList, items []*v1.RoleTemplate) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.RoleTemplate), err
-}
-
-// List takes label and field selectors, and returns the list of RoleTemplates that match those selectors.
-func (c *FakeRoleTemplates) List(ctx context.Context, opts metav1.ListOptions) (result *v1.RoleTemplateList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(roletemplatesResource, roletemplatesKind, opts), &v1.RoleTemplateList{})
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.RoleTemplateList{ListMeta: obj.(*v1.RoleTemplateList).ListMeta}
-	for _, item := range obj.(*v1.RoleTemplateList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested roleTemplates.
-func (c *FakeRoleTemplates) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(roletemplatesResource, opts))
-}
-
-// Create takes the representation of a roleTemplate and creates it.  Returns the server's representation of the roleTemplate, and an error, if there is any.
-func (c *FakeRoleTemplates) Create(ctx context.Context, roleTemplate *v1.RoleTemplate, opts metav1.CreateOptions) (result *v1.RoleTemplate, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(roletemplatesResource, roleTemplate), &v1.RoleTemplate{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplate), err
-}
-
-// Update takes the representation of a roleTemplate and updates it. Returns the server's representation of the roleTemplate, and an error, if there is any.
-func (c *FakeRoleTemplates) Update(ctx context.Context, roleTemplate *v1.RoleTemplate, opts metav1.UpdateOptions) (result *v1.RoleTemplate, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(roletemplatesResource, roleTemplate), &v1.RoleTemplate{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplate), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeRoleTemplates) UpdateStatus(ctx context.Context, roleTemplate *v1.RoleTemplate, opts metav1.UpdateOptions) (*v1.RoleTemplate, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateSubresourceAction(roletemplatesResource, "status", roleTemplate), &v1.RoleTemplate{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplate), err
-}
-
-// Delete takes name of the roleTemplate and deletes it. Returns an error if one occurs.
-func (c *FakeRoleTemplates) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(roletemplatesResource, name, opts), &v1.RoleTemplate{})
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeRoleTemplates) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(roletemplatesResource, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.RoleTemplateList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched roleTemplate.
-func (c *FakeRoleTemplates) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.RoleTemplate, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(roletemplatesResource, name, pt, data, subresources...), &v1.RoleTemplate{})
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.RoleTemplate), err
 }

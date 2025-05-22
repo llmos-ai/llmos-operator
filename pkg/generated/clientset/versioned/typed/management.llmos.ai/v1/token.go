@@ -18,15 +18,14 @@ limitations under the License.
 package v1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // TokensGetter has a method to return a TokenInterface.
@@ -37,147 +36,34 @@ type TokensGetter interface {
 
 // TokenInterface has methods to work with Token resources.
 type TokenInterface interface {
-	Create(ctx context.Context, token *v1.Token, opts metav1.CreateOptions) (*v1.Token, error)
-	Update(ctx context.Context, token *v1.Token, opts metav1.UpdateOptions) (*v1.Token, error)
-	UpdateStatus(ctx context.Context, token *v1.Token, opts metav1.UpdateOptions) (*v1.Token, error)
+	Create(ctx context.Context, token *managementllmosaiv1.Token, opts metav1.CreateOptions) (*managementllmosaiv1.Token, error)
+	Update(ctx context.Context, token *managementllmosaiv1.Token, opts metav1.UpdateOptions) (*managementllmosaiv1.Token, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, token *managementllmosaiv1.Token, opts metav1.UpdateOptions) (*managementllmosaiv1.Token, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Token, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.TokenList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*managementllmosaiv1.Token, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*managementllmosaiv1.TokenList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Token, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *managementllmosaiv1.Token, err error)
 	TokenExpansion
 }
 
 // tokens implements TokenInterface
 type tokens struct {
-	client rest.Interface
+	*gentype.ClientWithList[*managementllmosaiv1.Token, *managementllmosaiv1.TokenList]
 }
 
 // newTokens returns a Tokens
 func newTokens(c *ManagementV1Client) *tokens {
 	return &tokens{
-		client: c.RESTClient(),
+		gentype.NewClientWithList[*managementllmosaiv1.Token, *managementllmosaiv1.TokenList](
+			"tokens",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			"",
+			func() *managementllmosaiv1.Token { return &managementllmosaiv1.Token{} },
+			func() *managementllmosaiv1.TokenList { return &managementllmosaiv1.TokenList{} },
+		),
 	}
-}
-
-// Get takes name of the token, and returns the corresponding token object, and an error if there is any.
-func (c *tokens) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Token, err error) {
-	result = &v1.Token{}
-	err = c.client.Get().
-		Resource("tokens").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of Tokens that match those selectors.
-func (c *tokens) List(ctx context.Context, opts metav1.ListOptions) (result *v1.TokenList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1.TokenList{}
-	err = c.client.Get().
-		Resource("tokens").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested tokens.
-func (c *tokens) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Resource("tokens").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a token and creates it.  Returns the server's representation of the token, and an error, if there is any.
-func (c *tokens) Create(ctx context.Context, token *v1.Token, opts metav1.CreateOptions) (result *v1.Token, err error) {
-	result = &v1.Token{}
-	err = c.client.Post().
-		Resource("tokens").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(token).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a token and updates it. Returns the server's representation of the token, and an error, if there is any.
-func (c *tokens) Update(ctx context.Context, token *v1.Token, opts metav1.UpdateOptions) (result *v1.Token, err error) {
-	result = &v1.Token{}
-	err = c.client.Put().
-		Resource("tokens").
-		Name(token.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(token).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *tokens) UpdateStatus(ctx context.Context, token *v1.Token, opts metav1.UpdateOptions) (result *v1.Token, err error) {
-	result = &v1.Token{}
-	err = c.client.Put().
-		Resource("tokens").
-		Name(token.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(token).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the token and deletes it. Returns an error if one occurs.
-func (c *tokens) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete().
-		Resource("tokens").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *tokens) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Resource("tokens").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched token.
-func (c *tokens) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Token, err error) {
-	result = &v1.Token{}
-	err = c.client.Patch(pt).
-		Resource("tokens").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

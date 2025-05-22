@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -94,4 +95,21 @@ func MergeYAML(originYaml, overwriteYaml string) (string, error) {
 	}
 
 	return string(mergedYAML), nil
+}
+
+// EqualIgnoreOrder compares two slices without considering element order
+func EqualIgnoreOrder(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	aCopy := append([]string(nil), a...)
+	bCopy := append([]string(nil), b...)
+	sort.Strings(aCopy)
+	sort.Strings(bCopy)
+	for i := range aCopy {
+		if aCopy[i] != bCopy[i] {
+			return false
+		}
+	}
+	return true
 }

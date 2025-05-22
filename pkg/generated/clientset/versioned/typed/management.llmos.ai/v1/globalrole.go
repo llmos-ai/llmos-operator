@@ -18,15 +18,14 @@ limitations under the License.
 package v1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
+	managementllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	scheme "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // GlobalRolesGetter has a method to return a GlobalRoleInterface.
@@ -37,147 +36,34 @@ type GlobalRolesGetter interface {
 
 // GlobalRoleInterface has methods to work with GlobalRole resources.
 type GlobalRoleInterface interface {
-	Create(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.CreateOptions) (*v1.GlobalRole, error)
-	Update(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (*v1.GlobalRole, error)
-	UpdateStatus(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (*v1.GlobalRole, error)
+	Create(ctx context.Context, globalRole *managementllmosaiv1.GlobalRole, opts metav1.CreateOptions) (*managementllmosaiv1.GlobalRole, error)
+	Update(ctx context.Context, globalRole *managementllmosaiv1.GlobalRole, opts metav1.UpdateOptions) (*managementllmosaiv1.GlobalRole, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, globalRole *managementllmosaiv1.GlobalRole, opts metav1.UpdateOptions) (*managementllmosaiv1.GlobalRole, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.GlobalRole, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.GlobalRoleList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*managementllmosaiv1.GlobalRole, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*managementllmosaiv1.GlobalRoleList, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.GlobalRole, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *managementllmosaiv1.GlobalRole, err error)
 	GlobalRoleExpansion
 }
 
 // globalRoles implements GlobalRoleInterface
 type globalRoles struct {
-	client rest.Interface
+	*gentype.ClientWithList[*managementllmosaiv1.GlobalRole, *managementllmosaiv1.GlobalRoleList]
 }
 
 // newGlobalRoles returns a GlobalRoles
 func newGlobalRoles(c *ManagementV1Client) *globalRoles {
 	return &globalRoles{
-		client: c.RESTClient(),
+		gentype.NewClientWithList[*managementllmosaiv1.GlobalRole, *managementllmosaiv1.GlobalRoleList](
+			"globalroles",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			"",
+			func() *managementllmosaiv1.GlobalRole { return &managementllmosaiv1.GlobalRole{} },
+			func() *managementllmosaiv1.GlobalRoleList { return &managementllmosaiv1.GlobalRoleList{} },
+		),
 	}
-}
-
-// Get takes name of the globalRole, and returns the corresponding globalRole object, and an error if there is any.
-func (c *globalRoles) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.GlobalRole, err error) {
-	result = &v1.GlobalRole{}
-	err = c.client.Get().
-		Resource("globalroles").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of GlobalRoles that match those selectors.
-func (c *globalRoles) List(ctx context.Context, opts metav1.ListOptions) (result *v1.GlobalRoleList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1.GlobalRoleList{}
-	err = c.client.Get().
-		Resource("globalroles").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested globalRoles.
-func (c *globalRoles) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Resource("globalroles").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a globalRole and creates it.  Returns the server's representation of the globalRole, and an error, if there is any.
-func (c *globalRoles) Create(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.CreateOptions) (result *v1.GlobalRole, err error) {
-	result = &v1.GlobalRole{}
-	err = c.client.Post().
-		Resource("globalroles").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(globalRole).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a globalRole and updates it. Returns the server's representation of the globalRole, and an error, if there is any.
-func (c *globalRoles) Update(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (result *v1.GlobalRole, err error) {
-	result = &v1.GlobalRole{}
-	err = c.client.Put().
-		Resource("globalroles").
-		Name(globalRole.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(globalRole).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *globalRoles) UpdateStatus(ctx context.Context, globalRole *v1.GlobalRole, opts metav1.UpdateOptions) (result *v1.GlobalRole, err error) {
-	result = &v1.GlobalRole{}
-	err = c.client.Put().
-		Resource("globalroles").
-		Name(globalRole.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(globalRole).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the globalRole and deletes it. Returns an error if one occurs.
-func (c *globalRoles) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete().
-		Resource("globalroles").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *globalRoles) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Resource("globalroles").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched globalRole.
-func (c *globalRoles) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.GlobalRole, err error) {
-	result = &v1.GlobalRole{}
-	err = c.client.Patch(pt).
-		Resource("globalroles").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

@@ -1,53 +1,14 @@
+version: "2"
 run:
-  timeout: 5m
   allow-parallel-runners: true
-
-issues:
-  # don't skip warning about doc comments
-  # don't exclude the default set of lint
-  exclude-use-default: false
-  # restore some of the defaults
-  # (fill in the rest as needed)
-  exclude-dirs:
-    - "tmp"
-    - "pkg/generated/*"
-  exclude-rules:
-    - path: "pkg/generated/*"
-      linters:
-        - errcheck
-        - unused
-        - gosimple
-        - gocyclo
-        - unparam
-        - typecheck
-    - path: "cmd/*"
-      linters:
-        - lll
-    - path: "api/*"
-      linters:
-        - lll
-    - path: "internal/*"
-      linters:
-        - dupl
-        - lll
-    - path: "pkg/utils/fakeclients/*"
-      linters:
-        - dupl
-        - lll
-    - path: "^*_test.go"
-      linters:
-        - lll
 linters:
-  disable-all: true
+  default: none
   enable:
+    - copyloopvar
     - dupl
     - errcheck
-    - copyloopvar
     - goconst
     - gocyclo
-    - gofmt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
     - lll
@@ -55,7 +16,51 @@ linters:
     - nakedret
     - prealloc
     - staticcheck
-    - typecheck
     - unconvert
     - unparam
     - unused
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - errcheck
+          - gocyclo
+          - staticcheck
+          - unparam
+          - unused
+        path: pkg/generated/*
+      - linters:
+          - lll
+        path: cmd/*
+      - linters:
+          - lll
+        path: api/*
+      - linters:
+          - dupl
+          - lll
+        path: internal/*
+      - linters:
+          - dupl
+          - lll
+        path: pkg/utils/fakeclients/*
+      - linters:
+          - lll
+        path: ^*_test.go
+    paths:
+      - tmp
+      - pkg/generated/*
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - tmp
+      - pkg/generated/*
+      - third_party$
+      - builtin$
+      - examples$

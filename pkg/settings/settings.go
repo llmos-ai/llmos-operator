@@ -149,7 +149,7 @@ func NewSetting(name, def string) Setting {
 }
 
 func GetEnvKey(key string) string {
-	return "LLMOS_" + strings.ToUpper(strings.Replace(key, "-", "_", -1))
+	return "LLMOS_" + strings.ToUpper(strings.ReplaceAll(key, "-", "_"))
 }
 
 func IsRelease() bool {

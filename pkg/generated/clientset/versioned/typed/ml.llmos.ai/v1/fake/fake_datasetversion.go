@@ -18,123 +18,32 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	mlllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeDatasetVersions implements DatasetVersionInterface
-type FakeDatasetVersions struct {
+// fakeDatasetVersions implements DatasetVersionInterface
+type fakeDatasetVersions struct {
+	*gentype.FakeClientWithList[*v1.DatasetVersion, *v1.DatasetVersionList]
 	Fake *FakeMlV1
-	ns   string
 }
 
-var datasetversionsResource = v1.SchemeGroupVersion.WithResource("datasetversions")
-
-var datasetversionsKind = v1.SchemeGroupVersion.WithKind("DatasetVersion")
-
-// Get takes name of the datasetVersion, and returns the corresponding datasetVersion object, and an error if there is any.
-func (c *FakeDatasetVersions) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.DatasetVersion, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(datasetversionsResource, c.ns, name), &v1.DatasetVersion{})
-
-	if obj == nil {
-		return nil, err
+func newFakeDatasetVersions(fake *FakeMlV1, namespace string) mlllmosaiv1.DatasetVersionInterface {
+	return &fakeDatasetVersions{
+		gentype.NewFakeClientWithList[*v1.DatasetVersion, *v1.DatasetVersionList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("datasetversions"),
+			v1.SchemeGroupVersion.WithKind("DatasetVersion"),
+			func() *v1.DatasetVersion { return &v1.DatasetVersion{} },
+			func() *v1.DatasetVersionList { return &v1.DatasetVersionList{} },
+			func(dst, src *v1.DatasetVersionList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.DatasetVersionList) []*v1.DatasetVersion { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.DatasetVersionList, items []*v1.DatasetVersion) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1.DatasetVersion), err
-}
-
-// List takes label and field selectors, and returns the list of DatasetVersions that match those selectors.
-func (c *FakeDatasetVersions) List(ctx context.Context, opts metav1.ListOptions) (result *v1.DatasetVersionList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(datasetversionsResource, datasetversionsKind, c.ns, opts), &v1.DatasetVersionList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.DatasetVersionList{ListMeta: obj.(*v1.DatasetVersionList).ListMeta}
-	for _, item := range obj.(*v1.DatasetVersionList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested datasetVersions.
-func (c *FakeDatasetVersions) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(datasetversionsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a datasetVersion and creates it.  Returns the server's representation of the datasetVersion, and an error, if there is any.
-func (c *FakeDatasetVersions) Create(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.CreateOptions) (result *v1.DatasetVersion, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(datasetversionsResource, c.ns, datasetVersion), &v1.DatasetVersion{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.DatasetVersion), err
-}
-
-// Update takes the representation of a datasetVersion and updates it. Returns the server's representation of the datasetVersion, and an error, if there is any.
-func (c *FakeDatasetVersions) Update(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (result *v1.DatasetVersion, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(datasetversionsResource, c.ns, datasetVersion), &v1.DatasetVersion{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.DatasetVersion), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeDatasetVersions) UpdateStatus(ctx context.Context, datasetVersion *v1.DatasetVersion, opts metav1.UpdateOptions) (*v1.DatasetVersion, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(datasetversionsResource, "status", c.ns, datasetVersion), &v1.DatasetVersion{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.DatasetVersion), err
-}
-
-// Delete takes name of the datasetVersion and deletes it. Returns an error if one occurs.
-func (c *FakeDatasetVersions) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(datasetversionsResource, c.ns, name, opts), &v1.DatasetVersion{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeDatasetVersions) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(datasetversionsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.DatasetVersionList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched datasetVersion.
-func (c *FakeDatasetVersions) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.DatasetVersion, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(datasetversionsResource, c.ns, name, pt, data, subresources...), &v1.DatasetVersion{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.DatasetVersion), err
 }

@@ -33,7 +33,7 @@ func SplitTokenParts(tokenID string) (string, string) {
 
 func SetTokenExpiresAt(token *mgmtv1.Token) {
 	if token.Spec.TTLSeconds != 0 {
-		created := token.ObjectMeta.CreationTimestamp.Time
+		created := token.CreationTimestamp.Time
 		ttlDuration := time.Duration(token.Spec.TTLSeconds) * time.Second
 		expiresAtTime := created.Add(ttlDuration)
 		token.Status.ExpiresAt = metav1.NewTime(expiresAtTime)
@@ -45,7 +45,7 @@ func IsExpired(token *mgmtv1.Token) bool {
 		return false
 	}
 
-	created := token.ObjectMeta.CreationTimestamp.Time
+	created := token.CreationTimestamp.Time
 	durationElapsed := time.Since(created)
 
 	ttlDuration := time.Duration(token.Spec.TTLSeconds) * time.Second

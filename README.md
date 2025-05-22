@@ -9,7 +9,7 @@ LLMOS-Operator is a Kubernetes controller that helps to manage the lifecycle and
 ## Getting Started
 
 ### Prerequisites
-- Go version v1.23.0+
+- Go version v1.24.0+
 - Kubectl version v1.29.0+.
 - Access to a Kubernetes v1.29.0+ cluster.
 - Helm v3.0.0+

@@ -119,10 +119,7 @@ func (m *Manager) Logout(req *http.Request, rw http.ResponseWriter) error {
 		return ErrInvalidTokenFormat
 	}
 
-	isSecure := false
-	if req.URL.Scheme == "https" {
-		isSecure = true
-	}
+	isSecure := req.URL.Scheme == "https"
 
 	for _, cookieName := range toDeleteCookies {
 		tokenCookie := &http.Cookie{

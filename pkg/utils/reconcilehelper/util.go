@@ -19,12 +19,12 @@ func CopyStatefulSetFields(from, to *appsv1.StatefulSet) (bool, bool) {
 	requireRedeploy := checkRequireRedeploy(from.Spec.Template.Spec.Containers[0], to.Spec.Template.Spec.Containers[0])
 	// Check if pod need to redeployed
 	if requireRedeploy {
-		if from.Spec.Template.ObjectMeta.Annotations == nil {
-			from.Spec.Template.ObjectMeta.Annotations = make(map[string]string)
+		if from.Spec.Template.Annotations == nil {
+			from.Spec.Template.Annotations = make(map[string]string)
 		}
-		from.Spec.Template.ObjectMeta.Annotations[constant.TimestampAnno] = time.Now().UTC().Format(constant.TimeLayout)
+		from.Spec.Template.Annotations[constant.TimestampAnno] = time.Now().UTC().Format(constant.TimeLayout)
 	} else {
-		from.Spec.Template.ObjectMeta.Annotations = to.Spec.Template.ObjectMeta.Annotations
+		from.Spec.Template.Annotations = to.Spec.Template.Annotations
 	}
 
 	if to.Labels == nil {

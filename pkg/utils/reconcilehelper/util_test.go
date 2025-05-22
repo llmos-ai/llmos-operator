@@ -180,7 +180,7 @@ func TestCopyStatefulSetFields(t *testing.T) {
 		// Expect annotation to be copied and updated
 		assert.True(t, requireUpdate)
 		assert.True(t, requireRedeploy)
-		assert.Equal(t, from.ObjectMeta.Annotations, to.ObjectMeta.Annotations)
+		assert.Equal(t, from.Annotations, to.Annotations)
 	})
 }
 

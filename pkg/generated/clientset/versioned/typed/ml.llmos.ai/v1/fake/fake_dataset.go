@@ -18,123 +18,30 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	mlllmosaiv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ml.llmos.ai/v1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeDatasets implements DatasetInterface
-type FakeDatasets struct {
+// fakeDatasets implements DatasetInterface
+type fakeDatasets struct {
+	*gentype.FakeClientWithList[*v1.Dataset, *v1.DatasetList]
 	Fake *FakeMlV1
-	ns   string
 }
 
-var datasetsResource = v1.SchemeGroupVersion.WithResource("datasets")
-
-var datasetsKind = v1.SchemeGroupVersion.WithKind("Dataset")
-
-// Get takes name of the dataset, and returns the corresponding dataset object, and an error if there is any.
-func (c *FakeDatasets) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Dataset, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(datasetsResource, c.ns, name), &v1.Dataset{})
-
-	if obj == nil {
-		return nil, err
+func newFakeDatasets(fake *FakeMlV1, namespace string) mlllmosaiv1.DatasetInterface {
+	return &fakeDatasets{
+		gentype.NewFakeClientWithList[*v1.Dataset, *v1.DatasetList](
+			fake.Fake,
+			namespace,
+			v1.SchemeGroupVersion.WithResource("datasets"),
+			v1.SchemeGroupVersion.WithKind("Dataset"),
+			func() *v1.Dataset { return &v1.Dataset{} },
+			func() *v1.DatasetList { return &v1.DatasetList{} },
+			func(dst, src *v1.DatasetList) { dst.ListMeta = src.ListMeta },
+			func(list *v1.DatasetList) []*v1.Dataset { return gentype.ToPointerSlice(list.Items) },
+			func(list *v1.DatasetList, items []*v1.Dataset) { list.Items = gentype.FromPointerSlice(items) },
+		),
+		fake,
 	}
-	return obj.(*v1.Dataset), err
-}
-
-// List takes label and field selectors, and returns the list of Datasets that match those selectors.
-func (c *FakeDatasets) List(ctx context.Context, opts metav1.ListOptions) (result *v1.DatasetList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(datasetsResource, datasetsKind, c.ns, opts), &v1.DatasetList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1.DatasetList{ListMeta: obj.(*v1.DatasetList).ListMeta}
-	for _, item := range obj.(*v1.DatasetList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested datasets.
-func (c *FakeDatasets) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(datasetsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a dataset and creates it.  Returns the server's representation of the dataset, and an error, if there is any.
-func (c *FakeDatasets) Create(ctx context.Context, dataset *v1.Dataset, opts metav1.CreateOptions) (result *v1.Dataset, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(datasetsResource, c.ns, dataset), &v1.Dataset{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Dataset), err
-}
-
-// Update takes the representation of a dataset and updates it. Returns the server's representation of the dataset, and an error, if there is any.
-func (c *FakeDatasets) Update(ctx context.Context, dataset *v1.Dataset, opts metav1.UpdateOptions) (result *v1.Dataset, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(datasetsResource, c.ns, dataset), &v1.Dataset{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Dataset), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeDatasets) UpdateStatus(ctx context.Context, dataset *v1.Dataset, opts metav1.UpdateOptions) (*v1.Dataset, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(datasetsResource, "status", c.ns, dataset), &v1.Dataset{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Dataset), err
-}
-
-// Delete takes name of the dataset and deletes it. Returns an error if one occurs.
-func (c *FakeDatasets) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(datasetsResource, c.ns, name, opts), &v1.Dataset{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeDatasets) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(datasetsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1.DatasetList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched dataset.
-func (c *FakeDatasets) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Dataset, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(datasetsResource, c.ns, name, pt, data, subresources...), &v1.Dataset{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1.Dataset), err
 }
