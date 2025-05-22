@@ -1,0 +1,10 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: llmos-ceph-block-snapshot-class
+driver: storage-system.rbd.csi.ceph.com
+parameters:
+  clusterID: storage-system
+  csi.storage.k8s.io/snapshotter-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/snapshotter-secret-namespace: storage-system
+deletionPolicy: Delete

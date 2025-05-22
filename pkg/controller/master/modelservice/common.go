@@ -205,8 +205,12 @@ func buildArgs(ms *mlv1.ModelService) []string {
 		args = append([]string{}, ms.Spec.Template.Spec.Containers[0].Args...)
 	}
 
+	modelName := ms.Spec.ModelName
+	if ms.Spec.ModelRegistry == "local" {
+		modelName = "/root/.cache/huggingface/hub/models/" + ms.Spec.ModelName
+	}
 	specArgs := map[string]string{
-		"--model":             ms.Spec.ModelName,
+		"--model":             modelName,
 		"--served-model-name": ms.Spec.ServedModelName,
 	}
 

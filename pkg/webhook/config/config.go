@@ -15,6 +15,7 @@ import (
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai"
 	rayv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ray.io"
+	storagev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/storage.k8s.io"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 )
 
@@ -23,13 +24,14 @@ type Management struct {
 	ReleaseName string
 	RestConfig  *rest.Config
 
-	MgmtFactory *mgmtv1.Factory
-	LLMFactory  *mlv1.Factory
-	CoreFactory *corev1.Factory
-	AppsFactory *appsv1.Factory
-	RayFactory  *rayv1.Factory
-	HelmFactory *helmv1.Factory
-	starters    []start.Starter
+	MgmtFactory    *mgmtv1.Factory
+	LLMFactory     *mlv1.Factory
+	CoreFactory    *corev1.Factory
+	AppsFactory    *appsv1.Factory
+	RayFactory     *rayv1.Factory
+	HelmFactory    *helmv1.Factory
+	StorageFactory *storagev1.Factory
+	starters       []start.Starter
 }
 
 func SetupManagement(ctx context.Context, restConfig *rest.Config, releaseName string) (*Management, error) {
@@ -87,6 +89,13 @@ func SetupManagement(ctx context.Context, restConfig *rest.Config, releaseName s
 	}
 	mgmt.HelmFactory = helm
 	mgmt.starters = append(mgmt.starters, helm)
+
+	storage, err := storagev1.NewFactoryFromConfigWithOptions(restConfig, factoryOpts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.StorageFactory = storage
+	mgmt.starters = append(mgmt.starters, storage)
 
 	return mgmt, nil
 }

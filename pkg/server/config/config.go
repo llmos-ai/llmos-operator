@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 
+	snapshotstoragev1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/snapshot.storage.k8s.io"
 	"github.com/rancher/wrangler/v3/pkg/apply"
 	appsv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/apps"
 	batchv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/batch"
@@ -54,18 +55,19 @@ type Management struct {
 	Apply     apply.Apply
 	EntClient *ent.Client
 
-	CoreFactory    *corev1.Factory
-	AppsFactory    *appsv1.Factory
-	RbacFactory    *rbacv1.Factory
-	BatchFactory   *batchv1.Factory
-	StorageFactory *storagev1.Factory
-	MgmtFactory    *ctlmgmtv1.Factory
-	UpgradeFactory *upgradev1.Factory
-	LLMFactory     *ctlmlv1.Factory
-	KubeRayFactory *kuberayv1.Factory
-	NvidiaFactory  *nvidiav1.Factory
-	RookFactory    *rookv1.Factory
-	HelmFactory    *helmv1.Factory
+	CoreFactory     *corev1.Factory
+	AppsFactory     *appsv1.Factory
+	RbacFactory     *rbacv1.Factory
+	BatchFactory    *batchv1.Factory
+	StorageFactory  *storagev1.Factory
+	SnapshotFactory *snapshotstoragev1.Factory
+	MgmtFactory     *ctlmgmtv1.Factory
+	UpgradeFactory  *upgradev1.Factory
+	LLMFactory      *ctlmlv1.Factory
+	KubeRayFactory  *kuberayv1.Factory
+	NvidiaFactory   *nvidiav1.Factory
+	RookFactory     *rookv1.Factory
+	HelmFactory     *helmv1.Factory
 
 	starters []start.Starter
 }
@@ -155,6 +157,13 @@ func setupManagement(ctx context.Context, restConfig *rest.Config, opts *generic
 	}
 	mgmt.StorageFactory = storage
 	mgmt.starters = append(mgmt.starters, storage)
+
+	snapshot, err := snapshotstoragev1.NewFactoryFromConfigWithOptions(restConfig, opts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.SnapshotFactory = snapshot
+	mgmt.starters = append(mgmt.starters, snapshot)
 
 	llmosMgmt, err := ctlmgmtv1.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
