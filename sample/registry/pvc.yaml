@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test
+  namespace: default
+spec:
+  storageClassName: llmos-ceph-block
+  dataSource:
+    name: models-llam-2-wdfbl
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi

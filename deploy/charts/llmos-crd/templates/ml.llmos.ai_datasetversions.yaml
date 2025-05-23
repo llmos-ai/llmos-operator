@@ -67,8 +67,6 @@ spec:
                 type: object
               dataset:
                 type: string
-              enableFastLoading:
-                type: boolean
               version:
                 type: string
             required:
@@ -108,8 +106,6 @@ spec:
               registry:
                 type: string
               rootPath:
-                type: string
-              snapshot:
                 type: string
             required:
             - registry

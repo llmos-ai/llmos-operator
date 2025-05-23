@@ -147,6 +147,54 @@ dockers:
       - package/entrypoint-webhook.sh
       - scripts
 
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    dockerfile: package/Dockerfile-downloader
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-amd64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
+      - "--platform=linux/amd64"
+    extra_files:
+      - package/entrypoint-downloader.sh
+      - scripts
+
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    dockerfile: package/Dockerfile-downloader
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-arm64"
+    build_flag_templates:
+      - "--builder={{ .Env.BUILDER }}"
+      - "--pull"
+      - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
+      - "--build-arg=DATE={{.Date}}"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
+      - "--platform=linux/arm64"
+    extra_files:
+      - package/entrypoint-downloader.sh
+      - scripts
+
 docker_manifests:
   - use: docker
     name_template: "{{ .Env.REGISTRY }}/llmos-operator:{{ .Env.VERSION }}"
@@ -168,5 +216,15 @@ docker_manifests:
     image_templates:
       - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-webhook:{{ .Env.VERSION }}-arm64"
+  - use: docker
+    name_template: "{{ .Env.REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-arm64"
+  - use: docker
+    name_template: "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}"
+    image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-arm64"
 
 dist: dist/cli

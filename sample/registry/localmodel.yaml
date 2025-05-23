@@ -1,0 +1,17 @@
+apiVersion: ml.llmos.ai/v1
+kind: LocalModel
+metadata:
+  name: local-llama-2
+  namespace: default
+spec:
+  registry: minio
+  modelName: default/llama-2
+  defaultVersion: local-llama-2-v1
+---
+apiVersion: ml.llmos.ai/v1
+kind: LocalModelVersion
+metadata:
+  name: local-llama-2-v1
+  namespace: default
+spec:
+  localModel: local-llama-2

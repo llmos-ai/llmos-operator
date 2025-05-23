@@ -21,6 +21,10 @@ type DatasetExpansion interface{}
 
 type DatasetVersionExpansion interface{}
 
+type LocalModelExpansion interface{}
+
+type LocalModelVersionExpansion interface{}
+
 type ModelExpansion interface{}
 
 type ModelServiceExpansion interface{}

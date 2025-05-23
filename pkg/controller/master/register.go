@@ -8,6 +8,7 @@ import (
 
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/dataset"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/globalrole"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/localmodel"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/model"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/modelservice"
@@ -46,6 +47,7 @@ var registerFuncs = []registerFunc{
 	registry.Register,
 	dataset.Register,
 	model.Register,
+	localmodel.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management, opts config.Options) error {

@@ -61,4 +61,6 @@ type ModelMetaData struct {
 	BaseModel         string   `json:"baseModel,omitempty"`         // Base model information
 }
 
-var Ready condition.Cond = "ready"
+var (
+	Ready condition.Cond = "ready"
+)

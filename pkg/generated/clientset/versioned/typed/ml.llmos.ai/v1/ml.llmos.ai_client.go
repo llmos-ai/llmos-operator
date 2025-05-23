@@ -29,6 +29,8 @@ type MlV1Interface interface {
 	RESTClient() rest.Interface
 	DatasetsGetter
 	DatasetVersionsGetter
+	LocalModelsGetter
+	LocalModelVersionsGetter
 	ModelsGetter
 	ModelServicesGetter
 	NotebooksGetter
@@ -46,6 +48,14 @@ func (c *MlV1Client) Datasets(namespace string) DatasetInterface {
 
 func (c *MlV1Client) DatasetVersions(namespace string) DatasetVersionInterface {
 	return newDatasetVersions(c, namespace)
+}
+
+func (c *MlV1Client) LocalModels(namespace string) LocalModelInterface {
+	return newLocalModels(c, namespace)
+}
+
+func (c *MlV1Client) LocalModelVersions(namespace string) LocalModelVersionInterface {
+	return newLocalModelVersions(c, namespace)
 }
 
 func (c *MlV1Client) Models(namespace string) ModelInterface {

@@ -39,6 +39,7 @@ var (
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
 	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")
+	ModelDownloaderImage      = NewSetting(ModelDownloaderImageName, "ghcr.io/llmos-ai/downloader:main-head")
 )
 
 const (
@@ -56,6 +57,7 @@ const (
 	RayClusterDefaultVersionName     = "ray-cluster-default-version"
 	GlobalSystemImageRegistryName    = "global-system-image-registry"
 	HuggingFaceEndpointName          = "huggingface-endpoint"
+	ModelDownloaderImageName         = "model-downloader-image"
 )
 
 func init() {
