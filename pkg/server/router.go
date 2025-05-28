@@ -36,8 +36,11 @@ func (r *Router) Routes() http.Handler {
 	authHandler := auth.NewAuthHandler(r.scaled)
 	m.Path("/v1-public/auth").Handler(authHandler)
 
-	proxyHandler := proxy.NewHandler()
-	m.PathPrefix("/proxy").Handler(proxyHandler)
+	modelsProxyHandler := proxy.NewModelsHandler()
+	m.PathPrefix("/proxy/models").Handler(modelsProxyHandler)
+
+	reverseProxy := proxy.NewProxyHandler()
+	m.PathPrefix("/proxy").Handler(reverseProxy)
 
 	m.Handle("/", http.RedirectHandler("/dashboard/", http.StatusFound))
 

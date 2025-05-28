@@ -16,6 +16,7 @@ var ReservedSystemNamespaces = []string{
 	constant.LLMOSMonitoringNamespaceName,
 	constant.LLMOSGPUStackNamespaceName,
 	constant.LLMOSDBNamespaceName,
+	constant.LLMOSAgentsNamespaceName,
 }
 
 func addDefaultNamespaces(apply apply.Apply) error {
