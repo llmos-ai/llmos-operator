@@ -159,6 +159,25 @@ func constructDefaultGlobalRole() []runtime.Object {
 				},
 			},
 			NamespacedRules: map[string][]rbacv1.PolicyRule{
+				constant.LLMOSAgentsNamespaceName: {
+					{
+						APIGroups: []string{
+							"",
+						},
+						Resources: []string{
+							"persistentvolumeclaims",
+							"configmaps",
+							"services",
+							"pods",
+							"events",
+						},
+						Verbs: []string{
+							"get",
+							"list",
+							"watch",
+						},
+					},
+				},
 				constant.PublicNamespaceName: {
 					{
 						APIGroups: []string{
