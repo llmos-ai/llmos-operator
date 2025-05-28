@@ -13,6 +13,7 @@ const (
 	StorageSystemNamespaceName   = "storage-system"
 	LLMOSDBNamespaceName         = "llmos-db-system"
 	PublicNamespaceName          = "llmos-public"
+	LLMOSAgentsNamespaceName     = "llmos-agents"
 	LLMOSMonitoringNamespaceName = "llmos-monitoring-system"
 	LLMOSGPUStackNamespaceName   = "llmos-gpu-stack-system"
 	SUCNamespace                 = "system-upgrade"

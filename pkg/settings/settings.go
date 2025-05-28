@@ -35,10 +35,12 @@ var (
 	UpgradeCheckUrl           = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
 	LogLevel                  = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
 	ManagedAddonConfigs       = NewSetting(ManagedAddonConfigsName, "")
-	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "llmos-ai/mirrored-vllm-vllm-openai:v0.8.2")
+	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "llmos-ai/mirrored-vllm-vllm-openai:v0.8.5-post1")
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
 	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")
+	ProxyAppsServerUrl        = NewSetting(ProxyAppsServerUrlName, "http://llmos-agents-langflow-backend.llmos-agents:7860")
+	ProxyVectorServerUrl      = NewSetting(ProxyVectorDBServerUrlName, "http://weaviate.llmos-agents:80")
 )
 
 const (
@@ -56,6 +58,8 @@ const (
 	RayClusterDefaultVersionName     = "ray-cluster-default-version"
 	GlobalSystemImageRegistryName    = "global-system-image-registry"
 	HuggingFaceEndpointName          = "huggingface-endpoint"
+	ProxyAppsServerUrlName           = "proxy-apps-server-url"
+	ProxyVectorDBServerUrlName       = "proxy-vector-db-server-url"
 )
 
 func init() {

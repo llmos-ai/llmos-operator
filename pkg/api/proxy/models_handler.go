@@ -14,8 +14,8 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
-// Handler proxies requests to the url
-type Handler struct {
+// ModelsHandler proxies requests to the url
+type ModelsHandler struct {
 	Scheme string
 	Host   string
 }
@@ -48,15 +48,15 @@ var (
 	}
 )
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewModelsHandler() *ModelsHandler {
+	return &ModelsHandler{}
 }
 
-func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	proxyHandler(rw, req)
+func (h *ModelsHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	modelsProxyHandler(rw, req)
 }
 
-func proxyHandler(w http.ResponseWriter, r *http.Request) {
+func modelsProxyHandler(w http.ResponseWriter, r *http.Request) {
 	urlStr := r.URL.Query().Get("url")
 	hfToken := r.URL.Query().Get("hf_token")
 	if urlStr == "" {
