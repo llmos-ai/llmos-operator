@@ -188,3 +188,65 @@ func TestCopyStatefulSetFields(t *testing.T) {
 func pointerInt32(i int32) *int32 {
 	return &i
 }
+
+// TestEqualIgnoreOrder covers a handful of scenarios where two string slices
+// should be considered equal (ignoring order) or not.
+func TestEqualIgnoreOrder(t *testing.T) {
+	tests := []struct {
+		name string
+		a, b []string
+		want bool
+	}{
+		{
+			name: "both empty",
+			a:    []string{},
+			b:    []string{},
+			want: true,
+		},
+		{
+			name: "same elements, same order",
+			a:    []string{"--task=embed", "--model=BAAI/bge-m3", "--tensor-parallel-size=1"},
+			b:    []string{"--task=embed", "--model=BAAI/bge-m3", "--tensor-parallel-size=1"},
+			want: true,
+		},
+		{
+			name: "same elements, different order",
+			a:    []string{"--task=embed", "--model=BAAI/bge-m3", "--tensor-parallel-size=1"},
+			b:    []string{"--tensor-parallel-size=1", "--task=embed", "--model=BAAI/bge-m3"},
+			want: true,
+		},
+		{
+			name: "different elements",
+			a:    []string{"--task=embed", "--model=BAAI/bge-m3"},
+			b:    []string{"--task=embed", "--model=BAAI/other-model"},
+			want: false,
+		},
+		{
+			name: "different lengths",
+			a:    []string{"--task=embed", "--model=BAAI/bge-m3"},
+			b:    []string{"--task=embed"},
+			want: false,
+		},
+		{
+			name: "duplicates same count, different order",
+			a:    []string{"--x", "--y", "--x"},
+			b:    []string{"--x", "--x", "--y"},
+			want: true,
+		},
+		{
+			name: "duplicates different count",
+			a:    []string{"--x", "--y", "--x"},
+			b:    []string{"--x", "--y", "--y"},
+			want: false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := equalIgnoreOrder(tc.a, tc.b)
+			if got != tc.want {
+				t.Errorf("equalIgnoreOrder(%v, %v) = %v; want %v", tc.a, tc.b, got, tc.want)
+			}
+		})
+	}
+}

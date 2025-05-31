@@ -76,10 +76,10 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 					Port: intstr.FromInt32(containerPort),
 				},
 			},
-			InitialDelaySeconds: 90,
+			InitialDelaySeconds: 60,
 			FailureThreshold:    30,
 			PeriodSeconds:       10,
-			TimeoutSeconds:      5,
+			TimeoutSeconds:      3,
 		}
 	}
 

@@ -2,6 +2,7 @@ package reconcilehelper
 
 import (
 	"reflect"
+	"sort"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -74,19 +75,39 @@ func checkRequireRedeploy(from, to corev1.Container) bool {
 	if !reflect.DeepEqual(to.Env, from.Env) {
 		return true
 	}
-	if !reflect.DeepEqual(to.Args, from.Args) {
-		return true
-	}
-	if !reflect.DeepEqual(to.Command, from.Command) {
-		return true
-	}
 	if !reflect.DeepEqual(to.Image, from.Image) {
 		return true
 	}
 	if !reflect.DeepEqual(to.Resources, from.Resources) {
 		return true
 	}
+	if !equalIgnoreOrder(to.Args, from.Args) {
+		return true
+	}
+	if !equalIgnoreOrder(to.Command, from.Command) {
+		return true
+	}
 	return false
+}
+
+// equalIgnoreOrder returns true if the two slices contain exactly
+// the same elements (string by string), but order doesn’t matter.
+func equalIgnoreOrder(a, b []string) bool {
+	// Quick length check
+	if len(a) != len(b) {
+		return false
+	}
+
+	// Make copies so we don’t disturb the original slices
+	aCopy := append([]string(nil), a...)
+	bCopy := append([]string(nil), b...)
+
+	// Sort in place
+	sort.Strings(aCopy)
+	sort.Strings(bCopy)
+
+	// Now they must match exactly, index by index
+	return reflect.DeepEqual(aCopy, bCopy)
 }
 
 func CopyDeploymentFields(from, to *appsv1.Deployment) bool {
