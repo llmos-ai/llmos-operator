@@ -69,3 +69,8 @@ dependencies:
     repository: "https://llmos-charts.1block.ai"
     tags:
       - llmos-monitoring
+  - name: llmos-agents
+    version: 0.1.0-rc1
+    repository: "https://llmos-charts.1block.ai"
+    tags:
+      - llmos-agents
