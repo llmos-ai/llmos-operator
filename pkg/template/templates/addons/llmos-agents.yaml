@@ -1,0 +1,121 @@
+apiVersion: management.llmos.ai/v1
+kind: ManagedAddon
+metadata:
+  name: llmos-agents
+  namespace: llmos-agents
+  labels:
+    llmos.ai/system-addon: "true"
+    llmos.ai/system-addon-allow-edit: "true"
+    llmos.ai/cluster-tools: "true"
+  annotations:
+    field.llmos.ai/description: "llmos-agents is a lightweight orchestration layer for managing AI agents, seamlessly integrating vector databases and LLM tools to enable contextual memory, dynamic reasoning, and intelligent task execution."
+spec:
+  repo: http://system-charts-repo.llmos-system.svc
+  chart: llmos-agents
+  version: 0.1.0-rc1
+  enabled: false
+  defaultValuesContent: |-
+    langflow:
+      backend:
+        logLevel: INFO
+        replicaCount: 1
+        service:
+          type: ClusterIP
+          port: 7860
+        backendOnly: true
+        numWorkers: 1
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-langflowai-langflow
+          imagePullPolicy: IfNotPresent
+          tag: 1.4.2
+        command:
+          - python
+          - -m
+          - langflow
+          - run
+          - --host
+          - 0.0.0.0
+          - --backend-only
+        resources:
+          requests:
+            cpu: 0.5
+            memory: 1Gi
+          limits:
+            cpu: 4
+            memory: 8Gi
+      frontend:
+        enabled: true
+        replicaCount: 1
+        service:
+          type: LoadBalancer
+          port: 8080
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-langflowai-langflow-frontend
+          tag: 1.4.2
+          imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 2Gi
+
+    postgresql:
+      enabled: true
+      name: postgres
+      image:
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-bitnami-postgresql
+        tag: 17.5.0-debian-12-r6
+      global:
+        storageClass: ""
+        security:
+          allowInsecureImages: true
+        postgresql:
+          auth:
+            postgresPassword: "llmos-agents@123"
+            username: "langflow"
+            password: ""
+            database: "langflow"
+      architecture: replication
+      primary:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 2
+            memory: 1024Mi
+        persistence:
+          enabled: true
+          storageClass: ""
+          accessModes:
+            - ReadWriteOnce
+          size: 8Gi
+      readReplicas:
+        persistence:
+          enabled: true
+          storageClass: ""
+          accessModes:
+            - ReadWriteOnce
+          size: 8Gi
+
+    weaviate:
+      enabled: true
+      image:
+        registry: ghcr.io
+        repo: llmos-ai/mirrored-semitechnologies-weaviate
+        tag: 1.30.6
+      resources:
+        requests:
+          cpu: 200m
+          memory: 300Mi
+        limits:
+          cpu: 2
+          memory: 2Gi
+      storage:
+        size: 32Gi
+        storageClassName: ""
