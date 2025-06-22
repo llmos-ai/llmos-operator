@@ -30,6 +30,7 @@ func NewHandler(scaled *config.Scaled) Handler {
 		Ctx:                    scaled.Ctx,
 		GetRegistryAndRootPath: h.GetRegistryAndRootPath,
 		RegistryManager:        registry.NewManager(secretCache.Get, registryCache.Get),
+		PostHooks:              make(map[string]cr.PostHook),
 	}
 
 	return h

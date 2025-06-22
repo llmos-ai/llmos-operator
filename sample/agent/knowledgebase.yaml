@@ -1,0 +1,13 @@
+apiVersion: agent.llmos.ai/v1
+kind: KnowledgeBase
+metadata:
+  name: my-knowledge-base
+  namespace: default
+spec:
+  embeddingModel: "default/bge-m3"
+  chunkingConfig:
+    size: 1000
+    overlap: 200
+  importingFiles:
+  - dataCollectionName: "my-documents"
+    uid: b6285e50efbc6512d4de17fea020ae387641e4615505f00c4a57f8e2728c9be4

@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/rest"
 
 	"github.com/llmos-ai/llmos-operator/pkg/config"
+	ctlagentv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/agent.llmos.ai"
 	rookv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ceph.rook.io"
 	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/helm.cattle.io"
 	ctlmgmtv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/management.llmos.ai"
@@ -64,6 +65,7 @@ type Management struct {
 	MgmtFactory     *ctlmgmtv1.Factory
 	UpgradeFactory  *upgradev1.Factory
 	LLMFactory      *ctlmlv1.Factory
+	AgentFactory    *ctlagentv1.Factory
 	KubeRayFactory  *kuberayv1.Factory
 	NvidiaFactory   *nvidiav1.Factory
 	RookFactory     *rookv1.Factory
@@ -178,6 +180,13 @@ func setupManagement(ctx context.Context, restConfig *rest.Config, opts *generic
 	}
 	mgmt.LLMFactory = llm
 	mgmt.starters = append(mgmt.starters, llm)
+
+	agent, err := ctlagentv1.NewFactoryFromConfigWithOptions(restConfig, opts)
+	if err != nil {
+		return nil, err
+	}
+	mgmt.AgentFactory = agent
+	mgmt.starters = append(mgmt.starters, agent)
 
 	upgrade, err := upgradev1.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {

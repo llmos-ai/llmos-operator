@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: modelservice-bge-m3
+  namespace: default
+subsets:
+- addresses:
+  - ip: 117.50.176.174
+  ports:
+  - port: 30431
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modelservice-bge-m3
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    targetPort: 30431
+    protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: weaviate
+  namespace: llmos-agents
+subsets:
+- addresses:
+  - ip: <ip>
+  ports:
+  - port: <port>
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weaviate
+  namespace: llmos-agents
+spec:
+  ports:
+  - port: 80
+    targetPort: <port>
+    protocol: TCP
+  type: LoadBalancer

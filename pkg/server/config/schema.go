@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 
+	agentv1 "github.com/llmos-ai/llmos-operator/pkg/apis/agent.llmos.ai/v1"
 	mgmtv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 )
@@ -17,6 +18,7 @@ var (
 	localSchemeBuilder = runtime.SchemeBuilder{
 		mgmtv1.AddToScheme,
 		mlv1.AddToScheme,
+		agentv1.AddToScheme,
 		upgradev1.AddToScheme,
 		rayv1.AddToScheme,
 		nvidiav1.AddToScheme,

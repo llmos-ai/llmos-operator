@@ -45,6 +45,8 @@ type DownloadInput struct {
 type ListInput DownloadInput
 type RemoveInput DownloadInput
 
+type PostHook func(req *http.Request, b backend.Backend) error
+
 type CreateDirectoryInput struct {
 	TargetDirectory string `json:"targetDirectory"`
 }
@@ -65,6 +67,8 @@ type BaseHandler struct {
 	Ctx                    context.Context
 	RegistryManager        *registry.Manager
 	GetRegistryAndRootPath func(namespace, name string) (string, string, error)
+
+	PostHooks map[string]PostHook
 }
 
 func (h BaseHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -199,6 +203,13 @@ func (h BaseHandler) upload(rw http.ResponseWriter, req *http.Request, namespace
 		return uploadErrors[0]
 	}
 
+	if hook, ok := h.PostHooks[ActionUpload]; ok {
+		if err := hook(req, b); err != nil {
+			return fmt.Errorf("execute post hook failed: %w", err)
+		}
+	}
+	logrus.Infof("upload %s successfully", name)
+
 	return nil
 }
 
@@ -297,6 +308,10 @@ func (h BaseHandler) download(rw http.ResponseWriter, req *http.Request, namespa
 		return apierror.NewAPIError(validation.ServerError, fmt.Sprintf("download %s failed: %v", objectName, err))
 	}
 
+	if hook, ok := h.PostHooks[ActionDownload]; ok {
+		return hook(req, b)
+	}
+
 	return nil
 }
 
@@ -320,6 +335,10 @@ func (h BaseHandler) list(rw http.ResponseWriter, req *http.Request, namespace, 
 
 	utils.ResponseOKWithBody(rw, output)
 
+	if hook, ok := h.PostHooks[ActionList]; ok {
+		return hook(req, b)
+	}
+
 	return nil
 }
 
@@ -339,6 +358,10 @@ func (h BaseHandler) remove(req *http.Request, namespace, name string) error {
 	objectName := path.Join(rootPath, input.TargetFilePath)
 	if err := b.Delete(h.Ctx, objectName); err != nil {
 		return fmt.Errorf("remove file %s failed: %v", objectName, err)
+	}
+
+	if hook, ok := h.PostHooks[ActionRemove]; ok {
+		return hook(req, b)
 	}
 
 	return nil
@@ -361,6 +384,10 @@ func (h BaseHandler) createDirectory(req *http.Request, namespace, name string) 
 	directory := path.Join(rootPath, input.TargetDirectory)
 	if err := b.CreateDirectory(ctx, directory); err != nil {
 		return fmt.Errorf("create directory %s failed: %w", directory, err)
+	}
+
+	if hook, ok := h.PostHooks[ActionCreateDirectory]; ok {
+		return hook(req, b)
 	}
 
 	return nil
