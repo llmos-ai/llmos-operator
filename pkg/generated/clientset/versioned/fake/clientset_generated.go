@@ -19,6 +19,8 @@ package fake
 
 import (
 	clientset "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned"
+	agentv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/agent.llmos.ai/v1"
+	fakeagentv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/agent.llmos.ai/v1/fake"
 	cephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1"
 	fakecephv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/ceph.rook.io/v1/fake"
 	helmv1 "github.com/llmos-ai/llmos-operator/pkg/generated/clientset/versioned/typed/helm.cattle.io/v1"
@@ -102,6 +104,11 @@ var (
 	_ clientset.Interface = &Clientset{}
 	_ testing.FakeClient  = &Clientset{}
 )
+
+// AgentV1 retrieves the AgentV1Client
+func (c *Clientset) AgentV1() agentv1.AgentV1Interface {
+	return &fakeagentv1.FakeAgentV1{Fake: &c.Fake}
+}
 
 // CephV1 retrieves the CephV1Client
 func (c *Clientset) CephV1() cephv1.CephV1Interface {

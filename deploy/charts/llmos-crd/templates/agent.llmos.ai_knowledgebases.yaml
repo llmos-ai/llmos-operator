@@ -1,0 +1,183 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    {}
+  name: knowledgebases.agent.llmos.ai
+spec:
+  group: agent.llmos.ai
+  names:
+    kind: KnowledgeBase
+    listKind: KnowledgeBaseList
+    plural: knowledgebases
+    shortNames:
+    - kb
+    - kbs
+    singular: knowledgebase
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: KnowledgeBase is a definition for the LLM KnowledgeBase
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              chunkingConfig:
+                properties:
+                  overlap:
+                    type: integer
+                  size:
+                    type: integer
+                type: object
+              embeddingModel:
+                description: EmbeddingModel is from model service including namespace,
+                  such as defalt/text-embedding-3-small
+                type: string
+              importingFiles:
+                items:
+                  properties:
+                    dataCollectionName:
+                      type: string
+                    uid:
+                      type: string
+                  required:
+                  - dataCollectionName
+                  - uid
+                  type: object
+                type: array
+            required:
+            - embeddingModel
+            type: object
+          status:
+            properties:
+              className:
+                type: string
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another.
+                      type: string
+                    lastUpdateTime:
+                      description: The last time this condition was updated.
+                      type: string
+                    message:
+                      description: Human-readable message indicating details about
+                        last transition
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of the condition.
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              importedFiles:
+                items:
+                  properties:
+                    conditions:
+                      items:
+                        properties:
+                          lastTransitionTime:
+                            description: Last time the condition transitioned from
+                              one status to another.
+                            type: string
+                          lastUpdateTime:
+                            description: The last time this condition was updated.
+                            type: string
+                          message:
+                            description: Human-readable message indicating details
+                              about last transition
+                            type: string
+                          reason:
+                            description: The reason for the condition's last transition.
+                            type: string
+                          status:
+                            description: Status of the condition, one of True, False,
+                              Unknown.
+                            type: string
+                          type:
+                            description: Type of the condition.
+                            type: string
+                        required:
+                        - status
+                        - type
+                        type: object
+                      type: array
+                    dataCollectionName:
+                      type: string
+                    fileInfo:
+                      properties:
+                        contentType:
+                          type: string
+                        etag:
+                          type: string
+                        lastModified:
+                          format: date-time
+                          type: string
+                        name:
+                          type: string
+                        path:
+                          type: string
+                        size:
+                          format: int64
+                          type: integer
+                        uid:
+                          type: string
+                      required:
+                      - contentType
+                      - etag
+                      - lastModified
+                      - name
+                      - path
+                      - size
+                      - uid
+                      type: object
+                    importedTime:
+                      format: date-time
+                      type: string
+                    uid:
+                      type: string
+                  required:
+                  - dataCollectionName
+                  - fileInfo
+                  - uid
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -21,6 +21,7 @@ import (
 	nvidiav1 "github.com/NVIDIA/gpu-operator/api/nvidia/v1"
 	helmv1 "github.com/k3s-io/helm-controller/pkg/apis/helm.cattle.io/v1"
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
+	agentv1 "github.com/llmos-ai/llmos-operator/pkg/apis/agent.llmos.ai/v1"
 	managementv1 "github.com/llmos-ai/llmos-operator/pkg/apis/management.llmos.ai/v1"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
@@ -38,6 +39,7 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	agentv1.AddToScheme,
 	cephv1.AddToScheme,
 	helmv1.AddToScheme,
 	managementv1.AddToScheme,
