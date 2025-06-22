@@ -6,8 +6,10 @@ import (
 	steve "github.com/rancher/steve/pkg/server"
 	"github.com/rancher/wrangler/v3/pkg/leader"
 
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/datacollection"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/dataset"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/globalrole"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/knowledgebase"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/localmodel"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/managedaddon"
 	"github.com/llmos-ai/llmos-operator/pkg/controller/master/model"
@@ -48,6 +50,8 @@ var registerFuncs = []registerFunc{
 	dataset.Register,
 	model.Register,
 	localmodel.Register,
+	datacollection.Register,
+	knowledgebase.Register,
 }
 
 func register(ctx context.Context, mgmt *config.Management, opts config.Options) error {

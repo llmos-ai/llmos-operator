@@ -8,6 +8,7 @@ import (
 
 // FileInfo represents metadata about a file
 type FileInfo struct {
+	UID          string
 	Name         string
 	Path         string
 	Size         int64

@@ -5,6 +5,8 @@ import (
 	"bufio"
 	"context"
 	"crypto/md5"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,8 +26,9 @@ import (
 
 // MinioClient represents a MinIO client
 type MinioClient struct {
-	client *minio.Client
-	bucket string
+	client   *minio.Client
+	endpoint string
+	bucket   string
 }
 
 var _ backend.Backend = (*MinioClient)(nil)
@@ -33,6 +36,9 @@ var _ backend.Backend = (*MinioClient)(nil)
 // NewMinioClient initializes a new MinIO client
 func NewMinioClient(ctx context.Context, endpoint, accessKeyID, accessKeySecret,
 	bucket string, useSSL bool) (backend.Backend, error) {
+	if endpoint == "" {
+		return nil, fmt.Errorf("endpoint cannot be empty")
+	}
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, accessKeySecret, ""),
@@ -53,8 +59,9 @@ func NewMinioClient(ctx context.Context, endpoint, accessKeyID, accessKeySecret,
 	}
 
 	return &MinioClient{
-		client: minioClient,
-		bucket: bucket,
+		client:   minioClient,
+		endpoint: endpoint,
+		bucket:   bucket,
 	}, nil
 }
 
@@ -289,6 +296,7 @@ func (mc *MinioClient) List(ctx context.Context, prefix string, recursive,
 		}
 
 		fileInfos = append(fileInfos, backend.FileInfo{
+			UID:          fileUid(mc.endpoint, object.Key, object.ETag),
 			Name:         path.Base(object.Key),
 			Path:         object.Key,
 			Size:         object.Size,
@@ -300,6 +308,12 @@ func (mc *MinioClient) List(ctx context.Context, prefix string, recursive,
 	}
 
 	return fileInfos, nil
+}
+
+func fileUid(endpoint, path, etag string) string {
+	data := fmt.Appendf([]byte{}, "%s~%s~%s", endpoint, path, etag)
+	hash := sha256.Sum256(data)
+	return hex.EncodeToString(hash[:])
 }
 
 func (mc *MinioClient) GetSize(ctx context.Context, prefix string) (int64, error) {

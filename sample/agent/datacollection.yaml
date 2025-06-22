@@ -1,0 +1,7 @@
+apiVersion: agent.llmos.ai/v1
+kind: DataCollection
+metadata:
+  name: my-documents
+  namespace: default
+spec:
+  registry: "minio"

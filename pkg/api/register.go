@@ -6,7 +6,9 @@ import (
 	"github.com/rancher/steve/pkg/server"
 
 	"github.com/llmos-ai/llmos-operator/pkg/api/chat"
+	"github.com/llmos-ai/llmos-operator/pkg/api/datacollection"
 	"github.com/llmos-ai/llmos-operator/pkg/api/datasetversion"
+	"github.com/llmos-ai/llmos-operator/pkg/api/knowledgebase"
 	"github.com/llmos-ai/llmos-operator/pkg/api/model"
 	"github.com/llmos-ai/llmos-operator/pkg/api/token"
 	"github.com/llmos-ai/llmos-operator/pkg/api/user"
@@ -21,6 +23,8 @@ var registers = []registerSchema{
 	token.RegisterSchema,
 	model.RegisterSchema,
 	datasetversion.RegisterSchema,
+	datacollection.RegisterSchema,
+	knowledgebase.RegisterSchema,
 }
 
 func registerSchemas(scaled *config.Scaled, server *server.Server, registers ...registerSchema) error {
