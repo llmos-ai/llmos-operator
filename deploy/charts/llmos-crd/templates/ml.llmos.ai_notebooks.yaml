@@ -57,6 +57,21 @@ spec:
           spec:
             description: NotebookSpec defines the desired state of Dataset
             properties:
+              datasetMountings:
+                items:
+                  properties:
+                    datasetName:
+                      type: string
+                    mountPath:
+                      type: string
+                    version:
+                      type: string
+                  required:
+                  - datasetName
+                  - mountPath
+                  - version
+                  type: object
+                type: array
               replicas:
                 format: int32
                 type: integer
