@@ -6,4 +6,4 @@ metadata:
 spec:
   dataset: alpaca-cleaned
   version: v1.0.0
-  enableFastLoading: true
+  publish: true            # enables volume-snapshot publishing

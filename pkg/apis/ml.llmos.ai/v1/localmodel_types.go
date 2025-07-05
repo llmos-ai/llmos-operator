@@ -70,4 +70,6 @@ type LocalModelVersionStatus struct {
 	Conditions []common.Condition `json:"conditions,omitempty"`
 	// +optional
 	VolumeSnapshot string `json:"volumeSnapshot,omitempty"`
+	// +optional
+	SnapshottingStatus SnapshottingStatus `json:"snapshottingStatus,omitempty"`
 }
