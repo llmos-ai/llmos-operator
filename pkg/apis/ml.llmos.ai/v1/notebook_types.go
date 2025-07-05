@@ -45,10 +45,19 @@ type NotebookSpec struct {
 
 	// +optional, list of PersistentVolumeClaims that will be created.
 	VolumeClaimTemplates []corev1.PersistentVolumeClaim `json:"volumeClaimTemplates,omitempty"`
+
+	// +optional
+	DatasetMountings []DatasetMounting `json:"datasetMountings,omitempty"`
 }
 
 type NotebookTemplateSpec struct {
 	Spec corev1.PodSpec `json:"spec,omitempty"`
+}
+
+type DatasetMounting struct {
+	DatasetName string `json:"datasetName"`
+	Version     string `json:"version"`
+	MountPath   string `json:"mountPath"`
 }
 
 // NotebookStatus defines the observed state of Dataset
