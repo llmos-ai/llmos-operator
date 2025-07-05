@@ -15,6 +15,8 @@ import (
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
+	ctlsnapshotv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/snapshot.storage.k8s.io/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
 	"github.com/llmos-ai/llmos-operator/pkg/utils"
 	"github.com/llmos-ai/llmos-operator/pkg/utils/reconcilehelper"
@@ -29,13 +31,15 @@ const (
 )
 
 type Handler struct {
-	statefulSets     ctlappsv1.StatefulSetClient
-	statefulSetCache ctlappsv1.StatefulSetCache
-	services         ctlcorev1.ServiceClient
-	serviceCache     ctlcorev1.ServiceCache
-	pvcHandler       *utils.PVCHandler
-	pods             ctlcorev1.PodClient
-	podCache         ctlcorev1.PodCache
+	statefulSets        ctlappsv1.StatefulSetClient
+	statefulSetCache    ctlappsv1.StatefulSetCache
+	services            ctlcorev1.ServiceClient
+	serviceCache        ctlcorev1.ServiceCache
+	pvcHandler          *utils.PVCHandler
+	pods                ctlcorev1.PodClient
+	podCache            ctlcorev1.PodCache
+	datasetVersionCache ctlmlv1.DatasetVersionCache
+	volumeSnapshotCache ctlsnapshotv1.VolumeSnapshotCache
 }
 
 const (
@@ -51,15 +55,19 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 	services := mgmt.CoreFactory.Core().V1().Service()
 	pods := mgmt.CoreFactory.Core().V1().Pod()
 	pvcs := mgmt.CoreFactory.Core().V1().PersistentVolumeClaim()
+	datasetVersions := mgmt.LLMFactory.Ml().V1().DatasetVersion()
+	volumeSnapshots := mgmt.SnapshotFactory.Snapshot().V1().VolumeSnapshot()
 
 	h := Handler{
-		statefulSets:     ss,
-		statefulSetCache: ss.Cache(),
-		services:         services,
-		serviceCache:     services.Cache(),
-		pvcHandler:       utils.NewPVCHandler(pvcs),
-		pods:             pods,
-		podCache:         pods.Cache(),
+		statefulSets:        ss,
+		statefulSetCache:    ss.Cache(),
+		services:            services,
+		serviceCache:        services.Cache(),
+		pvcHandler:          utils.NewPVCHandler(pvcs),
+		pods:                pods,
+		podCache:            pods.Cache(),
+		datasetVersionCache: datasetVersions.Cache(),
+		volumeSnapshotCache: volumeSnapshots.Cache(),
 	}
 	notebooks.OnChange(ctx, notebookOnChange, h.OnChanged)
 	notebooks.OnRemove(ctx, notebookOnDelete, h.OnDelete)
@@ -105,7 +113,10 @@ func (h *Handler) OnChanged(_ string, notebook *mlv1.Notebook) (*mlv1.Notebook, 
 }
 
 func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*appsv1.StatefulSet, error) {
-	ss := constructNoteBookStatefulSet(notebook)
+	ss, err := constructNoteBookStatefulSet(notebook, h.datasetVersionCache, h.volumeSnapshotCache)
+	if err != nil {
+		return nil, fmt.Errorf("construct notebook statefulset failed: %w", err)
+	}
 	foundSs, err := h.statefulSetCache.Get(ss.Namespace, ss.Name)
 	if err != nil && errors.IsNotFound(err) {
 		logrus.Infof("creating new statefulset for notebook %s/%s", notebook.Namespace, notebook.Name)
