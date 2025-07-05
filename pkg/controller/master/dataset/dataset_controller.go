@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/common/snapshotting"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/server/config"
@@ -19,6 +20,9 @@ const (
 	datasetOnRemoveName        = "dataset.OnRemove"
 	datasetVersionOnChangeName = "datasetversion.OnChange"
 	datasetVersionOnRemoveName = "datasetversion.OnRemove"
+
+	volumeName      = "dataset-volume"
+	volumeMountPath = "/data/"
 )
 
 type handler struct {
@@ -29,7 +33,8 @@ type handler struct {
 	datasetVersionClient ctlmlv1.DatasetVersionClient
 	datasetVersionCache  ctlmlv1.DatasetVersionCache
 
-	rm *registry.Manager
+	rm              *registry.Manager
+	snapshotManager *snapshotting.Manager
 }
 
 func Register(_ context.Context, mgmt *config.Management, _ config.Options) error {
@@ -47,6 +52,13 @@ func Register(_ context.Context, mgmt *config.Management, _ config.Options) erro
 		datasetVersionCache:  datasetVersions.Cache(),
 	}
 	h.rm = registry.NewManager(secrets.Cache().Get, registries.Cache().Get)
+
+	// Initialize snapshotting manager
+	snapshotManager, err := snapshotting.NewManager(mgmt, &h)
+	if err != nil {
+		return fmt.Errorf("failed to create snapshotting manager: %w", err)
+	}
+	h.snapshotManager = snapshotManager
 
 	datasets.OnChange(mgmt.Ctx, datasetOnChangeName, h.OnChangeDataset)
 	datasets.OnRemove(mgmt.Ctx, datasetOnRemoveName, h.OnRemoveDataset)

@@ -67,6 +67,7 @@ type DatasetMetaData struct {
 // +kubebuilder:resource:shortName=dv;dvs
 // +kubebuilder:printcolumn:name="Dataset",type="string",JSONPath=`.spec.dataset`
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=`.spec.version`
+// +kubebuilder:printcolumn:name="VolumeSnapshot",type="string",JSONPath=`.status.publishStatus.snapshotName`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // DatasetVersion is a definition for the LLM Dataset Version
@@ -84,6 +85,8 @@ type DatasetVersionSpec struct {
 	Version string `json:"version"`
 	// +optional
 	CopyFrom *CopyFrom `json:"copyFrom,omitempty"`
+	// +optional
+	Publish bool `json:"publish"`
 }
 
 type DatasetVersionStatus struct {
@@ -91,6 +94,8 @@ type DatasetVersionStatus struct {
 
 	Registry string `json:"registry"`
 	RootPath string `json:"rootPath"`
+	// +optional
+	PublishStatus SnapshottingStatus `json:"publishStatus"`
 }
 
 type CopyFrom struct {
