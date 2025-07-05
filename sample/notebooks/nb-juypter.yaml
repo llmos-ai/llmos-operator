@@ -6,6 +6,7 @@ metadata:
   labels:
     ml.llmos.ai/notebook-type: jupyter
 spec:
+  replicas: 1
   serviceType: NodePort
   template:
     spec:
@@ -32,4 +33,8 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 5Gi
+            storage: 1Gi
+  datasetMountings:
+    - datasetName: demo
+      version: v2
+      mountPath: /home/jovyan/datasets

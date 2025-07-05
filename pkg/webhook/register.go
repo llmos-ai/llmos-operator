@@ -28,7 +28,7 @@ func register(mgmt *wconfig.Management) (validators []admission.Validator, mutat
 	validators = []admission.Validator{
 		user.NewValidator(mgmt),
 		raycluster.NewValidator(mgmt),
-		notebook.NewValidator(),
+		notebook.NewValidator(mgmt),
 		upgrade.NewValidator(mgmt),
 		helmchart.NewValidator(),
 		managedaddon.NewValidator(),
