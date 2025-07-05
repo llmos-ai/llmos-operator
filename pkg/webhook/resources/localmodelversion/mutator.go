@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
 	"github.com/llmos-ai/llmos-operator/pkg/webhook/config"
 	admissionregv1 "k8s.io/api/admissionregistration/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
-	localmodelctrl "github.com/llmos-ai/llmos-operator/pkg/controller/master/localmodel"
 	ctlmlv1 "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai/v1"
 	"github.com/oneblock-ai/webhook/pkg/server/admission"
 )
@@ -66,10 +66,10 @@ func addLabels(lm *mlv1.LocalModel, modelNamespace, modelName string) admission.
 		Op:   admission.PatchOpAdd,
 		Path: "/metadata/labels",
 		Value: map[string]string{
-			localmodelctrl.LocalModelNameLabel: lm.Name,
-			localmodelctrl.RegistryNameLabel:   lm.Spec.Registry,
-			localmodelctrl.ModelNameLabel:      modelName,
-			localmodelctrl.ModelNamespaceLabel: modelNamespace,
+			constant.LabelLocalModelName: lm.Name,
+			constant.LabelRegistryName:   lm.Spec.Registry,
+			constant.LabelModelName:      modelName,
+			constant.LabelModelNamespace: modelNamespace,
 		},
 	}
 }

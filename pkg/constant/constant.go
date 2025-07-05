@@ -88,4 +88,11 @@ const (
 	LabelLLMOSMLType             = MLPrefix + "/type"
 	LabelModelServiceName        = MLPrefix + "/model-service-name"
 	LabelModelServiceServeEngine = MLPrefix + "/serve-engine"
+	LabelDatasetName             = MLPrefix + "/dataset-name"
+	LabelDatasetVersion          = MLPrefix + "/dataset-version"
+	LabelResourceType            = MLPrefix + "/resource-type"
+	LabelLocalModelName          = MLPrefix + "/local-model-name"
+	LabelModelNamespace          = MLPrefix + "/model-namespace"
+	LabelModelName               = MLPrefix + "/model-name"
+	LabelRegistryName            = MLPrefix + "/registry-name"
 )

@@ -4,7 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
-	"github.com/llmos-ai/llmos-operator/pkg/utils/condition"
 )
 
 // +genclient
@@ -60,7 +59,3 @@ type ModelMetaData struct {
 	EvaluationResults string   `json:"evaluationResults,omitempty"` // Results of the model evaluation
 	BaseModel         string   `json:"baseModel,omitempty"`         // Base model information
 }
-
-var (
-	Ready condition.Cond = "ready"
-)
