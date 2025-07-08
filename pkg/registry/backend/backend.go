@@ -37,17 +37,23 @@ type Backend interface {
 type Uploader interface {
 	// Upload uploads a file from local filesystem to the backend storage
 	Upload(ctx context.Context, src, dst string) error
-	// UploadFromReader uploads data from an io.Reader to the backend storage
-	// This is useful for uploading data directly from HTTP requests without saving to local filesystem
-	// The size parameter is required for some backends to properly upload the file
-	// The contentType parameter is optional and will be detected if empty
+	// UploadFromReader uploads data from an io.Reader to the backend storage with streaming support
+	// This method supports true streaming uploads from frontend (e.g., browsers) without requiring
+	// the entire file to be loaded into memory first. The size parameter is optional (-1 for unknown size).
+	// The contentType parameter should be provided for better performance, otherwise defaults to application/octet-stream
 	UploadFromReader(ctx context.Context, reader io.Reader, dst string, size int64, contentType string) error
+	// GeneratePresignedUploadURL generates a presigned URL for direct upload to storage
+	// This allows clients to upload files directly to the storage backend without going through the server
+	GeneratePresignedUploadURL(ctx context.Context, objectName string, expiry time.Duration,
+		contentType string) (string, error)
 }
 
 // Downloader defines the interface for downloading data
 type Downloader interface {
 	Download(ctx context.Context, src string, rw io.Writer) error
 	IncrementalDownload(ctx context.Context, targetDir, outputDir string, concurrency int) error
+	// GeneratePresignedDownloadURL generates a presigned URL for direct download from storage
+	GeneratePresignedDownloadURL(ctx context.Context, objectName string, expiry time.Duration) (string, error)
 }
 
 // Deleter defines the interface for deleting data
