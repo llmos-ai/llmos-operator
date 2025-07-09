@@ -92,6 +92,29 @@ spec:
                   - type
                   type: object
                 type: array
+              snapshottingStatus:
+                properties:
+                  jobName:
+                    description: JobName is the name of the Job created for downloading
+                      the model
+                    type: string
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  phase:
+                    description: Phase is the phase of the VolumeSnapshot
+                    type: string
+                  pvcName:
+                    description: PVCName is the name of the PVC created for this model
+                      version
+                    type: string
+                  snapshotName:
+                    description: SnapshotName is the name of the VolumeSnapshot created
+                      for this model version
+                    type: string
+                type: object
               version:
                 type: integer
               volumeSnapshot:

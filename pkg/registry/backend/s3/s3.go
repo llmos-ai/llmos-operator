@@ -450,7 +450,7 @@ func (mc *MinioClient) IncrementalDownload(ctx context.Context, targetDir, outpu
 		return fmt.Errorf("create output directory %s failed: %w", outputDir, err)
 	}
 
-	metadataPath := filepath.Join(outputDir, "metadata.json")
+	metadataPath := filepath.Join(outputDir, ".metadata.json")
 	maxRetries := 5
 
 	for attempt := 0; attempt < maxRetries; attempt++ {

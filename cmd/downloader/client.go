@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	apidatasetversion "github.com/llmos-ai/llmos-operator/pkg/api/datasetversion"
 	apimodel "github.com/llmos-ai/llmos-operator/pkg/api/model"
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	ctlml "github.com/llmos-ai/llmos-operator/pkg/generated/controllers/ml.llmos.ai"
@@ -59,20 +60,33 @@ func newClient(kubeConfig string) (*client, error) {
 	}, nil
 }
 
-func (c *client) Download(ctx context.Context, registry, modelName, outputDir string, threadness int) error {
+func (c *client) Download(ctx context.Context, registry, resourceName, outputDir string, threadness int, resourceType string) error {
 	if registry == huggingfaceRegistry || registry == modelScopeRegistry {
 		return nil
 	}
 
-	tmp := strings.Split(modelName, "/")
+	tmp := strings.Split(resourceName, "/")
 	if len(tmp) != 2 {
-		return fmt.Errorf("invalid model name: %s", modelName)
+		return fmt.Errorf("invalid resource name: %s", resourceName)
 	}
 	namespace, name := tmp[0], tmp[1]
 
-	reg, rootPath, err := apimodel.GetModelRegistryAndRootPath(c.getModel, namespace, name)
-	if err != nil {
-		return fmt.Errorf("failed to get registry and root path of %s/%s: %w", namespace, name, err)
+	var reg, rootPath string
+	var err error
+
+	switch resourceType {
+	case mlv1.ModelResourceName:
+		reg, rootPath, err = apimodel.GetModelRegistryAndRootPath(c.getModel, namespace, name)
+		if err != nil {
+			return fmt.Errorf("failed to get registry and root path of model %s/%s: %w", namespace, name, err)
+		}
+	case mlv1.DatasetVersionResourceName:
+		reg, rootPath, err = apidatasetversion.GetDatasetVersionRegistryAndRootPath(c.getDatasetVersion, namespace, name)
+		if err != nil {
+			return fmt.Errorf("failed to get registry and root path of dataset version %s/%s: %w", namespace, name, err)
+		}
+	default:
+		return fmt.Errorf("unsupported resource type: %s", resourceType)
 	}
 
 	b, err := pkgreg.NewManager(c.getSecret, c.getRegistry).NewBackendFromRegistry(ctx, reg)
@@ -92,6 +106,10 @@ func (c *client) getModel(namespace, name string) (*mlv1.Model, error) {
 
 func (c *client) getRegistry(name string) (*mlv1.Registry, error) {
 	return c.LLMInterface.Registry().Get(name, metav1.GetOptions{})
+}
+
+func (c *client) getDatasetVersion(namespace, name string) (*mlv1.DatasetVersion, error) {
+	return c.LLMInterface.DatasetVersion().Get(namespace, name, metav1.GetOptions{})
 }
 
 func (c *client) getSecret(namespace, name string) (*corev1.Secret, error) {

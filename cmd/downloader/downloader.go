@@ -8,14 +8,16 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
 	"github.com/llmos-ai/llmos-operator/pkg/config"
 )
 
 var (
-	registry   string
-	name       string
-	outputDir  string
-	threadness int
+	registry     string
+	name         string
+	outputDir    string
+	threadness   int
+	resourceType string
 )
 
 type Options struct {
@@ -33,9 +35,10 @@ func NewDownloader() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVar(&registry, "registry", "", "registry name of private registry or public registry like huggingface")
-	cmd.PersistentFlags().StringVar(&name, "name", "", "model name like deepseek.ai/deekseek-r1")
+	cmd.PersistentFlags().StringVar(&name, "name", "", "resource name like deepseek.ai/deekseek-r1 for model or namespace/dataset-version for dataset version")
 	cmd.PersistentFlags().StringVar(&outputDir, "output-dir", "", "Directory to save downloaded files")
 	cmd.PersistentFlags().IntVar(&threadness, "threadness", 3, "Number of threads during download files")
+	cmd.PersistentFlags().StringVar(&resourceType, "type", mlv1.ModelResourceName, fmt.Sprintf("Resource type to download (%s or %s)", mlv1.ModelResourceName, mlv1.DatasetVersionResourceName))
 
 	_ = cmd.MarkPersistentFlagRequired("name")
 	_ = cmd.MarkPersistentFlagRequired("output-dir")
@@ -65,18 +68,18 @@ func run(cmd *cobra.Command, _ []string) error {
 		ctx = context.Background()
 	}
 
-	logrus.Infof("Downloading model %s to directory %s, registry: %s", name, outputDir, registry)
+	logrus.Infof("Downloading %s %s to directory %s, registry: %s", resourceType, name, outputDir, registry)
 
 	c, err := newClient(opts.KubeConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create downloader: %w", err)
 	}
 
-	if err := c.Download(ctx, registry, name, outputDir, threadness); err != nil {
+	if err := c.Download(ctx, registry, name, outputDir, threadness, resourceType); err != nil {
 		return fmt.Errorf("failed to download %s: %w", name, err)
 	}
 
-	logrus.Infof("Downloaded model %s to directory %s", name, outputDir)
+	logrus.Infof("Downloaded %s %s to directory %s", resourceType, name, outputDir)
 
 	return nil
 }

@@ -6,11 +6,17 @@ import (
 	"reflect"
 
 	"github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 
 	mlv1 "github.com/llmos-ai/llmos-operator/pkg/apis/ml.llmos.ai/v1"
+	"github.com/llmos-ai/llmos-operator/pkg/constant"
+	"github.com/llmos-ai/llmos-operator/pkg/controller/master/common/snapshotting"
 	"github.com/llmos-ai/llmos-operator/pkg/registry"
 	"github.com/llmos-ai/llmos-operator/pkg/registry/backend"
+	"github.com/llmos-ai/llmos-operator/pkg/settings"
 )
 
 func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*mlv1.DatasetVersion, error) {
@@ -56,6 +62,18 @@ func (h *handler) OnChangeDatasetVersion(_ string, dv *mlv1.DatasetVersion) (*ml
 		if _, err := h.updateDatasetStatus(datasetCopy, dataset, nil); err != nil {
 			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf("add version %s to dataset %s/%s failed: %w",
 				dv.Spec.Version, dv.Namespace, dv.Spec.Dataset, err))
+		}
+	}
+
+	// Handle publish functionality
+	if dv.Spec.Publish && mlv1.Ready.IsTrue(dv) {
+		if err := h.handlePublish(dvCopy); err != nil {
+			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf("publish failed: %w", err))
+		}
+	} else if !dv.Spec.Publish {
+		// Cancel snapshot if publish is set to false
+		if err := h.handleCancelPublish(dvCopy); err != nil {
+			return h.updateDatasetVersionStatus(dvCopy, dv, fmt.Errorf("cancel publish failed: %w", err))
 		}
 	}
 
@@ -144,6 +162,58 @@ func (h *handler) updateDatasetVersionStatus(dvCopy, dv *mlv1.DatasetVersion, er
 		return nil, fmt.Errorf("update dataset version status failed: %w", updateErr)
 	}
 	return updatedDatasetVersion, err
+}
+
+func (h *handler) handlePublish(dv *mlv1.DatasetVersion) error {
+	logrus.Infof("Starting publish process for dataset version %s/%s", dv.Namespace, dv.Name)
+
+	// Create snapshotting spec
+	spec := &snapshotting.Spec{
+		Namespace: dv.Namespace,
+		Name:      dv.Name,
+		Labels: map[string]string{
+			constant.LabelDatasetName:    dv.Spec.Dataset,
+			constant.LabelDatasetVersion: dv.Spec.Version,
+			constant.LabelResourceType:   "dataset-version",
+		},
+		OwnerReferences: []metav1.OwnerReference{
+			{
+				APIVersion: dv.APIVersion,
+				Kind:       dv.Kind,
+				Name:       dv.Name,
+				UID:        dv.UID,
+				Controller: ptr.To(true),
+			},
+		},
+		PVCSpec: snapshotting.PVCSpec{
+			AccessModes:               []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+			RestoreFromLatestSnapshot: false, // For datasets, we don't restore from snapshots
+		},
+		JobSpec: snapshotting.JobSpec{
+			BackoffLimit:            ptr.To(int32(1)),
+			TTLSecondsAfterFinished: ptr.To(int32(86400)), // 24 hours
+			Image:                   settings.ModelDownloaderImage.Get(),
+			Args: []string{
+				fmt.Sprintf("--name=%s/%s", dv.Namespace, dv.Name),
+				fmt.Sprintf("--output-dir=%s", volumeMountPath),
+				fmt.Sprintf("--type=%s", mlv1.DatasetVersionResourceName),
+				"--debug=true",
+			},
+		},
+	}
+
+	// Call snapshotting manager
+	return h.snapshotManager.DoSnapshot(h.ctx, spec)
+}
+
+func (h *handler) handleCancelPublish(dv *mlv1.DatasetVersion) error {
+	// Build snapshotting spec for cancellation
+	spec := &snapshotting.Spec{
+		Namespace: dv.Namespace,
+		Name:      dv.Name,
+	}
+
+	return h.snapshotManager.CancelSnapshot(h.ctx, spec)
 }
 
 func versionExists(versions []mlv1.Version, version string) (int, bool) {
