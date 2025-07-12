@@ -22,6 +22,7 @@ func Formatter(request *types.APIRequest, resource *types.RawResource) {
 	resource.AddAction(request, cr.ActionUpload)
 	resource.AddAction(request, cr.ActionList)
 	resource.AddAction(request, cr.ActionRemove)
+	resource.AddAction(request, cr.ActionGeneratePresignedURL)
 }
 
 func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
@@ -30,6 +31,7 @@ func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
 	server.BaseSchemas.MustImportAndCustomize(cr.UploadInput{}, nil)
 	server.BaseSchemas.MustImportAndCustomize(cr.ListInput{}, nil)
 	server.BaseSchemas.MustImportAndCustomize(cr.RemoveInput{}, nil)
+	server.BaseSchemas.MustImportAndCustomize(cr.GeneratePresignedURLInput{}, nil)
 
 	customizeFunc := func(s *types.APISchema) {
 		s.Formatter = Formatter
@@ -43,11 +45,15 @@ func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
 			cr.ActionRemove: {
 				Input: "removeInput",
 			},
+			cr.ActionGeneratePresignedURL: {
+				Input: "generatePresignedURLInput",
+			},
 		}
 		s.ActionHandlers = map[string]http.Handler{
-			cr.ActionUpload: h,
-			cr.ActionList:   h,
-			cr.ActionRemove: h,
+			cr.ActionUpload:               h,
+			cr.ActionList:                 h,
+			cr.ActionRemove:               h,
+			cr.ActionGeneratePresignedURL: h,
 		}
 	}
 

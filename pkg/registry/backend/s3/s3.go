@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/minio/minio-go/v7"
@@ -80,7 +81,73 @@ func (mc *MinioClient) Upload(ctx context.Context, src, dst string) error {
 
 // UploadFromReader uploads data from an io.Reader to the backend storage
 // This is useful for uploading data directly from HTTP requests without saving to local filesystem
+// For streaming uploads from frontend (e.g., browsers), this method supports true streaming
+// without requiring the entire file to be loaded into memory first
 func (mc *MinioClient) UploadFromReader(ctx context.Context, reader io.Reader, dst string,
+	size int64, contentType string) error {
+	// Set default content type if not provided
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	// Upload the file to MinIO with streaming support
+	options := minio.PutObjectOptions{
+		ContentType: contentType,
+		// Enable server-side encryption if needed
+		// ServerSideEncryption: encrypt.NewSSE(),
+	}
+
+	// Use streaming upload regardless of size to support frontend streaming
+	// MinIO Go client handles chunked transfer encoding automatically
+	info, err := mc.client.PutObject(ctx, mc.bucket, dst, reader, -1, options)
+	if err != nil {
+		return fmt.Errorf("upload from reader failed: %w", err)
+	}
+	logrus.Debugf("Uploaded object %s of size %d with etag %s", info.Key, info.Size, info.ETag)
+
+	return nil
+}
+
+// GeneratePresignedUploadURL generates a presigned URL for direct upload to S3
+// Note: Content-Type enforcement must be handled by the client when using the presigned URL.
+// The MinIO Go client's PresignedPutObject method doesn't support request parameters.
+func (mc *MinioClient) GeneratePresignedUploadURL(ctx context.Context, objectName string,
+	expiry time.Duration, contentType string) (string, error) {
+	// Set default expiry if not provided
+	if expiry <= 0 {
+		expiry = 15 * time.Minute // Default 15 minutes
+	}
+
+	// Generate presigned URL for PUT operation
+	presignedURL, err := mc.client.PresignedPutObject(ctx, mc.bucket, objectName, expiry)
+	if err != nil {
+		return "", fmt.Errorf("generate presigned upload URL failed: %w", err)
+	}
+
+	return presignedURL.String(), nil
+}
+
+// GeneratePresignedDownloadURL generates a presigned URL for direct download from S3
+func (mc *MinioClient) GeneratePresignedDownloadURL(ctx context.Context, objectName string,
+	expiry time.Duration) (string, error) {
+	// Set default expiry if not provided
+	if expiry <= 0 {
+		expiry = 15 * time.Minute // Default 15 minutes
+	}
+
+	// Create presigned URL for GET operation
+	presignedURL, err := mc.client.PresignedGetObject(ctx, mc.bucket, objectName, expiry, nil)
+	if err != nil {
+		return "", fmt.Errorf("generate presigned download URL failed: %w", err)
+	}
+
+	return presignedURL.String(), nil
+}
+
+// UploadFromReaderWithContentDetection uploads data from an io.Reader with automatic content type detection
+// This method buffers the first 512 bytes for content type detection, which may not be suitable
+// for large streaming uploads from frontend. Use UploadFromReader with explicit contentType for streaming.
+func (mc *MinioClient) UploadFromReaderWithContentDetection(ctx context.Context, reader io.Reader, dst string,
 	size int64, contentType string) error {
 	// If content type is not provided, try to detect it
 	if contentType == "" {

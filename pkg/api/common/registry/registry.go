@@ -11,6 +11,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rancher/apiserver/pkg/apierror"
@@ -23,11 +24,12 @@ import (
 )
 
 const (
-	ActionUpload          = "upload"
-	ActionDownload        = "download"
-	ActionList            = "list"
-	ActionRemove          = "remove"
-	ActionCreateDirectory = "createDirectory"
+	ActionUpload               = "upload"
+	ActionDownload             = "download"
+	ActionList                 = "list"
+	ActionRemove               = "remove"
+	ActionCreateDirectory      = "createDirectory"
+	ActionGeneratePresignedURL = "generatePresignedURL"
 )
 
 type UploadInput struct {
@@ -49,6 +51,19 @@ type PostHook func(req *http.Request, b backend.Backend) error
 
 type CreateDirectoryInput struct {
 	TargetDirectory string `json:"targetDirectory"`
+}
+
+type GeneratePresignedURLInput struct {
+	ObjectName  string `json:"objectName"`            // The object name/path in storage
+	Operation   string `json:"operation"`             // "upload" or "download"
+	ContentType string `json:"contentType,omitempty"` // Content type for upload (optional)
+	ExpiryHours int    `json:"expiryHours,omitempty"` // Expiry time in hours (default: 1 hour)
+}
+
+type GeneratePresignedURLOutput struct {
+	PresignedURL string `json:"presignedURL"`
+	ExpiresAt    string `json:"expiresAt"`
+	Operation    string `json:"operation"`
 }
 
 type Progress struct {
@@ -111,6 +126,8 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 		return h.remove(req, namespace, name)
 	case ActionCreateDirectory:
 		return h.createDirectory(req, namespace, name)
+	case ActionGeneratePresignedURL:
+		return h.generatePresignedURL(rw, req, namespace, name)
 	default:
 		return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("Unsupported action %s", action))
 	}
@@ -124,8 +141,9 @@ func (h BaseHandler) upload(rw http.ResponseWriter, req *http.Request, namespace
 		return apierror.NewAPIError(validation.InvalidBodyContent, "Upload requires a multipart/form-data request")
 	}
 
-	// Parse the multipart form
-	if err := req.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
+	// Parse the multipart form with increased memory limit for large files
+	// Use 128MB max memory to handle larger files better
+	if err := req.ParseMultipartForm(128 << 20); err != nil { // 128MB max memory
 		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse multipart form: %v", err))
 	}
 
@@ -220,20 +238,28 @@ func (h BaseHandler) uploadOneFile(rw *ResponseWriterSync, b backend.Backend, fi
 		return apierror.NewAPIError(validation.InvalidBodyContent,
 			fmt.Sprintf("Failed to open file %s: %v", fileHeader.Filename, err))
 	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			logrus.Errorf("Failed to close file %s: %v", fileHeader.Filename, err)
+		}
+	}() // Ensure file is always closed
 
 	// Construct the destination path
 	destPath := path.Join(targetPath, fileHeader.Filename)
 
-	processChan := make(chan int64, 10)
+	// Use larger buffer for progress channel to prevent blocking
+	processChan := make(chan int64, 100)
 	reader := backend.NewProgressReader(file, fileHeader.Size, processChan)
-	// Context for canceling the progress reporting
-	ctx, cancel := context.WithCancel(context.Background())
-	go reportProgress(ctx, rw, processChan, fileHeader.Size, destPath)
-	// Upload the file
-	err = b.UploadFromReader(h.Ctx, reader, destPath, fileHeader.Size, fileHeader.Header.Get("Content-Type"))
-	file.Close() // nolint:errcheck
-	cancel()
 
+	// Context for canceling the progress reporting
+	ctx, cancel := context.WithCancel(h.Ctx)
+	defer cancel() // Ensure context is always canceled
+
+	// Start progress reporting in background
+	go reportProgress(ctx, rw, processChan, fileHeader.Size, destPath)
+
+	// Upload the file with streaming support
+	err = b.UploadFromReader(h.Ctx, reader, destPath, fileHeader.Size, fileHeader.Header.Get("Content-Type"))
 	if err != nil {
 		return fmt.Errorf("upload file %s failed: %w", destPath, err)
 	}
@@ -242,9 +268,34 @@ func (h BaseHandler) uploadOneFile(rw *ResponseWriterSync, b backend.Backend, fi
 }
 
 func reportProgress(ctx context.Context, rw *ResponseWriterSync, processChan chan int64, totalSize int64, destPath string) {
+	// Use a buffered channel to prevent blocking
+	progressBuffer := make(chan int64, 100)
+
+	// Start a goroutine to drain the original channel
+	go func() {
+		defer close(progressBuffer)
+		for {
+			select {
+			case progress, ok := <-processChan:
+				if !ok {
+					return
+				}
+				// Non-blocking send to buffer
+				select {
+				case progressBuffer <- progress:
+				default:
+					// Drop progress update if buffer is full
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	// Report progress from buffer
 	for {
 		select {
-		case progress, ok := <-processChan:
+		case progress, ok := <-progressBuffer:
 			if !ok {
 				return
 			}
@@ -393,6 +444,60 @@ func (h BaseHandler) createDirectory(req *http.Request, namespace, name string) 
 	return nil
 }
 
+func (h BaseHandler) generatePresignedURL(rw http.ResponseWriter, req *http.Request, namespace, name string) error {
+	input := &GeneratePresignedURLInput{}
+
+	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
+		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
+	}
+
+	// Validate input
+	if input.ObjectName == "" {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "ObjectName is required")
+	}
+	if input.Operation != "upload" && input.Operation != "download" {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Operation must be 'upload' or 'download'")
+	}
+	if !isValidPath(input.ObjectName) {
+		return apierror.NewAPIError(validation.InvalidBodyContent, "Invalid object name")
+	}
+
+	b, rootPath, err := h.getBackendAndRootPath(namespace, name)
+	if err != nil {
+		return err
+	}
+
+	// Set default expiry if not provided
+	expiryHours := input.ExpiryHours
+	if expiryHours <= 0 {
+		expiryHours = 1 // Default 1 hour
+	}
+	expiry := time.Duration(expiryHours) * time.Hour
+
+	objectName := path.Join(rootPath, input.ObjectName)
+	var presignedURL string
+
+	switch input.Operation {
+	case "upload":
+		presignedURL, err = b.GeneratePresignedUploadURL(h.Ctx, objectName, expiry, input.ContentType)
+	case "download":
+		presignedURL, err = b.GeneratePresignedDownloadURL(h.Ctx, objectName, expiry)
+	}
+
+	if err != nil {
+		return apierror.NewAPIError(validation.ServerError, fmt.Sprintf("Failed to generate presigned URL: %v", err))
+	}
+
+	output := &GeneratePresignedURLOutput{
+		PresignedURL: presignedURL,
+		ExpiresAt:    time.Now().Add(expiry).Format(time.RFC3339),
+		Operation:    input.Operation,
+	}
+
+	utils.ResponseOKWithBody(rw, output)
+	return nil
+}
+
 func decodeAndValidateInput(req *http.Request, input interface{}, pathField string) error {
 	if err := json.NewDecoder(req.Body).Decode(input); err != nil {
 		return apierror.NewAPIError(validation.InvalidBodyContent, fmt.Sprintf("Failed to parse body: %v", err))
@@ -445,5 +550,7 @@ func (r *ResponseWriterSync) Write(p []byte) (n int, err error) {
 func (r *ResponseWriterSync) Flush() {
 	r.Lock()
 	defer r.Unlock()
-	r.rw.(http.Flusher).Flush()
+	if flusher, ok := r.rw.(http.Flusher); ok {
+		flusher.Flush()
+	}
 }

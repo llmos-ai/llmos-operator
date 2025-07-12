@@ -23,15 +23,22 @@ func NewProgressReader(reader io.Reader, total int64, progressChan chan int64) *
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
 	n, err = pr.Reader.Read(p)
 	if n > 0 {
-		atomic.AddInt64(&pr.ReadSize, int64(n))
-		// send current progress to channel
+		currentRead := atomic.AddInt64(&pr.ReadSize, int64(n))
+		// Send current progress to channel with non-blocking approach
 		if pr.ProgressChan != nil {
 			select {
-			case pr.ProgressChan <- pr.ReadSize:
+			case pr.ProgressChan <- currentRead:
+				// Progress sent successfully
 			default:
-				// no block
+				// Channel is full, skip this progress update to prevent blocking
+				// This is acceptable as we'll send the next update soon
 			}
 		}
+	}
+	// Close progress channel when reading is complete
+	if err == io.EOF && pr.ProgressChan != nil {
+		close(pr.ProgressChan)
+		pr.ProgressChan = nil // Prevent double close
 	}
 	return
 }
