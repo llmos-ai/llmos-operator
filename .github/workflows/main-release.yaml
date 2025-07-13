@@ -118,6 +118,28 @@ jobs:
         docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${TAG}
         docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${VERSION} ${WEBHOOK_IMAGES}
         docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-webhook:${VERSION}
+    - name: Push Latest(main) Downloader ghcr Images
+      run: |
+        . ./scripts/version
+        DOWNLOADER_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${{ env.REGISTRY }}/llmos-operator-downloader:${VERSION})
+        for i in ${DOWNLOADER_IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator-downloader:${TAG} ${DOWNLOADER_IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator-downloader:${TAG}
+        docker manifest create ${{ env.REGISTRY }}/llmos-operator-downloader:${VERSION} ${DOWNLOADER_IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-operator-downloader:${VERSION}
+    - name: Push Latest(main) Downloader Docker Images
+      run: |
+        . ./scripts/version
+        DOWNLOADER_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${DOCKER_REGISTRY#'docker.io/'}/llmos-operator-downloader:${VERSION})
+        for i in ${DOWNLOADER_IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator-downloader:${TAG} ${DOWNLOADER_IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-downloader:${TAG}
+        docker manifest create ${{ env.DOCKER_REGISTRY }}/llmos-operator-downloader:${VERSION} ${DOWNLOADER_IMAGES}
+        docker manifest push ${{ env.DOCKER_REGISTRY }}/llmos-operator-downloader:${VERSION}
     - name: Failure Slack Notification
       if: failure()
       id: slack-failure

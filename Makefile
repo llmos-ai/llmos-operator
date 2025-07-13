@@ -120,8 +120,8 @@ build-operator: ## Build llmos-operator using goreleaser with local mode.
 	goreleaser release --snapshot --clean $(VERBOSE)
 
 .PHONY: push-manifests
-push-manifests: operator-manifest webhook-manifest ## Push llmos-operator and webhook manifest image
-	@echo "Build & pushed llmos-operator && llmos-operator-webhook manifest"
+push-manifests: operator-manifest webhook-manifest downloader-manifest ## Push llmos-operator, webhook and downloader manifest image
+	@echo "Build & pushed llmos-operator, llmos-operator-webhook && llmos-operator-downloader manifest"
 
 .PHONY: build-installer
 build-installer: ## Build installer artifacts (i.e., operator charts & index.yaml)
@@ -175,6 +175,10 @@ operator-manifest: ## Build & push operator manifest image
 .PHONY: webhook-manifest
 webhook-manifest: ## Build & push webhook manifest image
 	./scripts/manifest-images llmos-operator-webhook
+
+.PHONY: downloader-manifest
+downloader-manifest: ## Build & push downloader manifest image
+	./scripts/manifest-images llmos-operator-downloader
 
 .PHONY: ci
 ci: ## Run ci script
