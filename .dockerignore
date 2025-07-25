@@ -5,3 +5,59 @@ tmp
 dist
 .tmp-earthly-out
 .DS_Store
+
+# Git and version control
+.git
+.gitignore
+.github/
+
+# Documentation and samples
+README.md
+LICENSE
+sample/
+docs/
+*.md
+
+# Development and testing
+.vscode/
+.idea/
+*.test
+*.out
+coverage.txt
+.coverage
+
+# Build artifacts and caches
+node_modules/
+*.log
+*.tmp
+*.cache
+.earthly/
+
+# Go specific
+vendor/
+*.mod.sum
+go.work
+go.work.sum
+
+# CI/CD and deployment
+.github/
+deploy/
+scripts/
+hack/
+tools/
+
+# IDE and editor files
+*.swp
+*.swo
+*~
+.vimrc
+
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.bak
+*.backup
+*.orig

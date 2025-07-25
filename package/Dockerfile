@@ -1,40 +1,40 @@
-FROM registry.opensuse.org/opensuse/leap:15.6
+# Multi-stage build for optimized container image
+FROM golang:1.24-alpine AS ui-downloader
+
+# Download UI assets in separate stage for better caching
+ARG LLMOS_UI_VERSION
+ENV LLMOS_UI_VERSION ${LLMOS_UI_VERSION:-latest}
+ENV LLMOS_API_UI_VERSION 1.1.11
+
+RUN apk add --no-cache curl tar gzip && \
+    mkdir -p /tmp/ui/dashboard /tmp/ui/api-ui && \
+    cd /tmp/ui/dashboard && \
+    curl -sL https://releases.1block.ai/dashboard/${LLMOS_UI_VERSION}.tar.gz | tar xzf - --strip-components=2 && \
+    cd /tmp/ui/api-ui && \
+    curl -sL https://releases.1block.ai/api-ui/${LLMOS_API_UI_VERSION}.tar.gz | tar xzf - --strip-components=1
+
+# Runtime stage with Chainguard Wolfi base image
+FROM cgr.dev/chainguard/wolfi-base
+
+# Install basic tools
+RUN apk add --no-cache bash tini curl kubectl jq
 
 WORKDIR /var/lib/llmos/llmos-operator
 
-RUN zypper ar -G https://download.opensuse.org/repositories/utilities/15.6/utilities.repo || true && \
-    zypper ref
+# Copy UI assets from downloader stage
+COPY --from=ui-downloader /tmp/ui/dashboard /usr/share/llmos/llmos-operator/
+COPY --from=ui-downloader /tmp/ui/api-ui /usr/share/llmos/llmos-operator/api-ui/
 
-RUN zypper -n in git unzip tar gzip curl && \
-    zypper -n clean -a && rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
-    mkdir -p /var/lib/llmos/llmos-operator
+# Copy binary and unified entrypoint
+COPY llmos-operator /usr/bin/llmos-operator
+COPY package/entrypoint.sh /usr/bin/entrypoint.sh
 
-# Add dumb-init
-ENV INIT_VERSION 1.2.5
-RUN ARCH=$(uname -m); \
-    curl -sfL https://github.com/Yelp/dumb-init/releases/download/v${INIT_VERSION}/dumb-init_${INIT_VERSION}_${ARCH} -o dumb-init && \
-    chmod +x dumb-init && \
-    mv dumb-init /usr/bin/dumb-init
-
-ARG LLMOS_UI_VERSION
-ENV LLMOS_UI_VERSION ${LLMOS_UI_VERSION:-latest}
-# also update the api-ui-version in pkg/settings/settings.go when updating the version here.
-ENV LLMOS_API_UI_VERSION 1.1.11
-
+# Set build metadata
 ARG VERSION
 ARG DATE
-ENV LLMOS_SERVER_VERSION ${VERSION}
-ENV LLMOS_BUILD_DATE ${DATE}
-RUN mkdir -p /usr/share/llmos/llmos-operator && \
-    cd /usr/share/llmos/llmos-operator && \
-    curl -sL https://releases.1block.ai/dashboard/${LLMOS_UI_VERSION}.tar.gz | tar xvzf - --strip-components=2 && \
-    mkdir -p /usr/share/llmos/llmos-operator/api-ui && \
-    cd /usr/share/llmos/llmos-operator/api-ui && \
-    curl -sL https://releases.1block.ai/api-ui/${LLMOS_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
-    cd /var/lib/llmos/llmos-operator
-
-COPY package/entrypoint.sh llmos-operator /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
+ENV LLMOS_SERVER_VERSION=${VERSION}
+ENV LLMOS_BUILD_DATE=${DATE}
 
 VOLUME /var/lib/llmos/llmos-operator
-ENTRYPOINT ["entrypoint.sh"]
+ENV LLMOS_MODE=apiserver
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]

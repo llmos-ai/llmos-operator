@@ -1,9 +1,5 @@
 name: main-release
 
-concurrency:
-  group: main-release
-  cancel-in-progress: true
-
 on:
   push:
     branches:
@@ -25,6 +21,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Cleanup disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android
+        docker system prune -af
+        sudo apt-get clean
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
