@@ -622,6 +622,11 @@ func (mc *MinioClient) IncrementalDownload(ctx context.Context, targetDir, outpu
 		if err := os.WriteFile(metadataPath, updatedMetadata, 0644); err != nil {
 			return fmt.Errorf("write metadata file failed: %w", err)
 		}
+
+		// Ensure metadata file has correct permissions
+		if err := os.Chmod(metadataPath, 0644); err != nil {
+			return fmt.Errorf("set metadata file permissions failed: %w", err)
+		}
 	}
 
 	// If we've reached here, we've hit the maximum number of retries without consistency
@@ -693,6 +698,11 @@ func (mc *MinioClient) downloadSingleFile(
 		return fmt.Errorf("create directory for %s failed: %w", localPath, err)
 	}
 
+	// Ensure directory has correct permissions (755)
+	if err := os.Chmod(filepath.Dir(localPath), 0755); err != nil {
+		return fmt.Errorf("set directory permissions failed: %w", err)
+	}
+
 	// Download to temporary file
 	tempFile, err := os.CreateTemp(filepath.Dir(localPath), "download-*.tmp")
 	if err != nil {
@@ -758,6 +768,11 @@ func (mc *MinioClient) downloadSingleFile(
 	// Move temp file to final location
 	if err := os.Rename(tempPath, localPath); err != nil {
 		return fmt.Errorf("rename temp file failed: %w", err)
+	}
+
+	// Set file permissions to world-readable (644)
+	if err := os.Chmod(localPath, 0644); err != nil {
+		return fmt.Errorf("set file permissions failed: %w", err)
 	}
 
 	return nil

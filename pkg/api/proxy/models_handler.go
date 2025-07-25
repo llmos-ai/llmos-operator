@@ -91,6 +91,41 @@ func modelsProxyHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	// Handle 307 Temporary Redirect by following the redirect
+	if resp.StatusCode == http.StatusTemporaryRedirect {
+		location := resp.Header.Get("Location")
+		if location == "" {
+			http.Error(w, "Redirect location header is missing", http.StatusInternalServerError)
+			return
+		}
+
+		// Validate the redirect URL
+		redirectUrl := fmt.Sprintf("%s://%s%s", request.URL.Scheme, request.URL.Host, location)
+		if err := validateURL(redirectUrl); err != nil {
+			http.Error(w, fmt.Sprintf("Redirect URL not allowed: %s", err.Error()), http.StatusForbidden)
+			return
+		}
+
+		// Make a new request to the redirect URL
+		redirectReq, err := http.NewRequest(r.Method, redirectUrl, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		redirectReq.Header = forwardedHeaders
+
+		resp, err = client.Do(redirectReq)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				logrus.Errorf("error closing redirect response body: %s", err.Error())
+			}
+		}()
+	}
+
 	for key, values := range resp.Header {
 		for _, value := range values {
 			w.Header().Add(key, value)
@@ -126,6 +161,7 @@ func validateURL(rawURL string) error {
 func replaceHFEndpoint(rawURL string) string {
 	hfEndpoint := settings.HuggingFaceEndpoint.Get()
 	if hfEndpoint != "" && strings.HasPrefix(rawURL, huggingFaceEndpoint) {
+		hfEndpoint = strings.TrimRight(hfEndpoint, "/")
 		return strings.Replace(rawURL, huggingFaceEndpoint, hfEndpoint, 1)
 	}
 	return rawURL

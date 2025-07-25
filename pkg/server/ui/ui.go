@@ -143,6 +143,6 @@ func serveIndex(resp io.Writer, url string) error {
 
 func (u *handler) ServeFaviconDashboard() http.Handler {
 	return u.middleware(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		http.FileServer(http.Dir(filepath.Join(u.pathSetting(), "dashboard"))).ServeHTTP(rw, req)
+		http.FileServer(http.Dir(filepath.Join(u.pathSetting()))).ServeHTTP(rw, req)
 	}))
 }
