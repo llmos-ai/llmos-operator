@@ -12,7 +12,7 @@ This Python script enables uploading files from a Pod directory or single files 
 - **Error Handling**: Robust error handling with detailed failure reporting
 - **Content Type Detection**: Automatic content type detection based on file extensions
 - **Dry Run Mode**: Preview files that would be uploaded without actually uploading
-- **Flexible Configuration**: Support for custom namespaces, registries, and API servers
+- **Flexible Configuration**: Support for custom namespaces, registries, and configurable API servers
 
 ## Installation
 
@@ -107,6 +107,14 @@ python upload_to_model.py \
   --namespace default \
   --bearer-token your-auth-token \
   --dry-run
+
+# Upload with custom API server
+python upload_to_model.py \
+  --source-dir /data/model \
+  --model-name my-model \
+  --namespace default \
+  --bearer-token your-auth-token \
+  --api-server https://custom-api.example.com:8443
 ```
 
 ### Command Line Options
@@ -119,6 +127,7 @@ python upload_to_model.py \
 | `--model-name` | Yes | - | Model name in the API path |
 | `--namespace` | Yes | - | Kubernetes namespace |
 | `--bearer-token` | Yes | - | Bearer token for authentication |
+| `--api-server` | No | `https://llmos-operator.llmos-system.svc.cluster.local:8443` | API server URL |
 | `--skip-ssl-verify` | No | `true` | Skip SSL certificate verification |
 | `--verify-ssl` | No | `false` | Enable SSL certificate verification |
 | `--timeout` | No | `300` | Upload timeout in seconds |
@@ -355,7 +364,8 @@ spec:
           --source-dir /data/model \
           --namespace default \
           --model-name my-model \
-          --api-server http://llmos-operator.llmos-system.svc.cluster.local:8080
+          --bearer-token $BEARER_TOKEN \
+          --api-server https://llmos-operator.llmos-system.svc.cluster.local:8443
     volumeMounts:
     - name: model-data
       mountPath: /data/model

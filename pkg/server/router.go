@@ -49,7 +49,7 @@ func (r *Router) Routes() http.Handler {
 	m.Handle("/dashboard", http.RedirectHandler("/dashboard/", http.StatusFound))
 	m.PathPrefix("/dashboard/").Handler(vueUI.IndexFileOnNotFound())
 	m.PathPrefix("/api-ui").Handler(vueUI.ServeAsset())
-	m.Handle("/favicon.png", vueUI.ServeFaviconDashboard())
+	m.Handle("/favicon.svg", vueUI.ServeFaviconDashboard())
 	m.Handle("/favicon.ico", vueUI.ServeFaviconDashboard())
 	m.PathPrefix("/k8s/clusters/local").HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		url := strings.TrimPrefix(req.URL.Path, "/k8s/clusters/local")
