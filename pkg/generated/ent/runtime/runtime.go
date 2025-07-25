@@ -19,6 +19,5 @@ package runtime
 // The schema-stitching logic is generated in github.com/llmos-ai/llmos-operator/pkg/generated/ent/runtime.go
 
 const (
-	Version = "v0.14.3"                                         // Version of ent codegen.
-	Sum     = "h1:wokAV/kIlH9TeklJWGGS7AYJdVckr0DloWjIcO9iIIQ=" // Sum of ent codegen.
+	Version = "v0.14.3" // Version of ent codegen.
 )
