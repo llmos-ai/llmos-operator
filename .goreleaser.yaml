@@ -27,7 +27,6 @@ builds:
       - CGO_ENABLED=0
       - VERSION={{ .Env.VERSION }}
       - COMMIT={{ .Env.COMMIT }}
-      - DATE={{ .Date }}
     goos:
       - linux
       - darwin
@@ -36,11 +35,15 @@ builds:
       - arm64
     tags:
       - netgo
+      - osusergo
     ldflags:
       - -s
       - -w
+      - -buildid=
       - -X "github.com/llmos-ai/llmos-operator/pkg/version.Version={{ .Env.VERSION }}"
       - -X "github.com/llmos-ai/llmos-operator/pkg/version.Commit={{ .Env.COMMIT }}"
+    flags:
+      - -trimpath
 
 changelog:
   use: github
@@ -61,6 +64,9 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
       - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
@@ -85,6 +91,9 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
       - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
@@ -109,8 +118,10 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
-      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -120,7 +131,7 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/amd64"
     extra_files:
-      - package/entrypoint-webhook.sh
+      - package/entrypoint.sh
       - scripts
 
   - use: buildx
@@ -133,8 +144,10 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
-      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -144,7 +157,7 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/arm64"
     extra_files:
-      - package/entrypoint-webhook.sh
+      - package/entrypoint.sh
       - scripts
 
   - use: buildx
@@ -157,8 +170,10 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
-      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -168,7 +183,7 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/amd64"
     extra_files:
-      - package/entrypoint-downloader.sh
+      - package/entrypoint.sh
       - scripts
 
   - use: buildx
@@ -181,8 +196,10 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--cache-from=type=gha"
+      - "--cache-to=type=gha,mode=max"
+      - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
-      - "--build-arg=LLMOS_UI_VERSION={{.Env.UI_VERSION}}"
       - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--build-arg=DATE={{.Date}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
@@ -192,7 +209,7 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos-operator"
       - "--platform=linux/arm64"
     extra_files:
-      - package/entrypoint-downloader.sh
+      - package/entrypoint.sh
       - scripts
 
 docker_manifests:
