@@ -1,9 +1,5 @@
 name: release
 
-concurrency:
-  group: release
-  cancel-in-progress: true
-
 on:
   push:
     tags:
@@ -26,6 +22,11 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Cleanup disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android
+        docker system prune -af
+        sudo apt-get clean
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
