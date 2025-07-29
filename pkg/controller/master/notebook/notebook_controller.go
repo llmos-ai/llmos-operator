@@ -125,6 +125,15 @@ func (h *Handler) reconcileStatefulSet(notebook *mlv1.Notebook) (*appsv1.Statefu
 		return nil, err
 	}
 
+	// It's not allowed to update the volume claim templates in the statefulset, so we need to delete the old
+	// statefulset and create a new one if the volume claim templates are different.
+	if !compareVolumeClaimTemplates(ss.Spec.VolumeClaimTemplates, foundSs.Spec.VolumeClaimTemplates) {
+		if err = h.statefulSets.Delete(ss.Namespace, ss.Name, &metav1.DeleteOptions{}); err != nil {
+			return nil, err
+		}
+		return h.statefulSets.Create(ss)
+	}
+
 	toUpdate, toRedeploy := reconcilehelper.CopyStatefulSetFields(ss, foundSs)
 	if toUpdate {
 		logrus.Debugf("updating notebook statefulset %s/%s", notebook.Namespace, notebook.Name)

@@ -58,6 +58,15 @@ func validateVolumeClaimTemplatesAnnotation(cluster *mlv1.Notebook) error {
 }
 
 func (v *validator) validateDatasetMountings(notebook *mlv1.Notebook) error {
+	// Check for duplicate mount paths
+	mountPaths := make(map[string]bool)
+	for _, mounting := range notebook.Spec.DatasetMountings {
+		if mountPaths[mounting.MountPath] {
+			return fmt.Errorf("duplicate mount path %s found in dataset mountings", mounting.MountPath)
+		}
+		mountPaths[mounting.MountPath] = true
+	}
+
 	for _, mounting := range notebook.Spec.DatasetMountings {
 		// Find the DatasetVersion by iterating through all DatasetVersions in the namespace
 		datasetVersions, err := v.datasetVersionCache.List(notebook.Namespace, labels.SelectorFromSet(map[string]string{
