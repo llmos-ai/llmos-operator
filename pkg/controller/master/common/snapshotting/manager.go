@@ -81,6 +81,13 @@ func NewManager(mgmt *config.Management, resourceHandler ResourceHandler) (*Mana
 
 // DoSnapshot is the main entry point for starting the snapshot process
 func (m *Manager) DoSnapshot(ctx context.Context, spec *Spec) error {
+	if size, err := m.ResourceHandler.GetContentSize(ctx, spec.Namespace, spec.Name); err != nil {
+		return fmt.Errorf("failed to get content size: %w", err)
+	} else if size == 0 {
+		logrus.Infof("no content to snapshot for %s %s/%s", m.ResourceHandler.GetResourceType(), spec.Namespace, spec.Name)
+		return nil
+	}
+
 	// Get current status to determine next step
 	status, err := m.ResourceHandler.GetSnapshottingStatus(spec.Namespace, spec.Name)
 	if err != nil {
