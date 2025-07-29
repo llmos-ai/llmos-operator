@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -111,6 +113,7 @@ func constructNoteBookStatefulSet(
 
 	return ss, nil
 }
+
 func getNotebookService(notebook *mlv1.Notebook) *corev1.Service {
 	svcType := corev1.ServiceTypeClusterIP
 	if notebook.Spec.ServiceType != "" {
@@ -254,7 +257,7 @@ func addDatasetMountings(
 		}
 
 		// Create PVC name for this dataset mounting
-		pvcName := generatePVCName(notebook.Name, mounting)
+		pvcName := generatePVCName(mounting)
 
 		// Create PVC with VolumeSnapshot as data source
 		pvc := corev1.PersistentVolumeClaim{
@@ -270,7 +273,7 @@ func addDatasetMountings(
 				},
 			},
 			Spec: corev1.PersistentVolumeClaimSpec{
-				AccessModes:      []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+				AccessModes:      []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				StorageClassName: ptr.To("llmos-ceph-block"),
 				Resources: corev1.VolumeResourceRequirements{
 					Requests: corev1.ResourceList{
@@ -292,7 +295,6 @@ func addDatasetMountings(
 		volumeMount := corev1.VolumeMount{
 			Name:      pvcName,
 			MountPath: mounting.MountPath,
-			ReadOnly:  true,
 		}
 
 		// Add volume mount to the first container (assuming it's the main notebook container)
@@ -309,7 +311,7 @@ func addDatasetMountings(
 
 // generatePVCName creates a PVC name that respects Kubernetes naming constraints
 // Kubernetes resource names must be no more than 63 characters and follow DNS naming conventions
-func generatePVCName(notebookName string, mounting mlv1.DatasetMounting) string {
+func generatePVCName(mounting mlv1.DatasetMounting) string {
 	// Create a unique string from the mounting information
 	hashInput := fmt.Sprintf("%s-%s-%s", mounting.DatasetName, mounting.Version, mounting.MountPath)
 
@@ -319,19 +321,63 @@ func generatePVCName(notebookName string, mounting mlv1.DatasetMounting) string 
 	hashBytes := hasher.Sum(nil)
 	hashSuffix := hex.EncodeToString(hashBytes)[:8]
 
-	// Format as notebookName-suffix
-	pvcName := fmt.Sprintf("%s-%s", notebookName, hashSuffix)
+	// normalisze version for Kubernetes naming
+	normalizedVersion := normalizeForK8s(mounting.Version)
+
+	// Format as datasetName-version-suffix
+	prefix := fmt.Sprintf("%s-%s", mounting.DatasetName, normalizedVersion)
+	pvcName := fmt.Sprintf("%s-%s", prefix, hashSuffix)
 
 	// Ensure the name doesn't exceed 63 characters (Kubernetes limit)
 	if len(pvcName) > 63 {
-		// If too long, truncate the notebook name and keep the hash suffix
-		maxNotebookNameLen := 63 - 1 - 8 // 63 - dash - 8 char hash
-		truncatedNotebookName := notebookName
-		if len(notebookName) > maxNotebookNameLen {
-			truncatedNotebookName = notebookName[:maxNotebookNameLen]
+		// If too long, truncate the prefix and keep the hash suffix
+		maxPrefixNameLen := 63 - 1 - 8 // 63 - dash - 8 char hash
+		truncatedPrefix := prefix
+		if len(prefix) > maxPrefixNameLen {
+			truncatedPrefix = prefix[:maxPrefixNameLen]
+			// Ensure truncated prefix doesn't end with a hyphen
+			truncatedPrefix = strings.TrimSuffix(truncatedPrefix, "-")
 		}
-		pvcName = fmt.Sprintf("%s-%s", truncatedNotebookName, hashSuffix)
+		pvcName = fmt.Sprintf("%s-%s", truncatedPrefix, hashSuffix)
 	}
 
 	return pvcName
+}
+
+// normalizeForK8s normalizes a string for Kubernetes DNS naming (simple version)
+func normalizeForK8s(name string) string {
+	// Convert to lowercase and replace invalid characters with hyphens
+	normalized := strings.ToLower(name)
+	normalized = regexp.MustCompile(`[^a-z0-9-]`).ReplaceAllString(normalized, "-")
+	// Remove consecutive hyphens and trim leading/trailing hyphens
+	normalized = regexp.MustCompile(`-+`).ReplaceAllString(normalized, "-")
+	normalized = strings.Trim(normalized, "-")
+	if normalized == "" {
+		normalized = "default"
+	}
+	return normalized
+}
+
+func compareVolumeClaimTemplates(templates1, templates2 []corev1.PersistentVolumeClaim) bool {
+	// Compare the volume claim templates
+	if len(templates1) != len(templates2) {
+		return false
+	}
+
+	// Sort the templates by name
+	sort.Slice(templates1, func(i, j int) bool {
+		return templates1[i].Name < templates1[j].Name
+	})
+	sort.Slice(templates2, func(i, j int) bool {
+		return templates2[i].Name < templates2[j].Name
+	})
+
+	// Compare the templates
+	for i := range templates1 {
+		if templates1[i].Name != templates2[i].Name {
+			return false
+		}
+	}
+
+	return true
 }
