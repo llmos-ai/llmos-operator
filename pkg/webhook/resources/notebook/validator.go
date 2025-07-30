@@ -42,6 +42,10 @@ func (v *validator) Create(_ *admission.Request, newObj runtime.Object) error {
 func (v *validator) Update(_ *admission.Request, _, newObj runtime.Object) error {
 	notebook := newObj.(*mlv1.Notebook)
 
+	if notebook.DeletionTimestamp != nil {
+		return nil
+	}
+
 	if err := v.validateDatasetMountings(notebook); err != nil {
 		return err
 	}
