@@ -13,7 +13,6 @@ spec:
       runtimeClassName: nvidia
       containers:
         - name: server
-          image: vllm/vllm-openai:latest
           ports:
             - containerPort: 8000
               protocol: TCP

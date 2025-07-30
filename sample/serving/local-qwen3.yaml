@@ -19,7 +19,7 @@ spec:
             - '--dtype=half'
             - '--enable-reasoning'
             - '--reasoning-parser=deepseek_r1'
-          image: docker.io/vllm/vllm-openai:v0.8.5
+          image: docker.io/vllm/vllm-openai:v0.10.0
           name: server
           ports:
             - containerPort: 8000
