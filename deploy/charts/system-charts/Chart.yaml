@@ -30,7 +30,7 @@ dependencies:
       - ml-framework
       - ray.io
   - name: llmos-gpu-stack
-    version: 0.1.1-rc2
+    version: 0.1.1
     repository: "https://llmos-gpu-stack-charts.1block.ai"
     tags:
       - gpu-operator
@@ -70,7 +70,7 @@ dependencies:
     tags:
       - llmos-monitoring
   - name: llmos-agents
-    version: 0.1.0-rc1
+    version: 0.1.0-rc2
     repository: "https://llmos-charts.1block.ai"
     tags:
       - llmos-agents
