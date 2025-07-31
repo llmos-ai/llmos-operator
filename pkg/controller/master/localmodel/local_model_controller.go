@@ -28,7 +28,7 @@ const (
 	localModelVersionOnRemoveName = "localModelVersion.OnRemove"
 
 	volumeName      = "model-volume"
-	volumeMountPath = "/root/"
+	volumeMountPath = "/data/"
 )
 
 type handler struct {
@@ -230,7 +230,7 @@ func (h *handler) doSnapshot(ctx context.Context, version *mlv1.LocalModelVersio
 			Image:                   settings.ModelDownloaderImage.Get(),
 			Args: []string{
 				fmt.Sprintf("--name=%s/%s", version.Labels[constant.LabelModelNamespace], version.Labels[constant.LabelModelName]),
-				fmt.Sprintf("--output-dir=%s", path.Join(volumeMountPath, "models", version.Namespace, version.Spec.LocalModel)),
+				fmt.Sprintf("--output-dir=%s", path.Join(volumeMountPath, version.Namespace, version.Spec.LocalModel)),
 				"--debug=true",
 			},
 		},

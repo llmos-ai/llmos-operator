@@ -1,10 +1,10 @@
 apiVersion: ml.llmos.ai/v1
 kind: ModelService
 metadata:
-  name: qwen3-local
+  name: local-model
   namespace: default
 spec:
-  model: default/qwen3
+  model: default/facebook-opt-125m
   modelRegistry: local
   replicas: 1
   serviceType: ClusterIP
@@ -17,8 +17,6 @@ spec:
       containers:
         - args:
             - '--dtype=half'
-            - '--enable-reasoning'
-            - '--reasoning-parser=deepseek_r1'
           image: docker.io/vllm/vllm-openai:v0.10.0
           name: server
           ports:
@@ -35,7 +33,7 @@ spec:
               cpu: '4'
               memory: 10Gi
           volumeMounts:
-            - mountPath: /root/.cache/huggingface/hub
+            - mountPath: /root/.cache/huggingface/hub/models
               name: model-dir
             - mountPath: /dev/shm
               name: dshm
@@ -58,7 +56,7 @@ spec:
           requests:
             storage: 5Gi
         dataSource:
-          name: qwen3-v1
+          name: facebook-opt-125m-v1
           kind: VolumeSnapshot
           apiGroup: snapshot.storage.k8s.io
         storageClassName: llmos-ceph-block
