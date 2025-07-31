@@ -8,11 +8,11 @@ metadata:
     llmos.ai/system-addon-allow-edit: "true"
     llmos.ai/cluster-tools: "true"
   annotations:
-    field.llmos.ai/description: "llmos-agents is a lightweight orchestration layer for managing AI agents, seamlessly integrating vector databases and LLM tools to enable contextual memory, dynamic reasoning, and intelligent task execution."
+    field.llmos.ai/description: "llmos-agents is a simple toolkit for building and managing AI agents. It brings together vector databases and LLM tools to help you orchestrate, track, and validate your agents."
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-agents
-  version: 0.1.0-rc1
+  version: 0.1.0-rc2
   enabled: false
   defaultValuesContent: |-
     langflow:
@@ -28,7 +28,6 @@ spec:
           registry: ghcr.io
           repository: llmos-ai/mirrored-langflowai-langflow
           imagePullPolicy: IfNotPresent
-          tag: 1.4.2
         command:
           - python
           - -m
@@ -39,8 +38,8 @@ spec:
           - --backend-only
         resources:
           requests:
-            cpu: 0.5
-            memory: 1Gi
+            cpu: 1
+            memory: 2Gi
           limits:
             cpu: 4
             memory: 8Gi
@@ -53,7 +52,6 @@ spec:
         image:
           registry: ghcr.io
           repository: llmos-ai/mirrored-langflowai-langflow-frontend
-          tag: 1.4.2
           imagePullPolicy: IfNotPresent
         resources:
           requests:
@@ -66,20 +64,15 @@ spec:
     postgresql:
       enabled: true
       name: postgres
+      auth:
+        enablePostgresUser: true
+        postgresPassword: ""
+        username: &postgresUser "llmos-agents"
+        password: ""
+        database: "llmos_agents"
       image:
         registry: ghcr.io
         repository: llmos-ai/mirrored-bitnami-postgresql
-        tag: 17.5.0-debian-12-r6
-      global:
-        storageClass: ""
-        security:
-          allowInsecureImages: true
-        postgresql:
-          auth:
-            postgresPassword: "llmos-agents@123"
-            username: "langflow"
-            password: ""
-            database: "langflow"
       architecture: replication
       primary:
         resources:
@@ -108,7 +101,6 @@ spec:
       image:
         registry: ghcr.io
         repo: llmos-ai/mirrored-semitechnologies-weaviate
-        tag: 1.30.6
       resources:
         requests:
           cpu: 200m

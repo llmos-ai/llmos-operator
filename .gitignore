@@ -32,3 +32,5 @@ dist
 .DS_Store
 .tmp-earthly-out
 tools/__pycache__/
+.cursor
+.trae

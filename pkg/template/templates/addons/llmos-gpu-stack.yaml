@@ -11,7 +11,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-gpu-stack
-  version: 0.1.1-rc2
+  version: 0.1.1
   enabled: true
   defaultValuesContent: |-
     gpuStack:
