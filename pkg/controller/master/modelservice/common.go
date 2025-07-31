@@ -169,7 +169,6 @@ func constructModelStatus(ss *v1.StatefulSet, pod *corev1.Pod) mlv1.ModelService
 		ContainerState: corev1.ContainerState{},
 		State:          "",
 	}
-
 	// Skip updating the status if the pod's status is empty
 	if reflect.DeepEqual(pod.Status, corev1.PodStatus{}) {
 		logrus.Infof("modelService pod status is empty, skip updating conditions and state")

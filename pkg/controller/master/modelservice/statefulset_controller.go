@@ -52,6 +52,11 @@ func (h *statefulSetHandler) updateModelServiceStatus(ss *appsv1.StatefulSet, mo
 	pod, err := h.podCache.Get(ss.Namespace, podName)
 	if err != nil {
 		if errors.IsNotFound(err) && *ss.Spec.Replicas == 0 {
+			msCpy := modelService.DeepCopy()
+			msCpy.Status.State = "Paused"
+			if _, err = h.modelService.UpdateStatus(msCpy); err != nil {
+				return ss, err
+			}
 			return ss, nil
 		}
 		return ss, err

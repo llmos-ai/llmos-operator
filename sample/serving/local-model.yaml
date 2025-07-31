@@ -27,7 +27,7 @@ spec:
             limits:
               cpu: '8'
               memory: 16Gi
-              volcano.sh/vgpu-memory: '10240'
+              volcano.sh/vgpu-memory: '8192'
               volcano.sh/vgpu-number: '1'
             requests:
               cpu: '4'
