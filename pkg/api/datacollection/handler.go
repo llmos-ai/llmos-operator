@@ -3,6 +3,7 @@ package datacollection
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -43,6 +44,7 @@ func NewHandler(scaled *config.Scaled) Handler {
 		PostHooks: map[string]cr.PostHook{
 			cr.ActionUpload: h.SyncFiles,
 			cr.ActionRemove: h.SyncFiles,
+			cr.ActionSyncFiles: h.SyncFiles,
 		},
 	}
 
@@ -77,6 +79,9 @@ func (h Handler) SyncFiles(req *http.Request, b backend.Backend) error {
 		})
 	}
 
+	if reflect.DeepEqual(dc.Status.Files, fileInfos) {
+		return nil
+	}
 	dcCopy := dc.DeepCopy()
 	dcCopy.Status.Files = fileInfos
 	if _, err = h.dcClient.UpdateStatus(dcCopy); err != nil {

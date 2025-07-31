@@ -23,6 +23,7 @@ func Formatter(request *types.APIRequest, resource *types.RawResource) {
 	resource.AddAction(request, cr.ActionList)
 	resource.AddAction(request, cr.ActionRemove)
 	resource.AddAction(request, cr.ActionGeneratePresignedURL)
+	resource.AddAction(request, cr.ActionSyncFiles)
 }
 
 func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
@@ -48,12 +49,14 @@ func RegisterSchema(scaled *config.Scaled, server *server.Server) error {
 			cr.ActionGeneratePresignedURL: {
 				Input: "generatePresignedURLInput",
 			},
+			cr.ActionSyncFiles: {},
 		}
 		s.ActionHandlers = map[string]http.Handler{
 			cr.ActionUpload:               h,
 			cr.ActionList:                 h,
 			cr.ActionRemove:               h,
 			cr.ActionGeneratePresignedURL: h,
+			cr.ActionSyncFiles:            h,
 		}
 	}
 

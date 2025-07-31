@@ -30,6 +30,7 @@ const (
 	ActionRemove               = "remove"
 	ActionCreateDirectory      = "createDirectory"
 	ActionGeneratePresignedURL = "generatePresignedURL"
+	ActionSyncFiles            = "syncFiles"
 )
 
 type UploadInput struct {
@@ -128,6 +129,8 @@ func (h BaseHandler) doPost(rw http.ResponseWriter, req *http.Request, vars map[
 		return h.createDirectory(req, namespace, name)
 	case ActionGeneratePresignedURL:
 		return h.generatePresignedURL(rw, req, namespace, name)
+	case ActionSyncFiles:
+		return h.syncFiles(req, namespace, name)
 	default:
 		return apierror.NewAPIError(validation.InvalidAction, fmt.Sprintf("Unsupported action %s", action))
 	}
@@ -553,4 +556,20 @@ func (r *ResponseWriterSync) Flush() {
 	if flusher, ok := r.rw.(http.Flusher); ok {
 		flusher.Flush()
 	}
+}
+
+func (h BaseHandler) syncFiles(req *http.Request, namespace, name string) error {
+	b, _, err := h.getBackendAndRootPath(namespace, name)
+	if err != nil {
+		return err
+	}
+
+	// Execute post hook if exists
+	if hook, exists := h.PostHooks[ActionSyncFiles]; exists {
+		if err := hook(req, b); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
