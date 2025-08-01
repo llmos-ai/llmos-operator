@@ -42,8 +42,8 @@ func NewHandler(scaled *config.Scaled) Handler {
 		GetRegistryAndRootPath: h.GetRegistryAndRootPath,
 		RegistryManager:        registry.NewManager(secretCache.Get, registryCache.Get),
 		PostHooks: map[string]cr.PostHook{
-			cr.ActionUpload: h.SyncFiles,
-			cr.ActionRemove: h.SyncFiles,
+			cr.ActionUpload:    h.SyncFiles,
+			cr.ActionRemove:    h.SyncFiles,
 			cr.ActionSyncFiles: h.SyncFiles,
 		},
 	}

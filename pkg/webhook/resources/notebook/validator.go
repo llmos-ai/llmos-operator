@@ -46,6 +46,12 @@ func (v *validator) Update(_ *admission.Request, _, newObj runtime.Object) error
 		return nil
 	}
 
+	// nolint:lll
+	// Workaround for https://github.com/llmos-ai/llmos-operator/blob/3ae5a383806bb36dbca2eff0ccc1b2ba698699f9/pkg/controller/master/notebook/notebook_controller.go#L103
+	if len(notebook.Annotations[constant.AnnotationOnDeleteVolumes]) > 0 {
+		return nil
+	}
+
 	if err := v.validateDatasetMountings(notebook); err != nil {
 		return err
 	}
