@@ -3,6 +3,7 @@ package snapshotting
 import (
 	"context"
 	"fmt"
+	"math"
 
 	snapshotv1 "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	ctlbatchv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/batch/v1"
@@ -265,7 +266,10 @@ func (m *Manager) createPVC(ctx context.Context, spec *Spec) error {
 	if err != nil {
 		return fmt.Errorf("failed to get content size: %w", err)
 	}
-	pvcSize := calculatePVCSize(contentSize)
+	pvcSize, err := calculatePVCSize(contentSize)
+	if err != nil {
+		return fmt.Errorf("calculate pvc size: %w", err)
+	}
 
 	// Create PVC
 	pvc := &corev1.PersistentVolumeClaim{
@@ -511,27 +515,40 @@ func (m *Manager) ensureServiceAccountAndRoleBinding(namespace string) error {
 	return nil
 }
 
-func calculatePVCSize(size int64) string {
-	// Convert bytes to GB and round up to the nearest GB
+func calculatePVCSize(size int64) (string, error) {
+	// Convert bytes to GB and apply 110% buffer, with minimum 1GB
 	// 1 GB = 1024^3 bytes
-	gbSize := int64(1) // Minimum 1GB
-	if size > 0 {
-		// Calculate GB size and round up if there's a remainder
-		divisor := int64(1024 * 1024 * 1024)
-		gbSize = size / divisor
-		if size%divisor > 0 {
-			// Round up if there's any remainder
-			gbSize++
-		}
-
-		// Ensure minimum size of 1GB
-		if gbSize < 1 {
-			gbSize = 1
-		}
-		logrus.Debugf("calculated PVC size: %d GB from %d bytes", gbSize, size)
+	if size <= 0 {
+		return "", fmt.Errorf("invalid size: %d", size)
 	}
 
+	// Calculate the required size in bytes with 110% buffer.
+	// Using integer arithmetic to avoid floating point precision issues.
+	// Prevent int64 overflow: ensure size*11 <= MaxInt64.
+	const maxSafeSize = math.MaxInt64 / 11
+	if size > maxSafeSize {
+		return "", fmt.Errorf("requested size too large: %d exceeds maximum allowable", size)
+	}
+
+	// Calculate the required size in bytes with 110% buffer
+	// Using integer arithmetic to avoid floating point precision issues
+	bufferedSize := (size * 11) / 10
+
+	// Convert to GB and round up
+	divisor := int64(1024 * 1024 * 1024)
+	gbSize := bufferedSize / divisor
+	if bufferedSize%divisor > 0 {
+		// Round up if there's any remainder
+		gbSize++
+	}
+
+	// Ensure minimum size of 1GB
+	if gbSize < 1 {
+		gbSize = 1
+	}
+
+	logrus.Debugf("calculated PVC size: %d GB (110%% of %d bytes = %d bytes)", gbSize, size, bufferedSize)
+
 	// Format the size string (e.g., "10Gi")
-	sizeStr := fmt.Sprintf("%dGi", gbSize)
-	return sizeStr
+	return fmt.Sprintf("%dGi", gbSize), nil
 }

@@ -587,8 +587,26 @@ func (mc *MinioClient) IncrementalDownload(ctx context.Context, targetDir, outpu
 			}
 		}
 
-		// Download changed/new files
+		// First, delete files that no longer exist in remote to free up space
+		if len(filesToDelete) > 0 {
+			logrus.Debugf("Deleting %d obsolete files to free up space", len(filesToDelete))
+			for _, path := range filesToDelete {
+				relPath := strings.TrimPrefix(path, targetDir)
+				localPath := filepath.Join(outputDir, relPath)
+
+				if err = os.Remove(localPath); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("remove deleted file %s failed: %w", localPath, err)
+				}
+
+				// Remove from metadata
+				delete(localMetadata, path)
+			}
+			logrus.Debugf("Successfully deleted %d obsolete files", len(filesToDelete))
+		}
+
+		// Then download changed/new files
 		if len(filesToDownload) > 0 {
+			logrus.Debugf("Downloading %d new/changed files", len(filesToDownload))
 			if err = mc.downloadFilesWithConcurrency(ctx, filesToDownload, targetDir, outputDir, concurrency); err != nil {
 				return err
 			}
@@ -597,19 +615,7 @@ func (mc *MinioClient) IncrementalDownload(ctx context.Context, targetDir, outpu
 			for _, file := range filesToDownload {
 				localMetadata[file.Path] = file
 			}
-		}
-
-		// Delete files that no longer exist in remote
-		for _, path := range filesToDelete {
-			relPath := strings.TrimPrefix(path, targetDir)
-			localPath := filepath.Join(outputDir, relPath)
-
-			if err = os.Remove(localPath); err != nil && !os.IsNotExist(err) {
-				return fmt.Errorf("remove deleted file %s failed: %w", localPath, err)
-			}
-
-			// Remove from metadata
-			delete(localMetadata, path)
+			logrus.Debugf("Successfully downloaded %d files", len(filesToDownload))
 		}
 
 		// Save updated metadata with pretty formatting
