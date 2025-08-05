@@ -2,6 +2,7 @@ package upgrade
 
 import (
 	"fmt"
+	"strings"
 
 	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -84,6 +85,10 @@ func agentPlan(upgrade *mgmtv1.Upgrade) *upgradev1.Plan {
 	plan.Spec.Upgrade = &upgradev1.ContainerSpec{
 		Image: formatRepoImage(upgrade.Spec.Registry, nodeUpgradeImageName, upgrade.Spec.Version),
 		Args:  []string{"upgrade"},
+	}
+	plan.Spec.Drain = &upgradev1.DrainSpec{
+		SkipWaitForDeleteTimeout: corev1.DefaultTerminationGracePeriodSeconds * 2,
+		Force:                    true,
 	}
 	return plan
 }
@@ -173,7 +178,9 @@ func getDefaultTolerations() []corev1.Toleration {
 
 func formatRepoImage(registry, repo, tag string) string {
 	if registry != "" {
-		return fmt.Sprintf("%s/%s:%s", registry, repo, tag)
+		// If registry contains multiple parts (e.g. ghcr.io/llmos-ai), only use the first part
+		registryParts := strings.Split(registry, "/")
+		return fmt.Sprintf("%s/%s:%s", registryParts[0], repo, tag)
 	}
 	return fmt.Sprintf("%s/%s:%s", settings.GlobalSystemImageRegistry.Get(), repo, tag)
 }

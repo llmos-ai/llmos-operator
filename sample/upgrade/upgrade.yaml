@@ -1,17 +1,17 @@
 apiVersion: management.llmos.ai/v1
 kind: Version
 metadata:
-  name: v0.2.0-rc1
+  name: v0.3.0-rc3
 spec:
-  minUpgradableVersion: v0.1.0
-  kubernetesVersion: v1.31.0+k3s1 # The newer k8s version to upgrade to
-  releaseDate: "2024-09-30"
-  tags: []
+  minUpgradableVersion: v0.2.0
+  kubernetesVersion: v1.33.1+k3s1
+  releaseDate: "2025-08-5"
+  tags: ["rc"]
 ---
 apiVersion: management.llmos.ai/v1
 kind: Upgrade
 metadata:
-  name: llmos-upgrade-test
+  name: upgrade-v030-rc3
 spec:
-  version: v0.2.0-rc1 # The version to upgrade to
-  registry: "docker.io/guangbo" # Override the default registry if needed
+  version: v0.3.0-rc3 # The version to upgrade to
+  registry: "ghcr.io/llmos-ai"
