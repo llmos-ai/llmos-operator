@@ -39,6 +39,9 @@ spec:
     alertmanager:
       enabled: true
       alertmanagerSpec:
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-prometheus-alertmanager
         useExistingSecret: false
         volumes: []
         alertmanagerConfigSelector:
@@ -60,6 +63,10 @@ spec:
         image:
           registry: ghcr.io
           repository: llmos-ai/mirrored-library-nginx
+      sidecar:
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-kiwigrid-k8s-sidecar
       resources:
         limits:
           memory: 200Mi
@@ -69,6 +76,13 @@ spec:
           cpu: 100m
     prometheusOperator:
       enabled: true
+      image:
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-prometheus-operator-prometheus-operator
+      prometheusConfigReloader:
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-prometheus-operator-prometheus-config-reloader
       admissionWebhooks:
         patch:
           enabled: true
@@ -85,6 +99,9 @@ spec:
     prometheus:
       enabled: true
       prometheusSpec:
+        image:
+          registry: ghcr.io
+          repository: llmos-ai/mirrored-prometheus-prometheus
         enableAdminAPI: false
         ignoreNamespaceSelectors: false
         scrapeInterval: "30s"
@@ -128,10 +145,13 @@ spec:
           memory: 130Mi
     nodeExporter:
       enabled: true
+      image:
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-prometheus-node-exporter
     prometheus-node-exporter:
       image:
-        registry: quay.io
-        repository: prometheus/node-exporter
+        registry: ghcr.io
+        repository: llmos-ai/mirrored-prometheus-node-exporter
       resources:
         limits:
           cpu: 200m

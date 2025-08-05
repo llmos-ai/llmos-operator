@@ -14,7 +14,7 @@ import (
 )
 
 // getHelmChart helps to get helm chart object managed by the addon
-func (h *handler) getHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, bool, error) {
+func (h *AddonHandler) getHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, bool, error) {
 	chart, err := h.helmChartCache.Get(addon.Namespace, addon.Name)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -35,7 +35,7 @@ func (h *handler) getHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, b
 }
 
 // setAddonCondStatus helps to set addon condition status & state
-func (h *handler) setAddonCondStatus(addon *mgmtv1.ManagedAddon, state mgmtv1.AddonState,
+func (h *AddonHandler) setAddonCondStatus(addon *mgmtv1.ManagedAddon, state mgmtv1.AddonState,
 	reason string, err error) (*mgmtv1.ManagedAddon, error) {
 	addonCpy := addon.DeepCopy()
 	addonCpy.Status.State = state

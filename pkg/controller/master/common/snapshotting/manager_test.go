@@ -98,7 +98,7 @@ func TestCalculatePVCSize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := calculatePVCSize(tt.size)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Empty(t, result)
@@ -116,10 +116,10 @@ func TestCalculatePVCSizeBufferCalculation(t *testing.T) {
 	// For 1GB input, we expect 110% = 1.1GB, which should round up to 2GB
 	size := int64(1024 * 1024 * 1024) // 1GB
 	result, err := calculatePVCSize(size)
-	
+
 	assert.NoError(t, err)
 	assert.Equal(t, "2Gi", result)
-	
+
 	// Verify the internal calculation
 	bufferedSize := (size * 11) / 10 // 110% of 1GB = 1.1GB
 	expectedBufferedSize := int64(1024*1024*1024) * 11 / 10
@@ -149,7 +149,7 @@ func TestCalculatePVCSizeRoundingBehavior(t *testing.T) {
 			expected:    "2Gi",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := calculatePVCSize(tt.sizeInBytes)
@@ -163,14 +163,14 @@ func TestCalculatePVCSizeRoundingBehavior(t *testing.T) {
 func TestCalculatePVCSizeMinimumSize(t *testing.T) {
 	// Test various small sizes that should all result in 1GB minimum
 	sizes := []int64{
-		1,                    // 1 byte
-		1024,                 // 1KB
-		1024 * 1024,          // 1MB
-		100 * 1024 * 1024,    // 100MB
-		500 * 1024 * 1024,    // 500MB
-		800 * 1024 * 1024,    // 800MB
+		1,                 // 1 byte
+		1024,              // 1KB
+		1024 * 1024,       // 1MB
+		100 * 1024 * 1024, // 100MB
+		500 * 1024 * 1024, // 500MB
+		800 * 1024 * 1024, // 800MB
 	}
-	
+
 	for _, size := range sizes {
 		t.Run(fmt.Sprintf("size_%d_bytes", size), func(t *testing.T) {
 			result, err := calculatePVCSize(size)
