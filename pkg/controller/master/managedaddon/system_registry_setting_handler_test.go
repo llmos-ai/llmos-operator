@@ -43,6 +43,19 @@ global:
 			expectedYAML:  "",
 			expectedError: true,
 		},
+		{
+			name: "Update repository with ghcr.io",
+			inputYAML: `
+repository: ghcr.io/llmos-ai/test-image
+`,
+			newRegistry: "myregistry.io",
+			expectedYAML: `
+global:
+  imageRegistry: myregistry.io
+repository: myregistry.io/llmos-ai/test-image
+`,
+			expectedError: false,
+		},
 	}
 
 	for _, tt := range tests {

@@ -53,7 +53,14 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: false
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-dcgm-exporter
+      validator:
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-gpu-operator-validator
       operator:
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-gpu-operator
         limits:
           cpu: 500m
           memory: 350Mi
@@ -61,6 +68,8 @@ spec:
           cpu: 50m
           memory: 100Mi
       toolkit:
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-container-toolkit
         env:
           - name: CONTAINERD_CONFIG
             value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
@@ -71,12 +80,19 @@ spec:
           - name: CONTAINERD_SET_AS_DEFAULT
             value: "true"
       node-feature-discovery:
+        image:
+          repository: ghcr.io/llmos-ai/mirrored-nfd-node-feature-discovery
+          pullPolicy: IfNotPresent
         resources:
           limits:
             memory: 1024Mi
           requests:
             cpu: 20m
             memory: 50Mi
+      gfd:
+        enabled: true
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-k8s-device-plugin
     volcano:
       enabled: true
       basic:

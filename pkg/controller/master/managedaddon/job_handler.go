@@ -17,7 +17,7 @@ const (
 )
 
 // OnAddonJobChange helps to sync associated helm job status to addon status
-func (h *handler) OnAddonJobChange(_ string, job *batchv1.Job) (*batchv1.Job, error) {
+func (h *AddonHandler) OnAddonJobChange(_ string, job *batchv1.Job) (*batchv1.Job, error) {
 	if job == nil || job.DeletionTimestamp != nil {
 		return nil, nil
 	}
@@ -30,7 +30,7 @@ func (h *handler) OnAddonJobChange(_ string, job *batchv1.Job) (*batchv1.Job, er
 	return job, nil
 }
 
-func (h *handler) syncJobStatusToAddon(job *batchv1.Job, name string) error {
+func (h *AddonHandler) syncJobStatusToAddon(job *batchv1.Job, name string) error {
 	addon, err := h.managedAddonCache.Get(job.Namespace, name)
 	if err != nil && !errors.IsNotFound(err) {
 		return fmt.Errorf("failed to get addon %s/%s: %w", job.Namespace, name, err)

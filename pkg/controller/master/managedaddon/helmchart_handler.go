@@ -12,7 +12,7 @@ import (
 )
 
 // addonHelmChartOnDelete helps to disable addon when helm chart is deleted
-func (h *handler) addonHelmChartOnDelete(_ string, chart *helmv1.HelmChart) (*helmv1.HelmChart, error) {
+func (h *AddonHandler) addonHelmChartOnDelete(_ string, chart *helmv1.HelmChart) (*helmv1.HelmChart, error) {
 	if chart == nil || chart.DeletionTimestamp == nil {
 		return nil, nil
 	}
