@@ -21,8 +21,8 @@ const (
 	labelCriticalAddonsOnly = "CriticalAddonsOnly"
 
 	upgradeRepoName       = "upgrade-repo"
-	upgradeServiceAccount = "system-upgrade"
-	systemChartsImageName = "system-charts-repo"
+	upgradeServiceAccount = "system-upgrade-controller"
+	systemChartsImageName = "llmos-ai/system-charts-repo"
 	nodeUpgradeImageName  = "llmos-ai/node-upgrade"
 
 	serverComponent = "server"
@@ -55,6 +55,10 @@ func serverPlan(upgrade *mgmtv1.Upgrade) *upgradev1.Plan {
 			Values:   []string{"true"},
 		},
 	}
+	plan.Spec.Upgrade = &upgradev1.ContainerSpec{
+		Image: formatRepoImage(upgrade.Spec.Registry, nodeUpgradeImageName, upgrade.Spec.Version),
+		Args:  []string{"upgrade"},
+	}
 	return plan
 }
 
@@ -74,7 +78,12 @@ func agentPlan(upgrade *mgmtv1.Upgrade) *upgradev1.Plan {
 	}
 	plan.Spec.Prepare = &upgradev1.ContainerSpec{
 		// Use prepare step in the agent-plan to wait for the server-plan to complete before they execute.
-		Args: []string{"prepare", getServerPlanName(upgrade)},
+		Image: formatRepoImage(upgrade.Spec.Registry, nodeUpgradeImageName, upgrade.Spec.Version),
+		Args:  []string{"prepare", getServerPlanName(upgrade)},
+	}
+	plan.Spec.Upgrade = &upgradev1.ContainerSpec{
+		Image: formatRepoImage(upgrade.Spec.Registry, nodeUpgradeImageName, upgrade.Spec.Version),
+		Args:  []string{"upgrade"},
 	}
 	return plan
 }
@@ -92,7 +101,7 @@ func basePlan(upgrade *mgmtv1.Upgrade) *upgradev1.Plan {
 		},
 		Spec: upgradev1.PlanSpec{
 			Concurrency:           int64(1),
-			Version:               upgrade.Spec.Version,
+			Version:               upgrade.Spec.KubernetesVersion,
 			JobActiveDeadlineSecs: defaultTTLSecondsAfterFinished,
 			NodeSelector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
