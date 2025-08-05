@@ -2,7 +2,6 @@ package managedaddon
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -19,7 +18,7 @@ import (
 	"github.com/llmos-ai/llmos-operator/pkg/utils"
 )
 
-func (h *handler) registerSystemAddons(_ context.Context) error {
+func (h *AddonHandler) registerSystemAddons() error {
 	serverVersion := settings.ServerVersion.Get()
 
 	systemAddonTemplates, err := template.GetAllFilenames()
@@ -60,7 +59,7 @@ func (h *handler) registerSystemAddons(_ context.Context) error {
 	return nil
 }
 
-func (h *handler) reconcileManagedAddon(addonTemplate *mgmtv1.ManagedAddon, serverVersion string) (
+func (h *AddonHandler) reconcileManagedAddon(addonTemplate *mgmtv1.ManagedAddon, serverVersion string) (
 	*mgmtv1.ManagedAddon, error) {
 	addon, err := h.managedAddon.Get(addonTemplate.Namespace, addonTemplate.Name, metav1.GetOptions{})
 	if err != nil && apierrors.IsNotFound(err) {
@@ -92,6 +91,14 @@ func (h *handler) reconcileManagedAddon(addonTemplate *mgmtv1.ManagedAddon, serv
 	toUpdate.Labels = utils.MergeMapString(toUpdate.Labels, addonTemplate.Labels)
 	toUpdate.Annotations = utils.MergeMapString(toUpdate.Annotations, addonTemplate.Annotations)
 	toUpdate.Labels[constant.LLMOSServerVersionLabel] = serverVersion
+
+	newValues, err := ModifyImageRegistry(toUpdate.Spec.DefaultValuesContent, settings.GlobalSystemImageRegistry.Get())
+	if err != nil {
+		return toUpdate, err
+	}
+	if newValues != toUpdate.Spec.DefaultValuesContent {
+		toUpdate.Spec.DefaultValuesContent = newValues
+	}
 
 	if !reflect.DeepEqual(addon, toUpdate) {
 		logrus.Debugf("system addon %s/%s has changed, updating it", addon.Name, addon.Namespace)

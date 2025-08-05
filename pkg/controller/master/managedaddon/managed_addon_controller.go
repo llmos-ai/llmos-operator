@@ -36,7 +36,7 @@ var settingSyncedAddons = []string{
 	"llmos-gpu-stack",
 }
 
-type handler struct {
+type AddonHandler struct {
 	managedAddon      ctlmanagementv1.ManagedAddonController
 	managedAddons     ctlmanagementv1.ManagedAddonClient
 	managedAddonCache ctlmanagementv1.ManagedAddonCache
@@ -52,7 +52,7 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 	helmCharts := mgmt.HelmFactory.Helm().V1().HelmChart()
 	jobs := mgmt.BatchFactory.Batch().V1().Job()
 	settings := mgmt.MgmtFactory.Management().V1().Setting()
-	h := &handler{
+	h := &AddonHandler{
 		managedAddon:      addons,
 		managedAddons:     addons,
 		managedAddonCache: addons.Cache(),
@@ -72,13 +72,14 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		settingCache: settings.Cache(),
 		addons:       addons,
 		addonCache:   addons.Cache(),
+		AddonHandler: h,
 	}
 	settings.OnChange(ctx, addonSystemRegistryOnChange, settingHandler.systemRegistryOnChange)
 
-	return h.registerSystemAddons(ctx)
+	return h.registerSystemAddons()
 }
 
-func (h *handler) OnChange(_ string, addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
+func (h *AddonHandler) OnChange(_ string, addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	if addon == nil || addon.DeletionTimestamp != nil {
 		return addon, nil
 	}
@@ -110,7 +111,7 @@ func (h *handler) OnChange(_ string, addon *mgmtv1.ManagedAddon) (*mgmtv1.Manage
 //   - AddonStateComplete: chart is ready
 //   - AddonStateError: chart is in error state
 //   - AddonStateFailed: chart job is failed
-func (h *handler) enableManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
+func (h *AddonHandler) enableManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	// init addon state to enabled first
 	if !mgmtv1.AddonCondChartDeployed.IsTrue(addon) {
 		if err := ValidateChartValues(addon.Spec.ValuesContent); err != nil {
@@ -131,7 +132,7 @@ func (h *handler) enableManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.Manage
 	}
 }
 
-func (h *handler) disabledManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
+func (h *AddonHandler) disabledManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	// check for existing chart
 	chart, owned, err := h.getHelmChart(addon)
 	if err != nil {
@@ -147,7 +148,7 @@ func (h *handler) disabledManagedAddon(addon *mgmtv1.ManagedAddon) (*mgmtv1.Mana
 	return h.setAddonCondStatus(addon, mgmtv1.AddonStateDisabled, "", nil)
 }
 
-func (h *handler) enableAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
+func (h *AddonHandler) enableAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	// check for existing chart
 	logrus.Debugf("check existing chart for addon %s", addon.Name)
 	chart, owned, err := h.getHelmChart(addon)
@@ -179,7 +180,7 @@ func (h *handler) enableAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedA
 	return h.setAddonCondStatus(addon, mgmtv1.AddonStateInProgress, "", nil)
 }
 
-func (h *handler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, error) {
+func (h *AddonHandler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart, error) {
 	logrus.Debugf("creating new helm chart %s for addon %s", getChartFullName(addon), addon.Name)
 	labels := addon.Labels
 	if labels == nil {
@@ -215,7 +216,7 @@ func (h *handler) deployHelmChart(addon *mgmtv1.ManagedAddon) (*helmv1.HelmChart
 	})
 }
 
-func (h *handler) reconcileAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
+func (h *AddonHandler) reconcileAddonChart(addon *mgmtv1.ManagedAddon) (*mgmtv1.ManagedAddon, error) {
 	chart, _, err := h.getHelmChart(addon)
 	if err != nil {
 		return addon, err
