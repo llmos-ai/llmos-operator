@@ -120,6 +120,7 @@ spec:
                     type: integer
                 type: object
               kubernetesVersion:
+                description: Specify the Kubernetes version to upgrade to
                 type: string
               registry:
                 type: string
@@ -127,6 +128,7 @@ spec:
                 description: The LLMOS Operator version to upgrade to
                 type: string
             required:
+            - kubernetesVersion
             - version
             type: object
           status:
