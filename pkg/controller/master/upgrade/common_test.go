@@ -169,6 +169,13 @@ func (p *upgradeBuilder) WithConditionReady(cond condition.Cond) *upgradeBuilder
 	return p
 }
 
+func (p *upgradeBuilder) WithConditionNotReady(cond condition.Cond) *upgradeBuilder {
+	cond.False(p.upgrade)
+	cond.Reason(p.upgrade, "NotReady")
+	cond.Message(p.upgrade, "Condition not ready")
+	return p
+}
+
 func (p *upgradeBuilder) WithManagedAddonStatus(addons []*mgmtv1.ManagedAddon) *upgradeBuilder {
 	mgmtv1.UpgradeChartsRepoReady.True(p.upgrade)
 	mgmtv1.ManagedAddonsIsReady.Reason(p.upgrade, condition.StateProcessing)
