@@ -82,6 +82,17 @@ func TestHandler_OnUpgradeChanged(t *testing.T) {
 		expected output
 	}{
 		{
+			name: "upgrade with condition check - charts repo processing",
+			given: input{
+				key:     testUpgradeName,
+				upgrade: newTestUpgradeBuilder().InitStatus().Build(),
+			},
+			expected: output{
+				upgrade: newTestUpgradeBuilder().InitStatus().WithChartsRepoCondition().Build(),
+				err:     nil,
+			},
+		},
+		{
 			name: "create new upgrade",
 			given: input{
 				key:     testUpgradeName,
