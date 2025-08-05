@@ -59,8 +59,9 @@ type UpgradeSpec struct {
 	// The LLMOS Operator version to upgrade to
 	Version string `json:"version"`
 
-	// +Optional, Specify the Kubernetes version to upgrade to
-	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
+	// +kubebuilder:validation:Required
+	// Specify the Kubernetes version to upgrade to
+	KubernetesVersion string `json:"kubernetesVersion"`
 
 	// +Optional, override the default image registry if provided
 	Registry string `json:"registry,omitempty"`
