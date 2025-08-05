@@ -24,8 +24,9 @@ type VersionSpec struct {
 	// +optional, Specify the minimum version that can be upgraded from
 	MinUpgradableVersion string `json:"minUpgradableVersion,omitempty"`
 
-	// +optional, Specify the kubernetes version to upgrade to
-	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
+	// Specify the kubernetes version to upgrade to
+	// +kubebuilder:validation:Required
+	KubernetesVersion string `json:"kubernetesVersion"`
 
 	// +kubebuilder:validation:Required
 	ReleaseDate string `json:"releaseDate,omitempty"`

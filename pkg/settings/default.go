@@ -14,14 +14,13 @@ type Image struct {
 }
 
 const (
-	defaultRegistry   = "ghcr.io"
 	defaultImgVersion = "v0.1.0"
 )
 
 // SetDefaultNotebookImages set default notebook images
 // resources please refer to: https://www.kubeflow.org/docs/components/notebooks/container-images/
 func setDefaultNotebookImages() string {
-	registry := defaultRegistry
+	registry := GlobalSystemImageRegistry.Get()
 	defaultImgs := map[string][]Image{
 		"jupyter": {
 			{
