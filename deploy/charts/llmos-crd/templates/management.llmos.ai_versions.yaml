@@ -47,6 +47,7 @@ spec:
             description: VersionSpec defines the desired state of Version
             properties:
               kubernetesVersion:
+                description: Specify the kubernetes version to upgrade to
                 type: string
               minUpgradableVersion:
                 type: string
@@ -57,6 +58,7 @@ spec:
                   type: string
                 type: array
             required:
+            - kubernetesVersion
             - releaseDate
             type: object
         type: object

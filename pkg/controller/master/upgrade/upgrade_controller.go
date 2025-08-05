@@ -94,8 +94,7 @@ func (h *upgradeHandler) onChange(_ string, upgrade *mgmtv1.Upgrade) (*mgmtv1.Up
 	}
 
 	// Setup upgrade system charts repo
-	if mgmtv1.UpgradeChartsRepoReady.GetStatus(upgrade) == "" ||
-		mgmtv1.UpgradeChartsRepoReady.GetStatus(upgrade) == cond.StateError {
+	if mgmtv1.UpgradeChartsRepoReady.GetStatus(upgrade) == "" || !mgmtv1.UpgradeChartsRepoReady.IsTrue(upgrade) {
 		if _, err = h.reconcileUpgradeSystemChartsRepo(toUpdate); err != nil {
 			logrus.Debugf("Failed to setup upgrade system charts repo for upgrade %s: %v", upgrade.Name, err)
 			return h.updateErrorCond(toUpdate, mgmtv1.UpgradeChartsRepoReady, err)

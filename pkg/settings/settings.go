@@ -37,7 +37,7 @@ var (
 	ManagedAddonConfigs       = NewSetting(ManagedAddonConfigsName, "")
 	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "docker.io/vllm/vllm-openai:v0.10.0")
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
-	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "")
+	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "ghcr.io")
 	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")
 	ProxyAppsServerUrl        = NewSetting(ProxyAppsServerUrlName, "http://llmos-agents-langflow-backend.llmos-agents:7860")
 	ProxyVectorServerUrl      = NewSetting(ProxyVectorDBServerUrlName, "http://weaviate.llmos-agents:80")
