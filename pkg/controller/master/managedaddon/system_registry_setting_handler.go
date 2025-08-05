@@ -2,7 +2,9 @@ package managedaddon
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/labels"
 
@@ -17,11 +19,18 @@ const (
 	imageRegistryKey = "imageRegistry"
 )
 
+var (
+	repositoryKeys     = []string{"registry", "repository", "image_registry"}
+	repositoryPrefixes = []string{"ghcr.io", "nvcr.io", "quay.io", "docker.io"}
+)
+
 type SettingHandler struct {
 	settings     ctlmgmtv1.SettingClient
 	settingCache ctlmgmtv1.SettingCache
 	addons       ctlmgmtv1.ManagedAddonClient
 	addonCache   ctlmgmtv1.ManagedAddonCache
+
+	AddonHandler *AddonHandler
 }
 
 func (s *SettingHandler) systemRegistryOnChange(_ string, setting *mgmtv1.Setting) (*mgmtv1.Setting, error) {
@@ -32,6 +41,12 @@ func (s *SettingHandler) systemRegistryOnChange(_ string, setting *mgmtv1.Settin
 	if setting.Name != settings.GlobalSystemImageRegistryName ||
 		(settings.GlobalSystemImageRegistry.Get() == "" && setting.Value == "") {
 		return setting, nil
+	}
+
+	// Re-sync system addon
+	err := s.AddonHandler.registerSystemAddons()
+	if err != nil {
+		return setting, err
 	}
 
 	// Fetch all system addons and update default global registry value
@@ -63,7 +78,9 @@ func (s *SettingHandler) systemRegistryOnChange(_ string, setting *mgmtv1.Settin
 }
 
 func ModifyImageRegistry(yamlString string, registry string) (string, error) {
-	// Parse the YAML into a map
+	if registry == "" {
+		return yamlString, nil
+	}
 	var config map[string]interface{}
 	err := yaml.Unmarshal([]byte(yamlString), &config)
 	if err != nil {
@@ -74,21 +91,73 @@ func ModifyImageRegistry(yamlString string, registry string) (string, error) {
 		config = make(map[string]interface{})
 	}
 
-	// Navigate and modify the value
-	if global, ok := config[globalKey].(map[string]interface{}); ok {
-		global[imageRegistryKey] = registry
-	} else {
-		// Add 'global' if not present
-		config[globalKey] = map[string]interface{}{
-			imageRegistryKey: registry,
-		}
-	}
+	updateValues(config, registry)
 
-	// Convert the map back to a YAML string
 	modifiedYAML, err := yaml.Marshal(config)
 	if err != nil {
 		return "", fmt.Errorf("error converting managed addon values to YAML: %v", err)
 	}
 
 	return string(modifiedYAML), nil
+}
+
+func updateValues(data map[string]interface{}, registry string) {
+	// for global image registry setting
+	if _, ok := data[globalKey]; ok {
+		if global, ok := data[globalKey].(map[string]interface{}); ok {
+			global[imageRegistryKey] = registry
+		}
+	} else {
+		data[globalKey] = map[string]interface{}{
+			imageRegistryKey: registry,
+		}
+	}
+
+	traverseAndUpdate(data, registry)
+}
+
+func traverseAndUpdate(data interface{}, registry string) {
+	switch v := data.(type) {
+	case map[string]interface{}:
+		for key, val := range v {
+			if contains(repositoryKeys, key) {
+				if repoStr, ok := val.(string); ok {
+					if hasPrefix(repoStr, repositoryPrefixes) {
+						logrus.Debugf("update %s with repository: %s", key, repoStr)
+						parts := strings.SplitN(repoStr, "/", 2)
+						if len(parts) > 1 {
+							v[key] = fmt.Sprintf("%s/%s", registry, parts[1])
+						} else {
+							v[key] = registry
+						}
+					}
+				}
+			} else {
+				traverseAndUpdate(val, registry)
+			}
+		}
+	case []interface{}:
+		for _, item := range v {
+			traverseAndUpdate(item, registry)
+		}
+	}
+}
+
+// contains checks if a string exists in a slice of strings
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+func hasPrefix(s string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(s, p) {
+			return true
+		}
+	}
+	return false
 }
