@@ -1,7 +1,7 @@
 apiVersion: management.llmos.ai/v1
 kind: Version
 metadata:
-  name: v0.3.0-rc3
+  name: v0.3.0-rc4
 spec:
   minUpgradableVersion: v0.2.0
   kubernetesVersion: v1.33.1+k3s1
@@ -11,7 +11,8 @@ spec:
 apiVersion: management.llmos.ai/v1
 kind: Upgrade
 metadata:
-  name: upgrade-v030-rc3
+  name: upgrade-v030-rc4
 spec:
-  version: v0.3.0-rc3 # The version to upgrade to
-  registry: "ghcr.io/llmos-ai"
+  version: v0.3.0-rc4 # The version to upgrade to
+  kubernetesVersion: v1.33.1+k3s1
+  registry: "ghcr.io"
