@@ -245,3 +245,5 @@ docker_manifests:
       - "{{ .Env.DOCKER_REGISTRY }}/llmos-operator-downloader:{{ .Env.VERSION }}-arm64"
 
 dist: dist/cli
+git:
+  tag_sort: semver
