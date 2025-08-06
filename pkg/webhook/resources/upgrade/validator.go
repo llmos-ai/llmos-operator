@@ -66,8 +66,8 @@ func (v *validator) Create(_ *admission.Request, newObj runtime.Object) error {
 	}
 
 	for _, u := range upgrades {
-		if u.Status.State == condition.StateComplete || u.Status.State == condition.StateError {
-			msg := fmt.Sprintf("Cannot process until previous upgrade %q is complete", upgrades[0].Name)
+		if u.Status.State != condition.StateComplete && u.Status.State != condition.StateError {
+			msg := fmt.Sprintf("Cannot process until previous upgrade %q is complete", u.Name)
 			return werror.StatusConflict(msg)
 		}
 	}
