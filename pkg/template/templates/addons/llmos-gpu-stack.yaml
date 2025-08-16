@@ -11,7 +11,7 @@ metadata:
 spec:
   repo: http://system-charts-repo.llmos-system.svc
   chart: llmos-gpu-stack
-  version: 0.1.1
+  version: 0.1.2
   enabled: true
   defaultValuesContent: |-
     gpuStack:
@@ -55,6 +55,10 @@ spec:
           enabled: false
         repository: ghcr.io/llmos-ai
         image: mirrored-nvidia-dcgm-exporter
+      migManager:
+        enabled: true
+        repository: ghcr.io/llmos-ai
+        image: mirrored-nvidia-k8s-mig-manager
       validator:
         repository: ghcr.io/llmos-ai
         image: mirrored-nvidia-gpu-operator-validator
@@ -117,6 +121,7 @@ spec:
             - name: deviceshare
               arguments:
                 deviceshare.VGPUEnable: true  # enable vgpu
+                deviceshare.SchedulePolicy: binpack  # scheduling policy. binpack/spread
             - name: predicates
             - name: proportion
             - name: nodeorder
