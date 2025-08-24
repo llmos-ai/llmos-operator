@@ -72,14 +72,16 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		ss.Spec.Template.Spec.Containers[0].StartupProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/health",
-					Port: intstr.FromInt32(containerPort),
+					Scheme: corev1.URISchemeHTTP,
+					Path:   "/health",
+					Port:   intstr.FromInt32(containerPort),
 				},
 			},
 			InitialDelaySeconds: 60,
 			FailureThreshold:    30,
 			PeriodSeconds:       10,
 			TimeoutSeconds:      3,
+			SuccessThreshold:    1,
 		}
 	}
 
@@ -87,8 +89,9 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		ss.Spec.Template.Spec.Containers[0].ReadinessProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/health",
-					Port: intstr.FromInt32(containerPort),
+					Scheme: corev1.URISchemeHTTP,
+					Path:   "/health",
+					Port:   intstr.FromInt32(containerPort),
 				},
 			},
 			PeriodSeconds:    10,
@@ -102,13 +105,15 @@ func constructModelStatefulSet(ms *mlv1.ModelService) *v1.StatefulSet {
 		ss.Spec.Template.Spec.Containers[0].LivenessProbe = &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
 				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/health",
-					Port: intstr.FromInt32(containerPort),
+					Scheme: corev1.URISchemeHTTP,
+					Path:   "/health",
+					Port:   intstr.FromInt32(containerPort),
 				},
 			},
 			PeriodSeconds:    20,
 			TimeoutSeconds:   5,
 			FailureThreshold: 3,
+			SuccessThreshold: 1,
 		}
 	}
 
