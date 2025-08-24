@@ -7,6 +7,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/llmos-ai/llmos-operator/pkg/apis/common"
@@ -58,21 +59,24 @@ func CopyStatefulSetFields(from, to *appsv1.StatefulSet) (bool, bool) {
 	}
 	to.Spec.Template.ObjectMeta = from.Spec.Template.ObjectMeta
 
-	if !reflect.DeepEqual(to.Spec.Template.Spec, from.Spec.Template.Spec) {
-		requireUpdate = true
-	}
-	to.Spec.Template.Spec = from.Spec.Template.Spec
-
 	if !reflect.DeepEqual(to.Spec.UpdateStrategy, from.Spec.UpdateStrategy) {
 		requireUpdate = true
 	}
 	to.Spec.UpdateStrategy = from.Spec.UpdateStrategy
 
+	//normalizePodSpecWithFallback(from.Spec.Template.Spec, to.Spec.Template.Spec)
+	normalizeArgs(&from.Spec.Template.Spec.Containers[0])
+	normalizeArgs(&to.Spec.Template.Spec.Containers[0])
+	if !equality.Semantic.DeepEqual(to.Spec.Template.Spec, from.Spec.Template.Spec) {
+		requireUpdate = true
+	}
+	to.Spec.Template.Spec = from.Spec.Template.Spec
+
 	return requireUpdate, requireRedeploy
 }
 
 func checkRequireRedeploy(from, to corev1.Container) bool {
-	if !reflect.DeepEqual(to.Env, from.Env) {
+	if (len(to.Env) > 0 || len(from.Env) > 0) && !reflect.DeepEqual(to.Env, from.Env) {
 		return true
 	}
 	if !reflect.DeepEqual(to.Image, from.Image) {
@@ -232,4 +236,10 @@ func CopyVolumeClaimTemplates(from []corev1.PersistentVolumeClaim) []corev1.Pers
 		to[i] = newPVC
 	}
 	return to
+}
+
+func normalizeArgs(c *corev1.Container) {
+	sorted := append([]string(nil), c.Args...)
+	sort.Strings(sorted)
+	c.Args = sorted
 }
