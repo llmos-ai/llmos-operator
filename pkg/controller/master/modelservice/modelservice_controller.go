@@ -71,6 +71,7 @@ func Register(ctx context.Context, mgmt *config.Management, _ config.Options) er
 		statefulSetCache:  statefulSet.Cache(),
 		modelService:      modelService,
 		modelServiceCache: modelService.Cache(),
+		pods:              pod,
 		podCache:          pod.Cache(),
 	}
 	statefulSet.OnChange(ctx, msStatefulSetOnChange, ssHandler.OnChange)

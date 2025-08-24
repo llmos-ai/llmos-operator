@@ -35,7 +35,7 @@ var (
 	UpgradeCheckUrl           = NewSetting(UpgradeCheckUrlName, "https://llmos-upgrade.1block.ai/v1/versions")
 	LogLevel                  = NewSetting(LogLevelSettingName, "info") // options are info, debug and trace
 	ManagedAddonConfigs       = NewSetting(ManagedAddonConfigsName, "")
-	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "docker.io/vllm/vllm-openai:v0.10.0")
+	ModelServiceDefaultImage  = NewSetting(ModelServiceDefaultImageName, "docker.io/vllm/vllm-openai:v0.10.1.1")
 	RayClusterDefaultVersion  = NewSetting(RayClusterDefaultVersionName, "2.42.1")
 	GlobalSystemImageRegistry = NewSetting(GlobalSystemImageRegistryName, "ghcr.io")
 	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")

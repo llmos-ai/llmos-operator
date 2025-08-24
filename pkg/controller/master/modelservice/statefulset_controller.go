@@ -22,6 +22,7 @@ type statefulSetHandler struct {
 	statefulSetCache  ctlappsv1.StatefulSetCache
 	modelService      ctlmlv1.ModelServiceClient
 	modelServiceCache ctlmlv1.ModelServiceCache
+	pods              ctlcorev1.PodClient
 	podCache          ctlcorev1.PodCache
 }
 
