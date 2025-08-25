@@ -41,7 +41,7 @@ var (
 	HuggingFaceEndpoint       = NewSetting(HuggingFaceEndpointName, "")
 	ProxyAppsServerUrl        = NewSetting(ProxyAppsServerUrlName, "http://llmos-agents-langflow-backend.llmos-agents:7860")
 	ProxyVectorServerUrl      = NewSetting(ProxyVectorDBServerUrlName, "http://weaviate.llmos-agents:80")
-	ModelDownloaderImage      = NewSetting(ModelDownloaderImageName, "ghcr.io/llmos-ai/llmos-operator-downloader:v0.3.0")
+	ModelDownloaderImage      = NewSetting(ModelDownloaderImageName, "ghcr.io/llmos-ai/llmos-operator-downloader:v0.3.1")
 )
 
 const (
